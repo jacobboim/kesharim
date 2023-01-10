@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { StatusBar } from "expo-status-bar";
 import {
   StyleSheet,
   Text,
@@ -30,66 +29,59 @@ import { useAuth } from "../hooks/useAuth";
 import { db } from "../config/firebase";
 
 import Animated, {
-  SlideInLeft,
-  SlideInRight,
   SlideOutRight,
   BounceIn,
   FadeIn,
-  FadeOut,
-  FadeOutRight,
-  BounceOutDown,
-  BounceOut,
 } from "react-native-reanimated";
-
-const defaultUserDeck = [
-  { id: 1, emoji: "😀" },
-  { id: 2, emoji: "😃" },
-  { id: 3, emoji: "😄" },
-  { id: 1, emoji: "😘" },
-  { id: 2, emoji: "😃" },
-  { id: 7, emoji: "😅" },
-];
-
-const gameDecks = [
-  [
-    { id: 1, emoji: "😘", rotation: 45 },
-    { id: 2, emoji: "😃", rotation: 90 },
-    { id: 3, emoji: "😅", rotation: 135 },
-    { id: 4, emoji: "😘", rotation: 45 },
-    { id: 5, emoji: "😃", rotation: 90 },
-    { id: 8, emoji: "😅", rotation: 135 },
-  ],
-  [
-    { id: 1, emoji: "😃", rotation: 180 },
-    { id: 2, emoji: "😘", rotation: 225 },
-    { id: 3, emoji: "😁", rotation: 270 },
-    { id: 4, emoji: "😘", rotation: 45 },
-    { id: 5, emoji: "😃", rotation: 90 },
-    { id: 7, emoji: "😇", rotation: 135 },
-  ],
-  [
-    { id: 1, emoji: "😘", rotation: 315 },
-    { id: 2, emoji: "😁", rotation: 0 },
-    { id: 3, emoji: "😆", rotation: 45 },
-    { id: 4, emoji: "😘", rotation: 45 },
-    { id: 5, emoji: "😃", rotation: 90 },
-    { id: 6, emoji: "😅", rotation: 135 },
-  ],
-  [
-    { id: 1, emoji: "😁", rotation: 90 },
-    { id: 2, emoji: "😆", rotation: 135 },
-    { id: 3, emoji: "😘", rotation: 180 },
-    { id: 4, emoji: "😘", rotation: 45 },
-    { id: 5, emoji: "😃", rotation: 90 },
-    { id: 6, emoji: "😅", rotation: 135 },
-  ],
-];
 
 const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
 
 console.log(screenHeight, "screenheight");
-export default function OneMinuteGame({ navigation }) {
+export function OneMinuteGame({ navigation }) {
+  const defaultUserDeck = [
+    { id: 1, emoji: "😀" },
+    { id: 2, emoji: "😃" },
+    { id: 3, emoji: "😄" },
+    { id: 1, emoji: "😘" },
+    { id: 2, emoji: "😃" },
+    { id: 7, emoji: "😅" },
+  ];
+
+  const gameDecks = [
+    [
+      { id: 1, emoji: "😘", rotation: 45 },
+      { id: 2, emoji: "😃", rotation: 90 },
+      { id: 3, emoji: "😅", rotation: 135 },
+      { id: 4, emoji: "😘", rotation: 45 },
+      { id: 5, emoji: "😃", rotation: 90 },
+      { id: 8, emoji: "😅", rotation: 135 },
+    ],
+    [
+      { id: 1, emoji: "😃", rotation: 180 },
+      { id: 2, emoji: "😘", rotation: 225 },
+      { id: 3, emoji: "😁", rotation: 270 },
+      { id: 4, emoji: "😘", rotation: 45 },
+      { id: 5, emoji: "😃", rotation: 90 },
+      { id: 7, emoji: "😇", rotation: 135 },
+    ],
+    [
+      { id: 1, emoji: "😘", rotation: 315 },
+      { id: 2, emoji: "😁", rotation: 0 },
+      { id: 3, emoji: "😆", rotation: 45 },
+      { id: 4, emoji: "😘", rotation: 45 },
+      { id: 5, emoji: "😃", rotation: 90 },
+      { id: 6, emoji: "😅", rotation: 135 },
+    ],
+    [
+      { id: 1, emoji: "😁", rotation: 90 },
+      { id: 2, emoji: "😆", rotation: 135 },
+      { id: 3, emoji: "😘", rotation: 180 },
+      { id: 4, emoji: "😘", rotation: 45 },
+      { id: 5, emoji: "😃", rotation: 90 },
+      { id: 6, emoji: "😅", rotation: 135 },
+    ],
+  ];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [userDeck, setUserDeck] = useState(defaultUserDeck);
@@ -103,8 +95,6 @@ export default function OneMinuteGame({ navigation }) {
   const [notInDeck, setNotInDeck] = useState(false);
   const [roundOver, setRoundOver] = useState(true);
   const [roundOverForUser, setRoundOverForUser] = useState(true);
-  const [playAgain, setPlayAgain] = useState(false);
-  const [goHome, setGoHome] = useState(false);
 
   const { user } = useAuth();
 
@@ -130,10 +120,6 @@ export default function OneMinuteGame({ navigation }) {
       return () => clearTimeout(timeout);
     }
   }, [notInDeck]);
-
-  // useEffect(() => {
-  //   getHighScore();
-  // }, []);
 
   //make a reset function
   const resetGame = () => {
@@ -181,23 +167,23 @@ export default function OneMinuteGame({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    if (roundOver) {
-      const timeout = setTimeout(() => {
-        setRoundOver(true);
-      }, 500);
-      return () => clearTimeout(timeout);
-    }
-  }, [roundOver]);
+  // useEffect(() => {
+  //   if (roundOver) {
+  //     const timeout = setTimeout(() => {
+  //       setRoundOver(true);
+  //     }, 500);
+  //     return () => clearTimeout(timeout);
+  //   }
+  // }, [roundOver]);
 
-  useEffect(() => {
-    if (roundOverForUser) {
-      const timeout = setTimeout(() => {
-        setRoundOverForUser(true);
-      }, 500);
-      return () => clearTimeout(timeout);
-    }
-  }, [roundOverForUser]);
+  // useEffect(() => {
+  //   if (roundOverForUser) {
+  //     const timeout = setTimeout(() => {
+  //       setRoundOverForUser(true);
+  //     }, 500);
+  //     return () => clearTimeout(timeout);
+  //   }
+  // }, [roundOverForUser]);
 
   const shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
@@ -217,7 +203,10 @@ export default function OneMinuteGame({ navigation }) {
           <Text style={styles.highScoreText}>{highScore}</Text>
         </View>
         {!gameOver && (
-          <View style={styles.timerContainer}>
+          <Animated.View
+            entering={FadeIn.duration(2000)}
+            style={styles.timerContainer}
+          >
             <CountdownCircleTimer
               isPlaying={!gameOver}
               duration={timeRemaining}
@@ -232,14 +221,14 @@ export default function OneMinuteGame({ navigation }) {
             >
               {({ remainingTime }) => (
                 <Animated.Text
-                  entering={FadeIn.duration(1000).delay(700)}
+                  entering={FadeIn.duration(900).delay(500)}
                   style={{ fontSize: 40, color: "white" }}
                 >
                   {remainingTime}
                 </Animated.Text>
               )}
             </CountdownCircleTimer>
-          </View>
+          </Animated.View>
         )}
 
         <View
@@ -252,13 +241,13 @@ export default function OneMinuteGame({ navigation }) {
             <>
               {roundOver && (
                 <Animated.View
-                  entering={FadeIn.duration(1000).delay(300)}
-                  exiting={SlideOutRight.duration(1000).springify().mass(0.5)}
+                  entering={FadeIn.duration(800).delay(100)}
+                  // exiting={SlideOutRight.duration(1000).springify().mass(0.5)}
                   style={[styles.gameDeckContainer]}
                 >
                   {gameDeck[currentIndex].map((emoji, index) => (
                     <Animated.Text
-                      // entering={BounceIn.delay(index * 350)}
+                      entering={FadeIn.duration(200).delay(index * 90)}
                       style={{
                         fontSize: 50,
                         transform: [{ rotate: `${emoji.rotation}deg` }],
@@ -274,7 +263,7 @@ export default function OneMinuteGame({ navigation }) {
               <View style={[styles.userDeckContainerList]}>
                 {roundOverForUser && (
                   <Animated.FlatList
-                    entering={FadeIn.duration(700)}
+                    // entering={FadeIn.duration(700)}
                     data={userDeck}
                     numColumns={3}
                     scrollEnabled={false}
@@ -290,18 +279,11 @@ export default function OneMinuteGame({ navigation }) {
                         }}
                       >
                         <Animated.Text
-                          entering={BounceIn.delay(index * 130)}
+                          entering={BounceIn.delay(index * 90)}
                           style={{
                             fontSize: 50,
                             backgroundColor: notInDeck ? "red" : "transparent",
                             opacity: gameOver === true ? 0.5 : 1,
-
-                            // borderRadius: 50,
-                            // shadowColor: "white",
-                            // textShadowRadius: 20,
-                            // textShadowColor: "white",
-                            // // textShadowOffset: { width: 10, height: 10 },
-                            // shadowOpacity: 0.5,
                           }}
                         >
                           {item.emoji}

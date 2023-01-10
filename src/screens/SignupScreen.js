@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: "center",
-    marginTop: "50%",
+    marginTop: "35%",
   },
   screenTitle: {
     fontSize: 32,

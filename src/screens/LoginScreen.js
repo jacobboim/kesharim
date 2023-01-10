@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: "center",
-    marginTop: "60%",
+    marginTop: "40%",
   },
   screenTitle: {
     fontSize: 32,

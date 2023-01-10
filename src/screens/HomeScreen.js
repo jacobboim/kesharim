@@ -31,6 +31,42 @@ export const HomeScreen = ({ navigation }) => {
     signOut(auth).catch((error) => console.log("Error logging out: ", error));
   };
 
+  const buttonData = [
+    {
+      name: "bruce",
+      type: "primary",
+      onPressOut: () => navigation.navigate("OneMinuteGame"),
+      width: 110,
+      height: 110,
+      borderRadius: 150,
+      backgroundColor: "#818384",
+      icon: "stopwatch",
+      label: "1 MIN",
+    },
+    {
+      name: "bruce",
+      type: "primary",
+      onPressOut: () => navigation.navigate("FiveSecondGame"),
+      width: 110,
+      height: 110,
+      borderRadius: 150,
+      backgroundColor: "#818384",
+      icon: "stopwatch",
+      label: "Speed",
+    },
+    {
+      name: "bruce",
+      type: "primary",
+      onPressOut: () => navigation.navigate("DuelGame"),
+      width: 110,
+      height: 110,
+      borderRadius: 150,
+      backgroundColor: "#818384",
+      icon: "stopwatch",
+      label: "Duel",
+    },
+  ];
+
   return (
     <LinearGradient
       colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
@@ -39,7 +75,39 @@ export const HomeScreen = ({ navigation }) => {
       <View style={styles.container}>
         <Text style={styles.gameName}>Kesharim</Text>
         <View style={styles.gameOptionsContatier}>
-          <ThemedButton
+          <FlatList
+            data={buttonData}
+            numColumns={2}
+            // ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+            keyExtractor={(item) => item.label}
+            renderItem={({ item }) => (
+              <View style={{ margin: 10 }}>
+                <ThemedButton
+                  name={item.name}
+                  type={item.type}
+                  onPressOut={item.onPressOut}
+                  width={item.width}
+                  height={item.height}
+                  borderRadius={item.borderRadius}
+                  backgroundColor={item.backgroundColor}
+                >
+                  <View
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Fontisto name={item.icon} size={60} color="white" />
+                    <Text style={{ fontSize: 20, color: "white" }}>
+                      {item.label}
+                    </Text>
+                  </View>
+                </ThemedButton>
+              </View>
+            )}
+          />
+          {/* <ThemedButton
             name="bruce"
             type="primary"
             onPressOut={() => navigation.navigate("OneMinuteGame")}
@@ -82,6 +150,28 @@ export const HomeScreen = ({ navigation }) => {
               <Text style={{ fontSize: 35, color: "white" }}>Speed</Text>
             </View>
           </ThemedButton>
+
+          <ThemedButton
+            name="bruce"
+            type="primary"
+            onPressOut={() => navigation.navigate("DuelGame")}
+            width={150}
+            height={150}
+            borderRadius={150}
+            backgroundColor="#818384"
+            // before={<Fontisto name="stopwatch" size={70} color="white" />}
+          >
+            <View
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Fontisto name="stopwatch" size={70} color="white" />
+              <Text style={{ fontSize: 35, color: "white" }}>Duel</Text>
+            </View>
+          </ThemedButton> */}
         </View>
 
         <ThemedButton
@@ -89,11 +179,10 @@ export const HomeScreen = ({ navigation }) => {
           type="primary"
           style={styles.signOut}
           onPressOut={handleLogout}
-          width={95}
-          height={100}
+          width={80}
+          height={85}
           borderRadius={360}
           backgroundColor="#818384"
-          // before={<Fontisto name="stopwatch" size={70} color="white" />}
         >
           <View
             style={{
@@ -102,12 +191,9 @@ export const HomeScreen = ({ navigation }) => {
               alignItems: "center",
             }}
           >
-            <Feather name="log-out" size={50} color="white" />
+            <Feather name="log-out" size={40} color="white" />
           </View>
         </ThemedButton>
-        {/* <Pressable style={styles.signOut} onPress={handleLogout}>
-          <Feather name="log-out" size={50} color="white" />
-        </Pressable> */}
       </View>
     </LinearGradient>
   );
@@ -127,9 +213,6 @@ const styles = StyleSheet.create({
     color: "white",
   },
   gameOptionsContatier: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-evenly",
     width: "100%",
   },
   pressableContaier: {
@@ -139,7 +222,7 @@ const styles = StyleSheet.create({
   },
   signOut: {
     position: "absolute",
-    bottom: -250,
+    bottom: -195,
     left: 84,
   },
   linearGradient: {

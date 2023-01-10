@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: Colors.white,
     paddingTop: 20,
-    marginTop: "70%",
+    marginTop: "50%",
     textAlign: "center",
   },
   button: {

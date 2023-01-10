@@ -1,9 +1,10 @@
 import * as React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { HomeScreen } from "../screens";
-import OneMinuteGame from "../screens/OneMinuteGame";
-import FiveSecondGame from "../screens/FiveSecondGame";
+import { HomeScreen, OneMinuteGame, FiveSecondGame } from "../screens";
+// import OneMinuteGame from "../screens/OneMinuteGame";
+// import FiveSecondGame from "../screens/FiveSecondGame";
+import DuelGame from "../screens/DuelGame";
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +24,11 @@ export const AppStack = () => {
       <Stack.Screen
         name="FiveSecondGame"
         component={FiveSecondGame}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="DuelGame"
+        component={DuelGame}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

@@ -11,43 +11,35 @@ import {
   Button,
   FlatList,
 } from "react-native";
-import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
 import { LinearGradient } from "expo-linear-gradient";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "react-native-really-awesome-button";
 
-import {
-  collection,
-  getFirestore,
-  onSnapshot,
-  addDoc,
-  getDoc,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
-
 import { useAuth } from "../hooks/useAuth";
-import { db } from "../config/firebase";
 
 import Animated, {
-  SlideInLeft,
-  SlideInRight,
   SlideOutRight,
   BounceIn,
   FadeIn,
-  FadeOut,
-  FadeOutRight,
-  BounceOutDown,
-  BounceOut,
+  FadeInLeft,
 } from "react-native-reanimated";
 
-const defaultUserDeck = [
+const defaultUserTwo = [
   { id: 1, emoji: "😀" },
   { id: 2, emoji: "😃" },
   { id: 3, emoji: "😄" },
   { id: 1, emoji: "😘" },
   { id: 2, emoji: "😃" },
-  { id: 7, emoji: "😅" },
+  { id: 7, emoji: "😘" },
+];
+
+const defaultUserOne = [
+  { id: 1, emoji: "😀" },
+  { id: 2, emoji: "😃" },
+  { id: 3, emoji: "😄" },
+  { id: 1, emoji: "😘" },
+  { id: 2, emoji: "😃" },
+  { id: 7, emoji: "😘" },
 ];
 
 const gameDecks = [
@@ -89,98 +81,78 @@ const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
 
 console.log(screenHeight, "screenheight");
-export function FiveSecondGame({ navigation }) {
+export default function DuelGame({ navigation }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const [userDeck, setUserDeck] = useState(defaultUserDeck);
+  const [userTwoDeck, setUserTwoDeck] = useState(defaultUserTwo);
+  const [userOneDeck, setUserOneDeck] = useState(defaultUserOne);
+  const [userOneScore, setUserOneScore] = useState(0);
+  const [userTwoScore, setUserTwoScore] = useState(0);
   const [score, setScore] = useState(0);
-  const [highScore, setHighScore] = useState();
-  const [loading, setLoading] = useState(false);
 
   const [gameDeck, setGameDeck] = useState(gameDecks);
-  const [timeRemaining, setTimeRemaining] = useState(9);
   const [gameOver, setGameOver] = useState(false);
-  const [notInDeck, setNotInDeck] = useState(false);
+  const [notInDeckOne, setNotInDeckOne] = useState(false);
+  const [notInDeckTwo, setNotInDeckTwo] = useState(false);
   const [roundOver, setRoundOver] = useState(true);
-  const [roundWon, setRoundWon] = useState(false);
   const [roundOverForUser, setRoundOverForUser] = useState(true);
-  const [playAgain, setPlayAgain] = useState(false);
-  const [goHome, setGoHome] = useState(false);
 
-  const { user } = useAuth();
-
-  async function getHighScore() {
-    const userQuery = collection(db, "users");
-
-    onSnapshot(userQuery, (docsSnap) => {
-      docsSnap.forEach((doc) => {
-        if (doc.id === user?.email) {
-          setHighScore(doc.data().FiveSecondGameScore);
-          //   console.log(highScore, "highScore");
-        }
-      });
-    });
-  }
-  getHighScore();
+  const [startDisabled, setStartDisabled] = useState(true);
 
   useEffect(() => {
-    if (notInDeck) {
+    if (userOneScore + userTwoScore === 10) {
+      setGameOver(true);
+    }
+  }, [userOneScore, userTwoScore]);
+
+  useEffect(() => {
+    if (startDisabled) {
       const timeout = setTimeout(() => {
-        setNotInDeck(false);
+        setStartDisabled(false);
+      }, 900);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [startDisabled]);
+
+  useEffect(() => {
+    if (notInDeckOne) {
+      const timeout = setTimeout(() => {
+        setNotInDeckOne(false);
       }, 1500);
       return () => clearTimeout(timeout);
     }
-  }, [notInDeck]);
+  }, [notInDeckOne]);
 
-  //make a reset function
+  useEffect(() => {
+    if (notInDeckTwo) {
+      const timeout = setTimeout(() => {
+        setNotInDeckTwo(false);
+      }, 1500);
+      return () => clearTimeout(timeout);
+    }
+  }, [notInDeckTwo]);
+
   const resetGame = () => {
-    setScore(0);
+    setUserOneScore(0);
+    setUserTwoScore(0);
     setCurrentIndex(0);
     setGameOver(false);
-    setTimeRemaining(5);
   };
 
-  function handleButtonPress() {
-    const docRef = doc(db, "users", user?.email);
-
-    setScore(score + 1);
-    if (score + 1 > highScore) {
-      updateDoc(docRef, {
-        FiveSecondGameScore: score + 1,
-      });
-    }
-  }
-
-  function addTime() {
-    if (score <= 5) {
-      setTimeRemaining(timeRemaining - timeRemaining + 7);
-    } else if (score <= 10) {
-      setTimeRemaining(timeRemaining - timeRemaining + 6);
-    } else {
-      setTimeRemaining(timeRemaining - timeRemaining + 5);
-    }
-  }
-
-  // function addTime() {
-  //   if (score <= 5) {
-  //     setTimeRemaining(timeRemaining - timeRemaining + 85);
-  //   } else if (score <= 10) {
-  //     setTimeRemaining(timeRemaining - timeRemaining + 84);
-  //   } else {
-  //     setTimeRemaining(timeRemaining - timeRemaining + 83);
-  //   }
-  // }
-
-  const handleClick = (clickedEmoji) => {
+  const handleClick = (clickedEmoji, user) => {
     if (gameDeck[currentIndex].some((emoji) => emoji.id === clickedEmoji)) {
-      setUserDeck([...gameDeck[currentIndex]]);
-      handleButtonPress();
-      console.log(userDeck, "userDeck");
+      if (user === "userOne") {
+        setUserOneScore(userOneScore + 1);
+        setUserOneDeck([...gameDeck[currentIndex]]);
+      } else {
+        setUserTwoScore(userTwoScore + 1);
+        setUserTwoDeck([...gameDeck[currentIndex]]);
+      }
+      setStartDisabled(true);
 
       setRoundOver(false);
       setRoundOverForUser(false);
-      setRoundWon(true);
-      addTime();
 
       setTimeout(() => setRoundOver(true), 500);
       setTimeout(() => setRoundOverForUser(true), 500);
@@ -195,7 +167,11 @@ export function FiveSecondGame({ navigation }) {
         setCurrentIndex(currentIndex + 1);
       }
     } else {
-      setNotInDeck(true);
+      if (user === "userOne") {
+        setNotInDeckOne(true);
+      } else {
+        setNotInDeckTwo(true);
+      }
     }
   };
 
@@ -224,61 +200,12 @@ export function FiveSecondGame({ navigation }) {
     }
   };
 
-  console.log(timeRemaining, "timeRemaining");
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
         colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
         style={styles.linearGradient}
       >
-        <View style={styles.highScoreContainer}>
-          <Text style={styles.highScoreText}>High Score</Text>
-          <Text style={styles.highScoreText}>{highScore}</Text>
-        </View>
-        {!gameOver && (
-          <Animated.View style={styles.timerContainer}>
-            {roundOver && (
-              <Animated.View
-                entering={FadeIn.duration(800)}
-                exiting={SlideOutRight.duration(800)}
-              >
-                <CountdownCircleTimer
-                  isPlaying={!gameOver}
-                  duration={timeRemaining}
-                  colors={["#003300", "#FFFF00", "#FF3333"]}
-                  colorsTime={[15, 7, 0]}
-                  strokeWidth={15}
-                  trailStrokeWidth={7}
-                  size={150}
-                  onComplete={() => {
-                    //   resetTimer();
-
-                    if (!roundWon) {
-                      setRoundWon(false);
-                      setGameOver(true);
-                    } else {
-                      setGameOver(true);
-                    }
-                    return {
-                      shouldRepeat: roundWon ? true : false,
-                      delay: 1,
-                    };
-                  }}
-                >
-                  {({ remainingTime }) => (
-                    <Animated.Text
-                      entering={FadeIn.duration(400).delay(700)}
-                      style={{ fontSize: 40, color: "white" }}
-                    >
-                      {remainingTime}
-                    </Animated.Text>
-                  )}
-                </CountdownCircleTimer>
-              </Animated.View>
-            )}
-          </Animated.View>
-        )}
-
         <View
           style={[
             styles.gameContainer,
@@ -287,15 +214,63 @@ export function FiveSecondGame({ navigation }) {
         >
           {!gameOver && (
             <>
+              <View style={[styles.scoreContainerTwo]}>
+                <Text style={{ fontSize: 50, color: "white" }}>
+                  {userTwoScore}
+                </Text>
+              </View>
+              <View style={[styles.userTwoDeckContainer]}>
+                {roundOverForUser && (
+                  <Animated.FlatList
+                    data={userTwoDeck}
+                    numColumns={3}
+                    scrollEnabled={false}
+                    contentContainerStyle={{ alignItems: "center" }}
+                    renderItem={({ item, index }) => (
+                      <TouchableOpacity
+                        disabled={
+                          gameOver === true ||
+                          startDisabled === true ||
+                          notInDeckTwo
+                            ? true
+                            : false
+                        }
+                        key={item.id}
+                        onPress={() => handleClick(item.id, "userTwo")}
+                        style={{
+                          padding: 10,
+                          margin: 10,
+                        }}
+                      >
+                        <Animated.Text
+                          // entering={BounceIn.delay(index * 130)}
+                          entering={FadeIn.delay(index * 90)}
+                          style={{
+                            fontSize: 50,
+                            backgroundColor: notInDeckTwo
+                              ? "red"
+                              : "transparent",
+                            opacity: gameOver === true ? 0.5 : 1,
+                            transform: [{ rotate: `180deg` }],
+                          }}
+                        >
+                          {item.emoji}
+                        </Animated.Text>
+                      </TouchableOpacity>
+                    )}
+                    keyExtractor={(item) => item.id}
+                  />
+                )}
+              </View>
               {roundOver && (
                 <Animated.View
-                  entering={FadeIn.duration(800).delay(100)}
-                  //   exiting={SlideOutRight.duration(1000)}
+                  // entering={FadeIn.duration(1000).delay(300)}
+                  // exiting={SlideOutRight.duration(1000).springify().mass(0.5)}
                   style={[styles.gameDeckContainer]}
                 >
                   {gameDeck[currentIndex].map((emoji, index) => (
                     <Animated.Text
-                      entering={FadeIn.duration(200).delay(index * 90)}
+                      entering={FadeIn.duration(200).delay(index * 130)}
                       style={{
                         fontSize: 50,
                         transform: [{ rotate: `${emoji.rotation}deg` }],
@@ -311,16 +286,21 @@ export function FiveSecondGame({ navigation }) {
               <View style={[styles.userDeckContainerList]}>
                 {roundOverForUser && (
                   <Animated.FlatList
-                    // entering={FadeIn.duration(1000)}
-                    data={userDeck}
+                    data={userOneDeck}
                     numColumns={3}
                     scrollEnabled={false}
                     contentContainerStyle={{ alignItems: "center" }}
                     renderItem={({ item, index }) => (
                       <TouchableOpacity
-                        disabled={gameOver === true || notInDeck ? true : false}
+                        disabled={
+                          gameOver === true ||
+                          startDisabled === true ||
+                          notInDeckOne
+                            ? true
+                            : false
+                        }
                         key={item.id}
-                        onPress={() => handleClick(item.id)}
+                        onPress={() => handleClick(item.id, "userOne")}
                         style={{
                           padding: 10,
                           margin: 10,
@@ -330,7 +310,9 @@ export function FiveSecondGame({ navigation }) {
                           entering={BounceIn.delay(index * 90)}
                           style={{
                             fontSize: 50,
-                            backgroundColor: notInDeck ? "red" : "transparent",
+                            backgroundColor: notInDeckOne
+                              ? "red"
+                              : "transparent",
                             opacity: gameOver === true ? 0.5 : 1,
                           }}
                         >
@@ -338,27 +320,14 @@ export function FiveSecondGame({ navigation }) {
                         </Animated.Text>
                       </TouchableOpacity>
                     )}
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item) => item.id}
                   />
                 )}
-
-                {/* {userDeck.map((emoji, index) => (
-                <TouchableOpacity
-                  disabled={gameOver === true || notInDeck ? true : false}
-                  key={index}
-                  onPress={() => handleClick(emoji)}
-                >
-                  <Text
-                    style={{
-                      fontSize: 50,
-                      backgroundColor: notInDeck ? "red" : "white",
-                      opacity: gameOver === true ? 0.5 : 1,
-                    }}
-                  >
-                    {emoji.emoji}
-                  </Text>
-                </TouchableOpacity>
-              ))} */}
+              </View>
+              <View style={[styles.scoreContainer]}>
+                <Text style={{ fontSize: 50, color: "white" }}>
+                  {userOneScore}
+                </Text>
               </View>
             </>
           )}
@@ -366,6 +335,11 @@ export function FiveSecondGame({ navigation }) {
 
         {gameOver && (
           <View style={styles.gameOverContainer}>
+            <View style={styles.playTwoWinContainer}>
+              <Text style={{ fontSize: 50, color: "white" }}>
+                {userOneScore < userTwoScore ? "YOU WIN" : "YOU LOSE"}
+              </Text>
+            </View>
             <View style={styles.gameOverContainerOptions}>
               <ThemedButton
                 name="bruce"
@@ -412,15 +386,13 @@ export function FiveSecondGame({ navigation }) {
                 </View>
               </ThemedButton>
             </View>
-
-            <Text style={{ fontSize: 50, marginTop: 180, color: "white" }}>
-              Game Over
-            </Text>
+            <View style={styles.playOneWinContainer}>
+              <Text style={{ fontSize: 50, color: "white" }}>
+                {userOneScore > userTwoScore ? "YOU WIN" : "YOU LOSE"}
+              </Text>
+            </View>
           </View>
         )}
-        <View style={[styles.scoreContainer]}>
-          <Text style={{ fontSize: 50, color: "white" }}>{score}</Text>
-        </View>
       </LinearGradient>
     </SafeAreaView>
   );
@@ -440,7 +412,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-evenly",
     width: screenWidth,
-    top: 40,
+    // top: 10,
+    bottom: 80,
   },
   gameOverContainer: {
     flex: 1,
@@ -477,12 +450,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    top: screenHeight / 6.9,
-    // backgroundColor: "yellow",
+    top: 370,
     backgroundColor: "rgba(255, 255, 255, 0.5)",
     borderRadius: 40,
-    width: "95%",
-    height: "30%",
+    width: "100%",
   },
   userDeckContainer: {
     display: "flex",
@@ -499,16 +470,33 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    top: screenHeight / 3,
+    position: "absolute",
+    top: 500,
   },
+  userTwoDeckContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    top: screenHeight / 7,
+  },
+
   scoreContainer: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    top: 720,
-    // marginTop: screenHeight / 3,
+    top: 740,
+  },
+
+  scoreContainerTwo: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    top: 50,
   },
   linearGradient: {
     position: "absolute",
@@ -520,5 +508,22 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
+  },
+  playOneWinContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    top: 600,
+  },
+  playTwoWinContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+
+    position: "absolute",
+    top: 150,
   },
 });
