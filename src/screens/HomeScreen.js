@@ -10,12 +10,11 @@ import {
 import { signOut } from "firebase/auth";
 import { LinearGradient } from "expo-linear-gradient";
 import { ThemedButton } from "react-native-really-awesome-button";
-import AwesomeButton from "react-native-really-awesome-button";
 
 import { useAuth } from "../hooks/useAuth";
 import { auth } from "../config";
 
-import { Fontisto, Feather } from "@expo/vector-icons";
+import { Fontisto, Feather, Ionicons, Icon } from "@expo/vector-icons";
 
 export const HomeScreen = ({ navigation }) => {
   const { user } = useAuth();
@@ -98,7 +97,7 @@ export const HomeScreen = ({ navigation }) => {
                       alignItems: "center",
                     }}
                   >
-                    <Fontisto name={item.icon} size={60} color="white" />
+                    <Fontisto name={item?.icon} size={60} color="white" />
                     <Text style={{ fontSize: 20, color: "white" }}>
                       {item.label}
                     </Text>
