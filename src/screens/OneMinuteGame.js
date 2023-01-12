@@ -32,6 +32,8 @@ import { db } from "../config/firebase";
 
 import Animated, {
   SlideOutRight,
+  FlipInEasyX,
+  FlipOutEasyX,
   BounceIn,
   FadeIn,
 } from "react-native-reanimated";
@@ -308,15 +310,33 @@ export function OneMinuteGame({ navigation }) {
       { id: "amazon", emoji: IMAGES.amazon, rotation: 135 },
     ],
   ];
+
+  const shuffleArrayPreGame = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
+
+  const shuffledArray = shuffleArrayPreGame(gameDecks);
+
+  function getRandomElement(array) {
+    const randomIndex = Math.floor(Math.random() * array.length);
+    return array[randomIndex];
+  }
+
+  const randomUserDeck = getRandomElement(shuffledArray);
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const [userDeck, setUserDeck] = useState(defaultUserDeck);
+  const [userDeck, setUserDeck] = useState(randomUserDeck);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState();
   const [loading, setLoading] = useState(false);
 
-  const [gameDeck, setGameDeck] = useState(gameDecks);
-  const [timeRemaining, setTimeRemaining] = useState(60);
+  const [gameDeck, setGameDeck] = useState(shuffledArray);
+  const [timeRemaining, setTimeRemaining] = useState(10);
   const [gameOver, setGameOver] = useState(false);
   const [notInDeck, setNotInDeck] = useState(false);
   const [roundOver, setRoundOver] = useState(true);
@@ -410,91 +430,69 @@ export function OneMinuteGame({ navigation }) {
           <Text style={styles.highScoreText}>High Score</Text>
           <Text style={styles.highScoreText}>{highScore}</Text>
         </View>
-        {!gameOver && (
-          <Animated.View
-            entering={FadeIn.duration(2000)}
-            style={styles.timerContainer}
-          >
-            <CountdownCircleTimer
-              isPlaying={!gameOver}
-              duration={timeRemaining}
-              colors={["#003300", "#FFFF00", "#FF3333"]}
-              colorsTime={[15, 7, 0]}
-              strokeWidth={15}
-              trailStrokeWidth={7}
-              size={150}
-              onComplete={() => {
-                setGameOver(true);
-              }}
+        <>
+          {!gameOver && (
+            <Animated.View
+              entering={FadeIn.duration(2000)}
+              style={styles.timerContainer}
             >
-              {({ remainingTime }) => (
-                <Animated.Text
-                  entering={FadeIn.duration(900).delay(500)}
-                  style={{ fontSize: 40, color: "white" }}
-                >
-                  {remainingTime}
-                </Animated.Text>
-              )}
-            </CountdownCircleTimer>
-          </Animated.View>
-        )}
+              <CountdownCircleTimer
+                isPlaying={!gameOver}
+                duration={timeRemaining}
+                colors={["#003300", "#FFFF00", "#FF3333"]}
+                colorsTime={[15, 7, 0]}
+                strokeWidth={15}
+                trailStrokeWidth={7}
+                size={150}
+                onComplete={() => {
+                  setGameOver(true);
+                }}
+              >
+                {({ remainingTime }) => (
+                  <Animated.Text
+                    entering={FadeIn.duration(900).delay(500)}
+                    style={{ fontSize: 40, color: "white" }}
+                  >
+                    {remainingTime}
+                  </Animated.Text>
+                )}
+              </CountdownCircleTimer>
+            </Animated.View>
+          )}
 
-        {/* <Image
-          source={IMAGES.snapchat}
-          style={{
-            width: 50,
-            height: 50,
-            // marginBottom: 3,
-            marginTop: 90,
-            position: "absolute",
-          }}
-        /> */}
-
-        <View
-          style={[
-            styles.gameContainer,
-            { alignItems: "center", justifyContent: "center" },
-          ]}
-        >
           {!gameOver && (
             <>
-              {roundOver && (
-                <Animated.View
-                  entering={FadeIn.duration(800).delay(100)}
-                  // exiting={SlideOutRight.duration(1000).springify().mass(0.5)}
-                  style={[styles.gameDeckContainer]}
-                >
-                  {gameDeck[currentIndex].map((emoji, index) => (
-                    // <Animated.Text
-                    //   entering={FadeIn.duration(200).delay(index * 90)}
-                    //   style={{
-                    //     fontSize: 50,
-                    //     transform: [{ rotate: `${emoji.rotation}deg` }],
-                    //   }}
-                    //   key={index}
-                    // >
-                    //   {emoji.emoji}
-                    // </Animated.Text>
+              <View style={styles.newMiddleBarConatiner}>
+                {roundOver && (
+                  <Animated.View
+                    entering={FlipInEasyX.duration(900).delay(430)}
+                    exiting={FlipOutEasyX.duration(1000)}
+                    style={[styles.gameDeckContainer]}
+                  >
+                    {gameDeck[currentIndex].map((emoji, index) => (
+                      <Animated.Image
+                        source={emoji.emoji}
+                        style={{
+                          width: 50,
+                          height: 50,
+                          fontSize: 50,
+                          transform: [{ rotate: `${emoji.rotation}deg` }],
+                        }}
+                        key={index}
+                      />
+                    ))}
+                  </Animated.View>
+                )}
+              </View>
 
-                    <Animated.Image
-                      entering={FadeIn.duration(200).delay(index * 90)}
-                      source={emoji.emoji}
-                      style={{
-                        width: 50,
-                        height: 50,
-                        fontSize: 50,
-                        transform: [{ rotate: `${emoji.rotation}deg` }],
-                      }}
-                      key={index}
-                    />
-                  ))}
-                </Animated.View>
-              )}
-
-              <View style={[styles.userDeckContainerList]}>
-                {roundOverForUser && (
+              <View
+                style={[
+                  styles.gameContainer,
+                  { alignItems: "center", justifyContent: "center" },
+                ]}
+              >
+                <View style={[styles.userDeckContainerList]}>
                   <Animated.FlatList
-                    // entering={FadeIn.duration(700)}
                     data={userDeck}
                     numColumns={3}
                     scrollEnabled={false}
@@ -509,19 +507,8 @@ export function OneMinuteGame({ navigation }) {
                           margin: 10,
                         }}
                       >
-                        {/* <Animated.Text
-                          entering={BounceIn.delay(index * 90)}
-                          style={{
-                            fontSize: 50,
-                            backgroundColor: notInDeck ? "red" : "transparent",
-                            opacity: gameOver === true ? 0.5 : 1,
-                          }}
-                        >
-                          {item.emoji}
-                        </Animated.Text> */}
-
                         <Animated.Image
-                          entering={BounceIn.delay(index * 90)}
+                          entering={BounceIn.duration(900).delay(index * 100)}
                           source={item.emoji}
                           style={{
                             width: 50,
@@ -535,29 +522,11 @@ export function OneMinuteGame({ navigation }) {
                     )}
                     keyExtractor={(item) => item.id.toString()}
                   />
-                )}
-
-                {/* {userDeck.map((emoji, index) => (
-                <TouchableOpacity
-                  disabled={gameOver === true || notInDeck ? true : false}
-                  key={index}
-                  onPress={() => handleClick(emoji)}
-                >
-                  <Text
-                    style={{
-                      fontSize: 50,
-                      backgroundColor: notInDeck ? "red" : "white",
-                      opacity: gameOver === true ? 0.5 : 1,
-                    }}
-                  >
-                    {emoji.emoji}
-                  </Text>
-                </TouchableOpacity>
-              ))} */}
+                </View>
               </View>
             </>
           )}
-        </View>
+        </>
 
         {gameOver && (
           <View style={styles.gameOverContainer}>
@@ -606,24 +575,6 @@ export function OneMinuteGame({ navigation }) {
                   />
                 </View>
               </ThemedButton>
-
-              {/* <Pressable
-                onPress={resetGame}
-                onTouchStart={() => setPlayAgain(!playAgain)}
-                onTouchEnd={() => setPlayAgain(false)}
-                style={{
-                  backgroundColor: playAgain ? "darkgray" : "#818384",
-                  padding: 15,
-                  borderRadius: 50,
-                }}
-              >
-                <Ionicons
-                  name="play"
-                  size={65}
-                  color="white"
-                  style={{ paddingLeft: 5 }}
-                />
-              </Pressable> */}
             </View>
 
             <Text style={{ fontSize: 50, marginTop: 180, color: "white" }}>
@@ -684,18 +635,31 @@ const styles = StyleSheet.create({
   gameContainer: {
     marginTop: -10,
   },
+  newMiddleBarConatiner: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    top: screenHeight / 4.5,
+    // backgroundColor: "yellow",
+    // backgroundColor: "rgba(255, 255, 255, 0.3)",
+    // borderRadius: 40,
+    width: "100%",
+    height: "40%",
+  },
   gameDeckContainer: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-evenly",
     position: "absolute",
-    top: screenHeight / 6.9,
+    // top: screenHeight / 2.5,
     // backgroundColor: "yellow",
     backgroundColor: "rgba(255, 255, 255, 0.3)",
     borderRadius: 40,
     width: "96%",
-    height: "50%",
+    height: "20%",
   },
   userDeckContainer: {
     display: "flex",

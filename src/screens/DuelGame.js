@@ -9,71 +9,295 @@ import {
   Dimensions,
   Pressable,
   Button,
+  Image,
   FlatList,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "react-native-really-awesome-button";
-
-import { useAuth } from "../hooks/useAuth";
+import { IMAGES } from "../../assets";
 
 import Animated, {
-  SlideOutRight,
   BounceIn,
   FadeIn,
-  FadeInLeft,
+  FlipInEasyX,
+  FlipOutEasyX,
 } from "react-native-reanimated";
 
 const defaultUserTwo = [
-  { id: 1, emoji: "😀" },
-  { id: 2, emoji: "😃" },
-  { id: 3, emoji: "😄" },
-  { id: 1, emoji: "😘" },
-  { id: 2, emoji: "😃" },
-  { id: 7, emoji: "😘" },
+  { id: "wordpress", emoji: IMAGES.wordpress },
+  { id: "android", emoji: IMAGES.android },
+  { id: "facebook", emoji: IMAGES.facebook },
+  { id: "twitter", emoji: IMAGES.twitter },
+  { id: "chrome", emoji: IMAGES.chrome },
+  { id: "snapchat", emoji: IMAGES.snapchat },
 ];
 
 const defaultUserOne = [
-  { id: 1, emoji: "😀" },
-  { id: 2, emoji: "😃" },
-  { id: 3, emoji: "😄" },
-  { id: 1, emoji: "😘" },
-  { id: 2, emoji: "😃" },
-  { id: 7, emoji: "😘" },
+  { id: "torah", emoji: IMAGES.torah },
+  { id: "drive", emoji: IMAGES.drive },
+  { id: "yelp", emoji: IMAGES.yelp },
+  { id: "messenger", emoji: IMAGES.messenger },
+  { id: "youtube", emoji: IMAGES.youtube },
+  { id: "chrome", emoji: IMAGES.chrome },
 ];
 
 const gameDecks = [
   [
-    { id: 1, emoji: "😘", rotation: 45 },
-    { id: 2, emoji: "😃", rotation: 90 },
-    { id: 3, emoji: "😅", rotation: 135 },
-    { id: 4, emoji: "😘", rotation: 45 },
-    { id: 5, emoji: "😃", rotation: 90 },
-    { id: 8, emoji: "😅", rotation: 135 },
+    { id: "safari", emoji: IMAGES.safari, rotation: 45 },
+    { id: "medium", emoji: IMAGES.medium, rotation: 90 },
+    { id: "sketch", emoji: IMAGES.sketch, rotation: 135 },
+    { id: "instagram", emoji: IMAGES.instagram, rotation: 45 },
+    { id: "yelp", emoji: IMAGES.yelp, rotation: 90 },
+    { id: "twitter", emoji: IMAGES.twitter, rotation: 135 },
   ],
   [
-    { id: 1, emoji: "😃", rotation: 180 },
-    { id: 2, emoji: "😘", rotation: 225 },
-    { id: 3, emoji: "😁", rotation: 270 },
-    { id: 4, emoji: "😘", rotation: 45 },
-    { id: 5, emoji: "😃", rotation: 90 },
-    { id: 7, emoji: "😇", rotation: 135 },
+    { id: "facebook", emoji: IMAGES.facebook, rotation: 45 },
+    { id: "messenger", emoji: IMAGES.messenger, rotation: 90 },
+    { id: "pinterest", emoji: IMAGES.pinterest, rotation: 135 },
+    { id: "menorah", emoji: IMAGES.menorah, rotation: 45 },
+    { id: "sketch", emoji: IMAGES.sketch, rotation: 90 },
+    { id: "paypal", emoji: IMAGES.paypal, rotation: 135 },
   ],
   [
-    { id: 1, emoji: "😘", rotation: 315 },
-    { id: 2, emoji: "😁", rotation: 0 },
-    { id: 3, emoji: "😆", rotation: 45 },
-    { id: 4, emoji: "😘", rotation: 45 },
-    { id: 5, emoji: "😃", rotation: 90 },
-    { id: 6, emoji: "😅", rotation: 135 },
+    { id: "facebook", emoji: IMAGES.facebook, rotation: 45 },
+    { id: "medium", emoji: IMAGES.medium, rotation: 90 },
+    { id: "firefox", emoji: IMAGES.firefox, rotation: 135 },
+    { id: "evernote", emoji: IMAGES.evernote, rotation: 45 },
+    { id: "luchos", emoji: IMAGES.luchos, rotation: 90 },
+    { id: "drive", emoji: IMAGES.drive, rotation: 135 },
   ],
   [
-    { id: 1, emoji: "😁", rotation: 90 },
-    { id: 2, emoji: "😆", rotation: 135 },
-    { id: 3, emoji: "😘", rotation: 180 },
-    { id: 4, emoji: "😘", rotation: 45 },
-    { id: 5, emoji: "😃", rotation: 90 },
-    { id: 6, emoji: "😅", rotation: 135 },
+    { id: "evernote", emoji: IMAGES.evernote, rotation: 45 },
+    { id: "youtube", emoji: IMAGES.youtube, rotation: 90 },
+    { id: "vimeo", emoji: IMAGES.vimeo, rotation: 135 },
+    { id: "paypal", emoji: IMAGES.paypal, rotation: 45 },
+    { id: "android", emoji: IMAGES.android, rotation: 90 },
+    { id: "instagram", emoji: IMAGES.instagram, rotation: 135 },
+  ],
+  [
+    { id: "menorah", emoji: IMAGES.menorah, rotation: 45 },
+    { id: "wordpress", emoji: IMAGES.wordpress, rotation: 90 },
+    { id: "stackoverflow", emoji: IMAGES.stackoverflow, rotation: 135 },
+    { id: "medium", emoji: IMAGES.medium, rotation: 45 },
+    { id: "linkedin", emoji: IMAGES.linkedin, rotation: 90 },
+    { id: "youtube", emoji: IMAGES.youtube, rotation: 135 },
+  ],
+  [
+    { id: "torah", emoji: IMAGES.torah, rotation: 45 },
+    { id: "drive", emoji: IMAGES.drive, rotation: 90 },
+    { id: "yelp", emoji: IMAGES.yelp, rotation: 135 },
+    { id: "messenger", emoji: IMAGES.messenger, rotation: 45 },
+    { id: "youtube", emoji: IMAGES.youtube, rotation: 90 },
+    { id: "chrome", emoji: IMAGES.chrome, rotation: 135 },
+  ],
+  [
+    { id: "evernote", emoji: IMAGES.evernote, rotation: 45 },
+    { id: "torah", emoji: IMAGES.torah, rotation: 90 },
+    { id: "airbnb", emoji: IMAGES.airbnb, rotation: 135 },
+    { id: "pinterest", emoji: IMAGES.pinterest, rotation: 45 },
+    { id: "wordpress", emoji: IMAGES.wordpress, rotation: 90 },
+    { id: "safari", emoji: IMAGES.safari, rotation: 135 },
+  ],
+  [
+    { id: "chrome", emoji: IMAGES.chrome, rotation: 45 },
+    { id: "android", emoji: IMAGES.android, rotation: 90 },
+    { id: "facebook", emoji: IMAGES.facebook, rotation: 135 },
+    { id: "wordpress", emoji: IMAGES.wordpress, rotation: 45 },
+    { id: "twitter", emoji: IMAGES.twitter, rotation: 90 },
+    { id: "snapchat", emoji: IMAGES.snapchat, rotation: 135 },
+  ],
+  [
+    { id: "airbnb", emoji: IMAGES.airbnb, rotation: 45 },
+    { id: "drive", emoji: IMAGES.drive, rotation: 90 },
+    { id: "skype", emoji: IMAGES.skype, rotation: 135 },
+    { id: "paypal", emoji: IMAGES.paypal, rotation: 45 },
+    { id: "twitter", emoji: IMAGES.twitter, rotation: 90 },
+    { id: "linkedin", emoji: IMAGES.linkedin, rotation: 135 },
+  ],
+  [
+    { id: "messenger", emoji: IMAGES.messenger, rotation: 45 },
+    { id: "whatsapp", emoji: IMAGES.whatsapp, rotation: 90 },
+    { id: "evernote", emoji: IMAGES.evernote, rotation: 135 },
+    { id: "dropbox", emoji: IMAGES.dropbox, rotation: 45 },
+    { id: "twitter", emoji: IMAGES.twitter, rotation: 90 },
+    { id: "stackoverflow", emoji: IMAGES.stackoverflow, rotation: 135 },
+  ],
+  [
+    { id: "menorah", emoji: IMAGES.menorah, rotation: 45 },
+    { id: "torah", emoji: IMAGES.torah, rotation: 90 },
+    { id: "twitter", emoji: IMAGES.twitter, rotation: 135 },
+    { id: "firefox", emoji: IMAGES.firefox, rotation: 45 },
+    { id: "vimeo", emoji: IMAGES.vimeo, rotation: 90 },
+    { id: "internetexplorer", emoji: IMAGES.internetexplorer, rotation: 135 },
+  ],
+  [
+    { id: "airbnb", emoji: IMAGES.airbnb, rotation: 45 },
+    { id: "internetexplorer", emoji: IMAGES.internetexplorer, rotation: 90 },
+    { id: "amazon", emoji: IMAGES.amazon, rotation: 135 },
+    { id: "android", emoji: IMAGES.android, rotation: 45 },
+    { id: "messenger", emoji: IMAGES.messenger, rotation: 90 },
+    { id: "medium", emoji: IMAGES.medium, rotation: 135 },
+  ],
+  [
+    { id: "airbnb", emoji: IMAGES.airbnb, rotation: 45 },
+    { id: "dropbox", emoji: IMAGES.dropbox, rotation: 90 },
+    { id: "youtube", emoji: IMAGES.youtube, rotation: 135 },
+    { id: "firefox", emoji: IMAGES.firefox, rotation: 45 },
+    { id: "snapchat", emoji: IMAGES.snapchat, rotation: 90 },
+    { id: "sketch", emoji: IMAGES.sketch, rotation: 135 },
+  ],
+  [
+    { id: "luchos", emoji: IMAGES.luchos, rotation: 45 },
+    { id: "safari", emoji: IMAGES.safari, rotation: 90 },
+    { id: "snapchat", emoji: IMAGES.snapchat, rotation: 135 },
+    { id: "vimeo", emoji: IMAGES.vimeo, rotation: 45 },
+    { id: "linkedin", emoji: IMAGES.linkedin, rotation: 90 },
+    { id: "messenger", emoji: IMAGES.messenger, rotation: 135 },
+  ],
+  [
+    { id: "skype", emoji: IMAGES.skype, rotation: 45 },
+    { id: "messenger", emoji: IMAGES.messenger, rotation: 90 },
+    { id: "instagram", emoji: IMAGES.instagram, rotation: 135 },
+    { id: "github", emoji: IMAGES.github, rotation: 45 },
+    { id: "wordpress", emoji: IMAGES.wordpress, rotation: 90 },
+    { id: "firefox", emoji: IMAGES.firefox, rotation: 135 },
+  ],
+  [
+    { id: "pinterest", emoji: IMAGES.pinterest, rotation: 45 },
+    { id: "whatsapp", emoji: IMAGES.whatsapp, rotation: 90 },
+    { id: "yelp", emoji: IMAGES.yelp, rotation: 135 },
+    { id: "android", emoji: IMAGES.android, rotation: 45 },
+    { id: "firefox", emoji: IMAGES.firefox, rotation: 90 },
+    { id: "linkedin", emoji: IMAGES.linkedin, rotation: 135 },
+  ],
+  [
+    { id: "vimeo", emoji: IMAGES.vimeo, rotation: 45 },
+    { id: "stackoverflow", emoji: IMAGES.stackoverflow, rotation: 90 },
+    { id: "facebook", emoji: IMAGES.facebook, rotation: 135 },
+    { id: "airbnb", emoji: IMAGES.airbnb, rotation: 45 },
+    { id: "yelp", emoji: IMAGES.yelp, rotation: 90 },
+    { id: "github", emoji: IMAGES.github, rotation: 135 },
+  ],
+  [
+    { id: "torah", emoji: IMAGES.torah, rotation: 45 },
+    { id: "medium", emoji: IMAGES.medium, rotation: 90 },
+    { id: "github", emoji: IMAGES.github, rotation: 135 },
+    { id: "whatsapp", emoji: IMAGES.whatsapp, rotation: 45 },
+    { id: "snapchat", emoji: IMAGES.snapchat, rotation: 90 },
+    { id: "paypal", emoji: IMAGES.paypal, rotation: 135 },
+  ],
+  [
+    { id: "internetexplorer", emoji: IMAGES.internetexplorer, rotation: 45 },
+    { id: "youtube", emoji: IMAGES.youtube, rotation: 90 },
+    { id: "facebook", emoji: IMAGES.facebook, rotation: 135 },
+    { id: "whatsapp", emoji: IMAGES.whatsapp, rotation: 45 },
+    { id: "safari", emoji: IMAGES.safari, rotation: 90 },
+    { id: "skype", emoji: IMAGES.skype, rotation: 135 },
+  ],
+  [
+    { id: "sketch", emoji: IMAGES.sketch, rotation: 45 },
+    { id: "evernote", emoji: IMAGES.evernote, rotation: 90 },
+    { id: "github", emoji: IMAGES.github, rotation: 135 },
+    { id: "internetexplorer", emoji: IMAGES.internetexplorer, rotation: 45 },
+    { id: "linkedin", emoji: IMAGES.linkedin, rotation: 90 },
+    { id: "chrome", emoji: IMAGES.chrome, rotation: 135 },
+  ],
+  [
+    { id: "dropbox", emoji: IMAGES.dropbox, rotation: 45 },
+    { id: "luchos", emoji: IMAGES.luchos, rotation: 90 },
+    { id: "paypal", emoji: IMAGES.paypal, rotation: 135 },
+    { id: "yelp", emoji: IMAGES.yelp, rotation: 45 },
+    { id: "wordpress", emoji: IMAGES.wordpress, rotation: 90 },
+    { id: "internetexplorer", emoji: IMAGES.internetexplorer, rotation: 135 },
+  ],
+  [
+    { id: "menorah", emoji: IMAGES.menorah, rotation: 45 },
+    { id: "safari", emoji: IMAGES.safari, rotation: 90 },
+    { id: "drive", emoji: IMAGES.drive, rotation: 135 },
+    { id: "android", emoji: IMAGES.android, rotation: 45 },
+    { id: "github", emoji: IMAGES.github, rotation: 90 },
+    { id: "dropbox", emoji: IMAGES.dropbox, rotation: 135 },
+  ],
+  [
+    { id: "evernote", emoji: IMAGES.evernote, rotation: 45 },
+    { id: "youtube", emoji: IMAGES.youtube, rotation: 90 },
+    { id: "vimeo", emoji: IMAGES.vimeo, rotation: 135 },
+    { id: "paypal", emoji: IMAGES.paypal, rotation: 45 },
+    { id: "android", emoji: IMAGES.android, rotation: 90 },
+    { id: "instagram", emoji: IMAGES.instagram, rotation: 135 },
+  ],
+  [
+    { id: "safari", emoji: IMAGES.safari, rotation: 45 },
+    { id: "stackoverflow", emoji: IMAGES.stackoverflow, rotation: 90 },
+    { id: "chrome", emoji: IMAGES.chrome, rotation: 135 },
+    { id: "paypal", emoji: IMAGES.paypal, rotation: 45 },
+    { id: "firefox", emoji: IMAGES.firefox, rotation: 90 },
+    { id: "amazon", emoji: IMAGES.amazon, rotation: 135 },
+  ],
+  [
+    { id: "luchos", emoji: IMAGES.luchos, rotation: 45 },
+    { id: "android", emoji: IMAGES.android, rotation: 90 },
+    { id: "stackoverflow", emoji: IMAGES.stackoverflow, rotation: 135 },
+    { id: "sketch", emoji: IMAGES.sketch, rotation: 45 },
+    { id: "skype", emoji: IMAGES.skype, rotation: 90 },
+    { id: "torah", emoji: IMAGES.torah, rotation: 135 },
+  ],
+  [
+    { id: "twitter", emoji: IMAGES.twitter, rotation: 45 },
+    { id: "amazon", emoji: IMAGES.amazon, rotation: 90 },
+    { id: "github", emoji: IMAGES.github, rotation: 135 },
+    { id: "pinterest", emoji: IMAGES.pinterest, rotation: 45 },
+    { id: "youtube", emoji: IMAGES.youtube, rotation: 90 },
+    { id: "luchos", emoji: IMAGES.luchos, rotation: 135 },
+  ],
+  [
+    { id: "luchos", emoji: IMAGES.luchos, rotation: 45 },
+    { id: "whatsapp", emoji: IMAGES.whatsapp, rotation: 90 },
+    { id: "airbnb", emoji: IMAGES.airbnb, rotation: 135 },
+    { id: "menorah", emoji: IMAGES.menorah, rotation: 45 },
+    { id: "chrome", emoji: IMAGES.chrome, rotation: 90 },
+    { id: "instagram", emoji: IMAGES.instagram, rotation: 135 },
+  ],
+  [
+    { id: "medium", emoji: IMAGES.medium, rotation: 45 },
+    { id: "dropbox", emoji: IMAGES.dropbox, rotation: 90 },
+    { id: "vimeo", emoji: IMAGES.vimeo, rotation: 135 },
+    { id: "chrome", emoji: IMAGES.chrome, rotation: 45 },
+    { id: "skype", emoji: IMAGES.skype, rotation: 90 },
+    { id: "pinterest", emoji: IMAGES.pinterest, rotation: 135 },
+  ],
+  [
+    { id: "drive", emoji: IMAGES.drive, rotation: 45 },
+    { id: "stackoverflow", emoji: IMAGES.stackoverflow, rotation: 90 },
+    { id: "pinterest", emoji: IMAGES.pinterest, rotation: 135 },
+    { id: "snapchat", emoji: IMAGES.snapchat, rotation: 45 },
+    { id: "instagram", emoji: IMAGES.instagram, rotation: 90 },
+    { id: "internetexplorer", emoji: IMAGES.internetexplorer, rotation: 135 },
+  ],
+  [
+    { id: "snapchat", emoji: IMAGES.snapchat, rotation: 45 },
+    { id: "skype", emoji: IMAGES.skype, rotation: 90 },
+    { id: "evernote", emoji: IMAGES.evernote, rotation: 135 },
+    { id: "yelp", emoji: IMAGES.yelp, rotation: 45 },
+    { id: "amazon", emoji: IMAGES.amazon, rotation: 90 },
+    { id: "menorah", emoji: IMAGES.menorah, rotation: 135 },
+  ],
+  [
+    { id: "drive", emoji: IMAGES.drive, rotation: 45 },
+    { id: "whatsapp", emoji: IMAGES.whatsapp, rotation: 90 },
+    { id: "sketch", emoji: IMAGES.sketch, rotation: 135 },
+    { id: "wordpress", emoji: IMAGES.wordpress, rotation: 45 },
+    { id: "vimeo", emoji: IMAGES.vimeo, rotation: 90 },
+    { id: "amazon", emoji: IMAGES.amazon, rotation: 135 },
+  ],
+  [
+    { id: "torah", emoji: IMAGES.torah, rotation: 45 },
+    { id: "instagram", emoji: IMAGES.instagram, rotation: 90 },
+    { id: "linkedin", emoji: IMAGES.linkedin, rotation: 135 },
+    { id: "facebook", emoji: IMAGES.facebook, rotation: 45 },
+    { id: "dropbox", emoji: IMAGES.dropbox, rotation: 90 },
+    { id: "amazon", emoji: IMAGES.amazon, rotation: 135 },
   ],
 ];
 
@@ -95,13 +319,17 @@ export default function DuelGame({ navigation }) {
   const [notInDeckOne, setNotInDeckOne] = useState(false);
   const [notInDeckTwo, setNotInDeckTwo] = useState(false);
   const [roundOver, setRoundOver] = useState(true);
-  const [roundOverForUser, setRoundOverForUser] = useState(true);
 
   const [startDisabled, setStartDisabled] = useState(true);
 
   useEffect(() => {
     if (userOneScore + userTwoScore === 10) {
-      setGameOver(true);
+      // setGameOver(true);
+      //set game over after 1 second
+      const timeout = setTimeout(() => {
+        setGameOver(true);
+      }, 500);
+      return () => clearTimeout(timeout);
     }
   }, [userOneScore, userTwoScore]);
 
@@ -152,10 +380,8 @@ export default function DuelGame({ navigation }) {
       setStartDisabled(true);
 
       setRoundOver(false);
-      setRoundOverForUser(false);
 
       setTimeout(() => setRoundOver(true), 500);
-      setTimeout(() => setRoundOverForUser(true), 500);
 
       if (currentIndex === gameDeck.length - 1) {
         const beforeShuffle = gameDeck;
@@ -184,15 +410,6 @@ export default function DuelGame({ navigation }) {
     }
   }, [roundOver]);
 
-  useEffect(() => {
-    if (roundOverForUser) {
-      const timeout = setTimeout(() => {
-        setRoundOverForUser(true);
-      }, 500);
-      return () => clearTimeout(timeout);
-    }
-  }, [roundOverForUser]);
-
   const shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -220,109 +437,103 @@ export default function DuelGame({ navigation }) {
                 </Text>
               </View>
               <View style={[styles.userTwoDeckContainer]}>
-                {roundOverForUser && (
-                  <Animated.FlatList
-                    data={userTwoDeck}
-                    numColumns={3}
-                    scrollEnabled={false}
-                    contentContainerStyle={{ alignItems: "center" }}
-                    renderItem={({ item, index }) => (
-                      <TouchableOpacity
-                        disabled={
-                          gameOver === true ||
-                          startDisabled === true ||
-                          notInDeckTwo
-                            ? true
-                            : false
-                        }
-                        key={item.id}
-                        onPress={() => handleClick(item.id, "userTwo")}
+                <Animated.FlatList
+                  data={userTwoDeck}
+                  numColumns={3}
+                  scrollEnabled={false}
+                  contentContainerStyle={{ alignItems: "center" }}
+                  renderItem={({ item, index }) => (
+                    <TouchableOpacity
+                      disabled={
+                        gameOver === true ||
+                        startDisabled === true ||
+                        notInDeckTwo
+                          ? true
+                          : false
+                      }
+                      key={item.id}
+                      onPress={() => handleClick(item.id, "userTwo")}
+                      style={{
+                        padding: 10,
+                        margin: 10,
+                      }}
+                    >
+                      <Animated.Image
+                        entering={FadeIn.delay(index * 90)}
+                        source={item.emoji}
                         style={{
-                          padding: 10,
-                          margin: 10,
+                          width: 50,
+                          height: 50,
+                          fontSize: 50,
+                          backgroundColor: notInDeckTwo ? "red" : "transparent",
+                          opacity: gameOver === true ? 0.5 : 1,
+                          transform: [{ rotate: `180deg` }],
                         }}
-                      >
-                        <Animated.Text
-                          // entering={BounceIn.delay(index * 130)}
-                          entering={FadeIn.delay(index * 90)}
-                          style={{
-                            fontSize: 50,
-                            backgroundColor: notInDeckTwo
-                              ? "red"
-                              : "transparent",
-                            opacity: gameOver === true ? 0.5 : 1,
-                            transform: [{ rotate: `180deg` }],
-                          }}
-                        >
-                          {item.emoji}
-                        </Animated.Text>
-                      </TouchableOpacity>
-                    )}
-                    keyExtractor={(item) => item.id}
-                  />
-                )}
+                      />
+                    </TouchableOpacity>
+                  )}
+                  keyExtractor={(item) => item.id}
+                />
               </View>
               {roundOver && (
                 <Animated.View
-                  // entering={FadeIn.duration(1000).delay(300)}
-                  // exiting={SlideOutRight.duration(1000).springify().mass(0.5)}
+                  entering={FlipInEasyX.duration(1000).delay(400)}
+                  exiting={FlipOutEasyX.duration(1000)}
                   style={[styles.gameDeckContainer]}
                 >
                   {gameDeck[currentIndex].map((emoji, index) => (
-                    <Animated.Text
-                      entering={FadeIn.duration(200).delay(index * 130)}
+                    <Animated.Image
+                      // entering={FadeIn.duration(200).delay(index * 90)}
+                      source={emoji.emoji}
                       style={{
+                        width: 50,
+                        height: 50,
                         fontSize: 50,
                         transform: [{ rotate: `${emoji.rotation}deg` }],
                       }}
                       key={index}
-                    >
-                      {emoji.emoji}
-                    </Animated.Text>
+                    />
                   ))}
                 </Animated.View>
               )}
 
               <View style={[styles.userDeckContainerList]}>
-                {roundOverForUser && (
-                  <Animated.FlatList
-                    data={userOneDeck}
-                    numColumns={3}
-                    scrollEnabled={false}
-                    contentContainerStyle={{ alignItems: "center" }}
-                    renderItem={({ item, index }) => (
-                      <TouchableOpacity
-                        disabled={
-                          gameOver === true ||
-                          startDisabled === true ||
-                          notInDeckOne
-                            ? true
-                            : false
-                        }
-                        key={item.id}
-                        onPress={() => handleClick(item.id, "userOne")}
+                <Animated.FlatList
+                  data={userOneDeck}
+                  numColumns={3}
+                  scrollEnabled={false}
+                  contentContainerStyle={{ alignItems: "center" }}
+                  renderItem={({ item, index }) => (
+                    <TouchableOpacity
+                      disabled={
+                        gameOver === true ||
+                        startDisabled === true ||
+                        notInDeckOne
+                          ? true
+                          : false
+                      }
+                      key={item.id}
+                      onPress={() => handleClick(item.id, "userOne")}
+                      style={{
+                        padding: 10,
+                        margin: 10,
+                      }}
+                    >
+                      <Animated.Image
+                        entering={FadeIn.delay(index * 100)}
+                        source={item.emoji}
                         style={{
-                          padding: 10,
-                          margin: 10,
+                          width: 50,
+                          height: 50,
+                          fontSize: 50,
+                          backgroundColor: notInDeckOne ? "red" : "transparent",
+                          opacity: gameOver === true ? 0.5 : 1,
                         }}
-                      >
-                        <Animated.Text
-                          entering={BounceIn.delay(index * 90)}
-                          style={{
-                            fontSize: 50,
-                            backgroundColor: notInDeckOne
-                              ? "red"
-                              : "transparent",
-                            opacity: gameOver === true ? 0.5 : 1,
-                          }}
-                        >
-                          {item.emoji}
-                        </Animated.Text>
-                      </TouchableOpacity>
-                    )}
-                    keyExtractor={(item) => item.id}
-                  />
-                )}
+                      />
+                    </TouchableOpacity>
+                  )}
+                  keyExtractor={(item) => item.id}
+                />
               </View>
               <View style={[styles.scoreContainer]}>
                 <Text style={{ fontSize: 50, color: "white" }}>
@@ -336,7 +547,13 @@ export default function DuelGame({ navigation }) {
         {gameOver && (
           <View style={styles.gameOverContainer}>
             <View style={styles.playTwoWinContainer}>
-              <Text style={{ fontSize: 50, color: "white" }}>
+              <Text
+                style={{
+                  fontSize: 50,
+                  color: "white",
+                  transform: [{ rotate: `180deg` }],
+                }}
+              >
                 {userOneScore < userTwoScore ? "YOU WIN" : "YOU LOSE"}
               </Text>
             </View>
@@ -448,12 +665,13 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-evenly",
     position: "absolute",
     top: 370,
     backgroundColor: "rgba(255, 255, 255, 0.5)",
     borderRadius: 40,
-    width: "100%",
+    width: "97%",
+    height: "40%",
   },
   userDeckContainer: {
     display: "flex",
