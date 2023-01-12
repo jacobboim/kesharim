@@ -301,11 +301,33 @@ const gameDecks = [
   ],
 ];
 
+const shuffleArrayPreGame = (array) => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
+
+const shuffledArray = shuffleArrayPreGame(gameDecks);
+
+function userOneRandom(array) {
+  const randomIndex = Math.floor(Math.random() * array.length);
+  return array[randomIndex];
+}
+
+function userTwoRandom(array) {
+  const randomIndex = Math.floor(Math.random() * array.length);
+  return array[randomIndex];
+}
+
 const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
 
 console.log(screenHeight, "screenheight");
 export default function DuelGame({ navigation }) {
+  const defaultUserOne = userOneRandom(shuffledArray);
+  const defaultUserTwo = userTwoRandom(shuffledArray);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [userTwoDeck, setUserTwoDeck] = useState(defaultUserTwo);
@@ -314,7 +336,7 @@ export default function DuelGame({ navigation }) {
   const [userTwoScore, setUserTwoScore] = useState(0);
   const [score, setScore] = useState(0);
 
-  const [gameDeck, setGameDeck] = useState(gameDecks);
+  const [gameDeck, setGameDeck] = useState(shuffledArray);
   const [gameOver, setGameOver] = useState(false);
   const [notInDeckOne, setNotInDeckOne] = useState(false);
   const [notInDeckTwo, setNotInDeckTwo] = useState(false);

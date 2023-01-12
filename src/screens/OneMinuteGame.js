@@ -27,6 +27,8 @@ import Animated, {
   FlipOutEasyX,
   BounceIn,
   FadeIn,
+  SlideOutLeft,
+  FadeOut,
 } from "react-native-reanimated";
 
 const screenWidth = Dimensions.get("screen").width;
@@ -318,7 +320,7 @@ export function OneMinuteGame({ navigation }) {
   const [loading, setLoading] = useState(false);
 
   const [gameDeck, setGameDeck] = useState(shuffledArray);
-  const [timeRemaining, setTimeRemaining] = useState(10);
+  const [timeRemaining, setTimeRemaining] = useState(60);
   const [gameOver, setGameOver] = useState(false);
   const [notInDeck, setNotInDeck] = useState(false);
   const [roundOver, setRoundOver] = useState(true);
@@ -354,7 +356,7 @@ export function OneMinuteGame({ navigation }) {
     setScore(0);
     setCurrentIndex(0);
     setGameOver(false);
-    setTimeRemaining(25);
+    setTimeRemaining(60);
   };
 
   function handleButtonPress() {
@@ -400,6 +402,7 @@ export function OneMinuteGame({ navigation }) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
+    return array;
   };
 
   return (
@@ -448,7 +451,11 @@ export function OneMinuteGame({ navigation }) {
                 {roundOver && (
                   <Animated.View
                     entering={FlipInEasyX.duration(900).delay(430)}
-                    exiting={FlipOutEasyX.duration(1000)}
+                    exiting={
+                      gameOver
+                        ? FadeOut.duration(10)
+                        : FlipOutEasyX.duration(1000)
+                    }
                     style={[styles.gameDeckContainer]}
                   >
                     {gameDeck[currentIndex].map((emoji, index) => (
