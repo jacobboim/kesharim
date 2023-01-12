@@ -17,21 +17,12 @@ import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "react-native-really-awesome-button";
 import { IMAGES } from "../../assets";
 
-import {
-  collection,
-  getFirestore,
-  onSnapshot,
-  addDoc,
-  getDoc,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
+import { collection, onSnapshot, updateDoc, doc } from "firebase/firestore";
 
 import { useAuth } from "../hooks/useAuth";
 import { db } from "../config/firebase";
 
 import Animated, {
-  SlideOutRight,
   FlipInEasyX,
   FlipOutEasyX,
   BounceIn,
@@ -43,15 +34,6 @@ const screenHeight = Dimensions.get("screen").height;
 
 console.log(screenHeight, "screenheight");
 export function OneMinuteGame({ navigation }) {
-  const defaultUserDeck = [
-    { id: "wordpress", emoji: IMAGES.wordpress },
-    { id: "android", emoji: IMAGES.android },
-    { id: "facebook", emoji: IMAGES.facebook },
-    { id: "twitter", emoji: IMAGES.twitter },
-    { id: "chrome", emoji: IMAGES.chrome },
-    { id: "snapchat", emoji: IMAGES.snapchat },
-  ];
-
   const gameDecks = [
     [
       { id: "safari", emoji: IMAGES.safari, rotation: 45 },
