@@ -17,7 +17,14 @@ import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "react-native-really-awesome-button";
 import { IMAGES } from "../../assets";
 
-import { collection, onSnapshot, updateDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  updateDoc,
+  doc,
+  query,
+  where,
+} from "firebase/firestore";
 
 import { useAuth } from "../hooks/useAuth";
 import { db } from "../config/firebase";
@@ -328,19 +335,15 @@ export function OneMinuteGame({ navigation }) {
 
   const { user } = useAuth();
 
-  async function getHighScore() {
-    const userQuery = collection(db, "users");
+  const userQuerys = collection(db, "users");
+  const q = query(userQuerys, where("username", "==", `${user?.email}`));
 
-    onSnapshot(userQuery, (docsSnap) => {
-      docsSnap.forEach((doc) => {
-        if (doc.id === user?.email) {
-          setHighScore(doc.data().highScore);
-          console.log(highScore, "highScore");
-        }
-      });
+  onSnapshot(q, (querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      setHighScore(doc.data().highScore);
+      console.log(highScore, "highScore");
     });
-  }
-  getHighScore();
+  });
 
   useEffect(() => {
     if (notInDeck) {
@@ -357,6 +360,9 @@ export function OneMinuteGame({ navigation }) {
     setCurrentIndex(0);
     setGameOver(false);
     setTimeRemaining(60);
+
+    setGameDeck(shuffleArrayPreGame(gameDecks));
+    setUserDeck(getRandomElement(shuffledArray));
   };
 
   function handleButtonPress() {
@@ -450,11 +456,11 @@ export function OneMinuteGame({ navigation }) {
               <View style={styles.newMiddleBarConatiner}>
                 {roundOver && (
                   <Animated.View
-                    entering={FlipInEasyX.duration(900).delay(430)}
+                    entering={FlipInEasyX.duration(875)}
                     exiting={
                       gameOver
                         ? FadeOut.duration(10)
-                        : FlipOutEasyX.duration(1000)
+                        : FlipOutEasyX.duration(850)
                     }
                     style={[styles.gameDeckContainer]}
                   >
@@ -462,9 +468,8 @@ export function OneMinuteGame({ navigation }) {
                       <Animated.Image
                         source={emoji.emoji}
                         style={{
-                          width: 50,
-                          height: 50,
-                          fontSize: 50,
+                          width: 45,
+                          height: 45,
                           transform: [{ rotate: `${emoji.rotation}deg` }],
                         }}
                         key={index}
@@ -514,6 +519,30 @@ export function OneMinuteGame({ navigation }) {
                 </View>
               </View>
             </>
+          )}
+
+          {!gameOver && (
+            <View style={styles.goHomeContainer}>
+              <ThemedButton
+                name="bruce"
+                type="primary"
+                onPressOut={() => navigation.navigate("Home")}
+                width={70}
+                height={80}
+                borderRadius={360}
+                backgroundColor="#818384"
+              >
+                <View
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Entypo name="home" size={25} color="white" />
+                </View>
+              </ThemedButton>
+            </View>
           )}
         </>
 
@@ -595,6 +624,16 @@ const styles = StyleSheet.create({
     width: screenWidth,
     top: 40,
   },
+  goHomeContainer: {
+    position: "absolute",
+    //place at the bottom left of the screen
+    // bottom: 165,
+    // left: 15,
+    //place at the top left of the screen
+    top: 40,
+    left: 10,
+  },
+
   gameOverContainer: {
     flex: 1,
     display: "flex",
@@ -647,7 +686,7 @@ const styles = StyleSheet.create({
     // backgroundColor: "yellow",
     backgroundColor: "rgba(255, 255, 255, 0.3)",
     borderRadius: 40,
-    width: "96%",
+    width: "98%",
     height: "20%",
   },
   userDeckContainer: {

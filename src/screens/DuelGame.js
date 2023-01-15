@@ -325,7 +325,7 @@ const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
 
 console.log(screenHeight, "screenheight");
-export default function DuelGame({ navigation }) {
+export default function DuelGame({ route, navigation }) {
   const defaultUserOne = userOneRandom(shuffledArray);
   const defaultUserTwo = userTwoRandom(shuffledArray);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -345,12 +345,16 @@ export default function DuelGame({ navigation }) {
   const [startDisabled, setStartDisabled] = useState(true);
 
   useEffect(() => {
-    if (userOneScore + userTwoScore === 10) {
+    console.log(route.params.gameFinalScore, "final score");
+  }, []);
+
+  useEffect(() => {
+    if (userOneScore + userTwoScore === Number(route.params.gameFinalScore)) {
       // setGameOver(true);
       //set game over after 1 second
       const timeout = setTimeout(() => {
         setGameOver(true);
-      }, 500);
+      }, 900);
       return () => clearTimeout(timeout);
     }
   }, [userOneScore, userTwoScore]);
@@ -388,6 +392,10 @@ export default function DuelGame({ navigation }) {
     setUserTwoScore(0);
     setCurrentIndex(0);
     setGameOver(false);
+
+    setGameDeck(shuffleArrayPreGame(gameDecks));
+    setUserOneDeck(userOneRandom(shuffledArray));
+    setUserTwoDeck(userTwoRandom(shuffledArray));
   };
 
   const handleClick = (clickedEmoji, user) => {
@@ -454,7 +462,13 @@ export default function DuelGame({ navigation }) {
           {!gameOver && (
             <>
               <View style={[styles.scoreContainerTwo]}>
-                <Text style={{ fontSize: 50, color: "white" }}>
+                <Text
+                  style={{
+                    fontSize: 50,
+                    color: "white",
+                    transform: [{ rotate: `180deg` }],
+                  }}
+                >
                   {userTwoScore}
                 </Text>
               </View>
@@ -499,8 +513,8 @@ export default function DuelGame({ navigation }) {
               </View>
               {roundOver && (
                 <Animated.View
-                  entering={FlipInEasyX.duration(1000).delay(400)}
-                  exiting={FlipOutEasyX.duration(1000)}
+                  entering={FlipInEasyX.duration(875)}
+                  exiting={FlipOutEasyX.duration(850)}
                   style={[styles.gameDeckContainer]}
                 >
                   {gameDeck[currentIndex].map((emoji, index) => (
@@ -508,9 +522,8 @@ export default function DuelGame({ navigation }) {
                       // entering={FadeIn.duration(200).delay(index * 90)}
                       source={emoji.emoji}
                       style={{
-                        width: 50,
-                        height: 50,
-                        fontSize: 50,
+                        width: 45,
+                        height: 45,
                         transform: [{ rotate: `${emoji.rotation}deg` }],
                       }}
                       key={index}
@@ -692,7 +705,7 @@ const styles = StyleSheet.create({
     top: 370,
     backgroundColor: "rgba(255, 255, 255, 0.5)",
     borderRadius: 40,
-    width: "97%",
+    width: "98%",
     height: "40%",
   },
   userDeckContainer: {

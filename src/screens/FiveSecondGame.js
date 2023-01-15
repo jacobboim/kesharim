@@ -15,7 +15,14 @@ import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "react-native-really-awesome-button";
 import { IMAGES } from "../../assets";
 
-import { collection, onSnapshot, updateDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  updateDoc,
+  doc,
+  query,
+  where,
+} from "firebase/firestore";
 
 import { useAuth } from "../hooks/useAuth";
 import { db } from "../config/firebase";
@@ -329,56 +336,15 @@ export function FiveSecondGame({ navigation }) {
 
   const { user } = useAuth();
 
-  //useeffect to shufle the gamedecks on load
+  const userQuerys = collection(db, "users");
+  const q = query(userQuerys, where("username", "==", `${user?.email}`));
 
-  // useEffect(() => {
-
-  //   const shuffleArrayPreGame = (array) => {
-  //     for (let i = array.length - 1; i > 0; i--) {
-  //       const j = Math.floor(Math.random() * (i + 1));
-  //       [array[i], array[j]] = [array[j], array[i]];
-  //     }
-  //   };
-
-  //   const shuffledDeck = shuffleArrayPreGame(gameDecks);
-
-  //   const shuffle = (array) => {
-  //     let currentIndex = array.length,
-
-  //       temporaryValue,
-  //       randomIndex;
-
-  //     while (0 !== currentIndex) {
-
-  //       randomIndex = Math.floor(Math.random() * currentIndex);
-  //       currentIndex -= 1;
-
-  //       temporaryValue = array[currentIndex];
-  //       array[currentIndex] = array[randomIndex];
-  //       array[randomIndex] = temporaryValue;
-
-  //     }
-
-  //     return array;
-  //   };
-
-  //   const shuffledGameDeck = shuffle(gameDecks);
-  //   setGameDeck(shuffledGameDeck);
-  // }, []);
-
-  async function getHighScore() {
-    const userQuery = collection(db, "users");
-
-    onSnapshot(userQuery, (docsSnap) => {
-      docsSnap.forEach((doc) => {
-        if (doc.id === user?.email) {
-          setHighScore(doc.data().FiveSecondGameScore);
-          //   console.log(highScore, "highScore");
-        }
-      });
+  onSnapshot(q, (querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      setHighScore(doc.data().FiveSecondGameScore);
+      console.log(highScore, "highScore");
     });
-  }
-  getHighScore();
+  });
 
   useEffect(() => {
     if (notInDeck) {
@@ -395,6 +361,9 @@ export function FiveSecondGame({ navigation }) {
     setCurrentIndex(0);
     setGameOver(false);
     setTimeRemaining(10);
+
+    setGameDeck(shuffleArrayPreGame(gameDecks));
+    setUserDeck(getRandomElement(shuffledArray));
   };
 
   function handleButtonPress() {
@@ -477,6 +446,8 @@ export function FiveSecondGame({ navigation }) {
     <SafeAreaView style={styles.container}>
       <LinearGradient
         colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
+        start={[1, 3]}
+        end={[2, 4]}
         style={styles.linearGradient}
       >
         <View style={styles.highScoreContainer}>
@@ -486,7 +457,7 @@ export function FiveSecondGame({ navigation }) {
         <>
           {!gameOver && (
             <Animated.View
-              entering={FadeIn.duration(1000).delay(1000)}
+              entering={FadeIn.duration(1000).delay(200)}
               exiting={FadeOut.duration(800)}
               style={styles.timerContainer}
             >
@@ -534,17 +505,18 @@ export function FiveSecondGame({ navigation }) {
               <View style={styles.newMiddleBarConatiner}>
                 {roundOver && (
                   <Animated.View
-                    entering={FlipInEasyX.duration(600).delay(530)}
-                    exiting={FlipOutEasyX.duration(900)}
+                    // entering={FlipInEasyX.duration(600).delay(530)}
+                    // exiting={FlipOutEasyX.duration(900)}
+                    entering={FlipInEasyX.duration(875)}
+                    exiting={FlipOutEasyX.duration(850)}
                     style={[styles.gameDeckContainer]}
                   >
                     {gameDeck[currentIndex].map((emoji, index) => (
                       <Animated.Image
                         source={emoji.emoji}
                         style={{
-                          width: 50,
-                          height: 50,
-                          fontSize: 50,
+                          width: 45,
+                          height: 45,
                           transform: [{ rotate: `${emoji.rotation}deg` }],
                         }}
                         key={index}
@@ -587,6 +559,30 @@ export function FiveSecondGame({ navigation }) {
                 />
               </View>
             </>
+          )}
+
+          {!gameOver && (
+            <View style={styles.goHomeContainer}>
+              <ThemedButton
+                name="bruce"
+                type="primary"
+                onPressOut={() => navigation.navigate("Home")}
+                width={70}
+                height={80}
+                borderRadius={360}
+                backgroundColor="#818384"
+              >
+                <View
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Entypo name="home" size={25} color="white" />
+                </View>
+              </ThemedButton>
+            </View>
           )}
         </>
 
@@ -675,6 +671,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  goHomeContainer: {
+    position: "absolute",
+    //place at the bottom left of the screen
+    // bottom: 165,
+    // left: 15,
+    //place at the top left of the screen
+    top: 40,
+    left: 10,
+  },
+
   highScoreContainer: {
     display: "flex",
     flexDirection: "column",
@@ -713,7 +719,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     backgroundColor: "rgba(255, 255, 255, 0.3)",
     borderRadius: 40,
-    width: "96%",
+    width: "98%",
     height: "20%",
   },
 

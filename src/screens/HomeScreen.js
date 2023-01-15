@@ -6,23 +6,79 @@ import {
   Text,
   FlatList,
   Pressable,
+  Alert,
+  Modal,
+  TouchableOpacity,
 } from "react-native";
 import { signOut } from "firebase/auth";
 import { LinearGradient } from "expo-linear-gradient";
 import { ThemedButton } from "react-native-really-awesome-button";
+import { useActionSheet } from "@expo/react-native-action-sheet";
 
 import { useAuth } from "../hooks/useAuth";
 import { auth } from "../config";
+import { db } from "../config/firebase";
+import Animated, {
+  BounceIn,
+  FadeIn,
+  FlipInEasyX,
+  FlipOutEasyX,
+} from "react-native-reanimated";
 
-import { Fontisto, Feather, Ionicons, Icon } from "@expo/vector-icons";
+import {
+  collection,
+  onSnapshot,
+  doc,
+  query,
+  where,
+  limit,
+  orderBy,
+} from "firebase/firestore";
+
+import {
+  Fontisto,
+  Feather,
+  Ionicons,
+  MaterialIcons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 
 export const HomeScreen = ({ navigation }) => {
   const { user } = useAuth();
+
+  const [leaderBoardArrayOneMinGame, setLeaderBoardArrayOneMinGame] = useState(
+    []
+  );
   const [minTouched, setMinTouched] = useState(false);
+  const [leaderboardVisible, setLeaderboardVisible] = useState(false);
 
   const [speedTouched, setSpeedTouched] = useState(false);
+  const [gameFinalScore, setGameFinalScore] = useState(0);
+
+  const getTopTenWithUsernameOneMinGame = () => {
+    const q = query(
+      collection(db, "users"),
+      orderBy("highScore", "desc"),
+      limit(10)
+    );
+    onSnapshot(q, (querySnapshot) => {
+      const topTen = [];
+      const scoreAndUsernameObj = {};
+
+      querySnapshot.forEach((doc) => {
+        topTen.push(doc.data().highScore);
+        scoreAndUsernameObj[doc.data().username] = doc.data().highScore;
+      });
+      //sort the scoreandusername object by the score
+      const sortedScoreAndUsernameObj = Object.keys(scoreAndUsernameObj)
+        .sort((a, b) => scoreAndUsernameObj[b] - scoreAndUsernameObj[a])
+        .reduce((r, k) => ((r[k] = scoreAndUsernameObj[k]), r), {});
+      setLeaderBoardArrayOneMinGame(Object.entries(sortedScoreAndUsernameObj));
+    });
+  };
 
   useEffect(() => {
+    getTopTenWithUsernameOneMinGame();
     console.log("user: ", user);
   }, [user]);
 
@@ -66,15 +122,86 @@ export const HomeScreen = ({ navigation }) => {
     },
   ];
 
+  const { showActionSheetWithOptions } = useActionSheet();
+
+  const onPress = () => {
+    const options = ["25", "15", "5", "Cancel"];
+    // const destructiveButtonIndex = 0;
+    const cancelButtonIndex = 3;
+
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        title: "Select the number of rounds",
+        // titleTextStyle: {
+        //   color: "black",
+        //   fontSize: 20,
+        //   fontWeight: "bold",
+        // },
+      },
+      (selectedIndex) => {
+        if (selectedIndex === 3) return;
+        setGameFinalScore(options[selectedIndex]);
+        navigation.navigate("DuelGame", {
+          gameFinalScore: options[selectedIndex],
+        });
+        console.log("selectedIndex: ", options[selectedIndex]);
+      }
+    );
+  };
+
+  const twoOptionAlertHandler = () => {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out?",
+      [
+        { text: "Yes", onPress: () => handleLogout() },
+        {
+          text: "No",
+          onPress: () => console.log("No Pressed"),
+          style: "cancel",
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const showLeaderboard = () => {
+    setTimeout(() => {
+      setLeaderboardVisible(!leaderboardVisible);
+    }, 150);
+  };
+
+  const goToOneMin = () => {
+    setTimeout(() => {
+      navigation.navigate("OneMinuteGame");
+    }, 150);
+  };
+
+  const goToSpeed = () => {
+    setTimeout(() => {
+      navigation.navigate("FiveSecondGame");
+    }, 150);
+  };
+
+  const goToDuel = () => {
+    setTimeout(() => {
+      onPress();
+    }, 150);
+  };
+
   return (
     <LinearGradient
       colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
+      // start={[0, 0]}
+      // end={[0, 1]}
       style={styles.linearGradient}
     >
       <View style={styles.container}>
         <Text style={styles.gameName}>Kesharim</Text>
         <View style={styles.gameOptionsContatier}>
-          <FlatList
+          {/* <FlatList
             data={buttonData}
             numColumns={2}
             // ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
@@ -105,94 +232,256 @@ export const HomeScreen = ({ navigation }) => {
                 </ThemedButton>
               </View>
             )}
-          />
-          {/* <ThemedButton
-            name="bruce"
-            type="primary"
-            onPressOut={() => navigation.navigate("OneMinuteGame")}
-            width={150}
-            height={150}
-            borderRadius={150}
-            backgroundColor="#818384"
-            // before={<Fontisto name="stopwatch" size={70} color="white" />}
-          >
-            <View
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Fontisto name="stopwatch" size={70} color="white" />
-              <Text style={{ fontSize: 35, color: "white" }}>1 MIN</Text>
-            </View>
-          </ThemedButton>
+          /> */}
 
-          <ThemedButton
-            name="bruce"
-            type="primary"
-            onPressOut={() => navigation.navigate("FiveSecondGame")}
-            width={150}
-            height={150}
-            borderRadius={150}
-            backgroundColor="#818384"
-            // before={<Fontisto name="stopwatch" size={70} color="white" />}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={leaderboardVisible}
+            onRequestClose={() => {
+              Alert.alert("Modal has been closed.");
+              setLeaderboardVisible(!leaderboardVisible);
+            }}
           >
-            <View
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Fontisto name="stopwatch" size={70} color="white" />
-              <Text style={{ fontSize: 35, color: "white" }}>Speed</Text>
-            </View>
-          </ThemedButton>
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                <Text style={styles.modalText}>Leaderboard</Text>
+                <View
+                  style={{
+                    display: "flex ",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    flexDirection: "row",
+                    width: "100%",
+                    marginBottom: 2,
+                    marginTop: 10,
+                  }}
+                >
+                  <View
+                    style={{
+                      position: "absolute",
+                      left: 10,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontWeight: "800",
+                        fontSize: 15,
+                      }}
+                    >
+                      Username
+                    </Text>
+                  </View>
+                  <View style={{ position: "absolute", right: 3 }}>
+                    <Text style={{ fontWeight: "800", fontSize: 15 }}>
+                      Score
+                    </Text>
+                  </View>
+                </View>
 
-          <ThemedButton
-            name="bruce"
-            type="primary"
-            onPressOut={() => navigation.navigate("DuelGame")}
-            width={150}
-            height={150}
-            borderRadius={150}
-            backgroundColor="#818384"
-            // before={<Fontisto name="stopwatch" size={70} color="white" />}
-          >
-            <View
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Fontisto name="stopwatch" size={70} color="white" />
-              <Text style={{ fontSize: 35, color: "white" }}>Duel</Text>
+                <FlatList
+                  data={leaderBoardArrayOneMinGame}
+                  numColumns={1}
+                  scrollEnabled={false}
+                  // ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+                  keyExtractor={(item) => item[0]}
+                  renderItem={({ item, index }) => (
+                    <View
+                      style={{
+                        margin: 10,
+                        width: "80%",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexDirection: "row",
+                      }}
+                    >
+                      <Text style={{ color: "black", marginRight: 20 }}>
+                        {index + 1}. {item[0]}
+                      </Text>
+                      <Text style={{ color: "black" }}>{item[1]}</Text>
+                    </View>
+                  )}
+                />
+                <Pressable
+                  style={[styles.button, styles.buttonClose]}
+                  onPress={() => setLeaderboardVisible(!leaderboardVisible)}
+                >
+                  <Text style={styles.textStyle}>Hide Modal</Text>
+                </Pressable>
+              </View>
             </View>
-          </ThemedButton> */}
-        </View>
+          </Modal>
 
-        <ThemedButton
-          name="bruce"
-          type="primary"
-          style={styles.signOut}
-          onPressOut={handleLogout}
-          width={80}
-          height={85}
-          borderRadius={360}
-          backgroundColor="#818384"
-        >
           <View
             style={{
               display: "flex",
-              justifyContent: "center",
+              justifyContent: "space-evenly",
               alignItems: "center",
+              flexDirection: "row",
+              width: "95%",
             }}
           >
-            <Feather name="log-out" size={40} color="white" />
+            <ThemedButton
+              name="bruce"
+              type="primary"
+              onPressOut={goToOneMin}
+              width={110}
+              height={110}
+              borderRadius={150}
+              backgroundColor="#818384"
+            >
+              <View
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="timer-outline"
+                  size={60}
+                  color="white"
+                />
+                <Text
+                  style={{
+                    fontSize: 18,
+                    color: "white",
+                    fontWeight: "bold",
+                  }}
+                >
+                  1 MIN
+                </Text>
+              </View>
+            </ThemedButton>
+
+            <ThemedButton
+              name="bruce"
+              type="primary"
+              onPressOut={goToSpeed}
+              width={110}
+              height={110}
+              borderRadius={150}
+              backgroundColor="#818384"
+            >
+              <View
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="lightning-bolt"
+                  size={60}
+                  color="white"
+                />
+                <Text
+                  style={{ fontSize: 18, color: "white", fontWeight: "bold" }}
+                >
+                  {/* Speed */}
+                  SPEED
+                </Text>
+              </View>
+            </ThemedButton>
           </View>
-        </ThemedButton>
+
+          <View
+            style={{
+              display: "flex",
+              justifyContent: "flex-start",
+              alignItems: "center",
+              flexDirection: "row",
+              width: "100%",
+              marginLeft: 50,
+              marginTop: 30,
+            }}
+          >
+            <ThemedButton
+              name="bruce"
+              type="primary"
+              onPressOut={goToDuel}
+              width={110}
+              height={110}
+              borderRadius={150}
+              backgroundColor="#818384"
+            >
+              <View
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <View style={{ position: "absolute", top: -42 }}>
+                  <Ionicons name="people-sharp" size={60} color="white" />
+                </View>
+                <View style={{ position: "absolute", top: 15 }}>
+                  <Text
+                    style={{ fontSize: 18, color: "white", fontWeight: "bold" }}
+                  >
+                    DUEL
+                  </Text>
+                </View>
+              </View>
+            </ThemedButton>
+          </View>
+        </View>
+
+        <View
+          style={{
+            display: "flex",
+            justifyContent: "space-evenly",
+            alignItems: "center",
+            flexDirection: "row",
+            position: "absolute",
+            bottom: 50,
+            width: "80%",
+          }}
+        >
+          <ThemedButton
+            name="bruce"
+            type="primary"
+            // onPressOut={() => setLeaderboardVisible(!leaderboardVisible)}
+            onPressOut={showLeaderboard}
+            width={80}
+            height={85}
+            borderRadius={360}
+            backgroundColor="#818384"
+          >
+            <View
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <MaterialIcons name="leaderboard" size={40} color="white" />
+            </View>
+          </ThemedButton>
+
+          <ThemedButton
+            name="bruce"
+            type="primary"
+            style={styles.signOut}
+            // onPressOut={handleLogout}
+            onPressOut={twoOptionAlertHandler}
+            width={80}
+            height={85}
+            borderRadius={360}
+            backgroundColor="#818384"
+          >
+            <View
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Feather name="log-out" size={40} color="white" />
+            </View>
+          </ThemedButton>
+        </View>
       </View>
     </LinearGradient>
   );
@@ -219,11 +508,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  signOut: {
-    position: "absolute",
-    bottom: -195,
-    left: 84,
-  },
+  // signOut: {
+  //   position: "absolute",
+  //   bottom: -195,
+  //   left: 84,
+  // },
   linearGradient: {
     position: "absolute",
     left: 0,
@@ -234,5 +523,47 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
+  },
+  centeredView: {
+    // flex: 1,
+    width: "100%",
+    height: "90%",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 90,
+    width: "90%",
+    height: "70%",
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "#818384",
+    marginTop: 15,
+    marginBottom: 15,
+    position: "absolute",
+    bottom: 0,
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    marginBottom: 15,
+    fontSize: 20,
+    textAlign: "center",
   },
 });

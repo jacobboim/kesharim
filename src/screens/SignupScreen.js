@@ -62,6 +62,7 @@ export const SignupScreen = ({ navigation }) => {
           <Formik
             initialValues={{
               email: "",
+              // username: "",
               password: "",
               confirmPassword: "",
             }}
@@ -94,6 +95,22 @@ export const SignupScreen = ({ navigation }) => {
                   error={errors.email}
                   visible={touched.email}
                 />
+                {/* <TextInput
+                  name="username"
+                  leftIconName="username"
+                  placeholder="Enter username"
+                  autoCapitalize="none"
+                  // keyboardType="email-address"
+                  textContentType="username"
+                  autoFocus={true}
+                  value={values.username}
+                  onChangeText={handleChange("username")}
+                  onBlur={handleBlur("username")}
+                /> */}
+                {/* <FormErrorMessage
+                  error={errors.username}
+                  visible={touched.username}
+                /> */}
                 <TextInput
                   name="password"
                   leftIconName="key-variant"

@@ -3,13 +3,16 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { AuthenticatedUserProvider } from "./src/providers";
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 
 const App = () => {
   return (
     <AuthenticatedUserProvider>
-      <SafeAreaProvider>
-        <RootNavigator />
-      </SafeAreaProvider>
+      <ActionSheetProvider>
+        <SafeAreaProvider>
+          <RootNavigator />
+        </SafeAreaProvider>
+      </ActionSheetProvider>
     </AuthenticatedUserProvider>
   );
 };
