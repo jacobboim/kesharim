@@ -29,6 +29,12 @@ function LeaderboardModal({
     { label: "Apple", value: "apple" },
     { label: "Banana", value: "banana" },
   ]);
+
+  const onHideModal = () => {
+    setLeaderboardVisible(!leaderboardVisible);
+    setGameMode("oneMin");
+  };
+
   return (
     <Modal
       animationType="slide"
@@ -113,7 +119,7 @@ function LeaderboardModal({
                 Username
               </Text>
             </View>
-            <View style={{ position: "absolute", right: 3 }}>
+            <View style={{ position: "absolute", right: 24 }}>
               <Text style={{ fontWeight: "700", fontSize: 15 }}>Score</Text>
             </View>
           </View>
@@ -134,48 +140,84 @@ function LeaderboardModal({
               // ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
               keyExtractor={(item) => item[0]}
               renderItem={({ item, index }) => {
-                let backgroundColor = "white";
                 let color = "black";
                 let badge = "";
                 let marginRight = 20;
-                let fontSize = 15;
 
-                if (item[0] === user?.email) {
-                  backgroundColor = "#818384";
-                  color = "white";
-                }
+                const badgeTextStyle = {
+                  color: "black",
+                  marginRight: 10,
+                  fontSize: 15,
+                  position: "relative",
+                  left: -5,
+                };
 
                 if (index === 0) {
                   badge = "🥇";
-                  marginRight = 1;
-                  fontSize = 20;
                 } else if (index === 1) {
                   badge = "🥈";
-                  marginRight = 15;
-                  fontSize = 20;
                 } else if (index === 2) {
                   badge = "🥉";
-                  marginRight = 15;
-                  fontSize = 20;
                 }
+
+                const email = item[0];
+                const [truncatedEmail] = email.split("@");
+
                 return (
                   <View
                     style={{
-                      margin: 10,
-                      width: "80%",
+                      backgroundColor: "white",
+                      width: "100%",
                       display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      flexDirection: "row",
-                      backgroundColor,
-                      borderRadius: 10,
+                      justifyContent: "flex-start",
+                      alignItems: "flex-start",
                     }}
                   >
-                    <Text style={{ color, marginRight }}>
-                      {index < 3 ? badge : `${index + 1}.`} {item[0]}
-                    </Text>
+                    <View
+                      style={{
+                        marginRight: item[0] === user?.email ? 0 : 10,
+                        marginLeft: item[0] === user?.email ? 0 : 10,
+                        marginTop: item[0] === user?.email ? 8 : 8,
+                        marginBottom: item[0] === user?.email ? 7 : 7,
+                        width: item[0] === user?.email ? "76%" : "70%",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexDirection: "row",
+                        backgroundColor:
+                          item[0] === user?.email ? "#818384" : "white",
+                        borderRadius: 10,
+                        padding: item[0] === user?.email ? 10 : 0,
+                      }}
+                    >
+                      <Text
+                        style={
+                          index < 3
+                            ? badgeTextStyle
+                            : {
+                                color,
+                                marginRight,
+                              }
+                        }
+                      >
+                        <Text
+                          style={{
+                            fontSize: index < 3 ? 15 : 15,
+                            color: item[0] === user?.email ? "white" : "black",
+                          }}
+                        >
+                          {index < 3 ? badge : `${index + 1}.`} {truncatedEmail}
+                        </Text>
+                      </Text>
 
-                    <Text style={{ color }}>{item[1]}</Text>
+                      <Text
+                        style={{
+                          color: item[0] === user?.email ? "white" : "black",
+                        }}
+                      >
+                        {item[1]}
+                      </Text>
+                    </View>
                   </View>
                 );
               }}
@@ -188,21 +230,84 @@ function LeaderboardModal({
               // ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
               keyExtractor={(item) => item[0]}
               renderItem={({ item, index }) => {
+                let color = "black";
+                let badge = "";
+                let marginRight = 20;
+
+                const badgeTextStyle = {
+                  color: "black",
+                  marginRight: 10,
+                  fontSize: 15,
+                  position: "relative",
+                  left: -5,
+                };
+
+                if (index === 0) {
+                  badge = "🥇";
+                } else if (index === 1) {
+                  badge = "🥈";
+                } else if (index === 2) {
+                  badge = "🥉";
+                }
+
+                const email = item[0];
+                const [truncatedEmail] = email.split("@");
+
                 return (
                   <View
                     style={{
-                      margin: 10,
-                      width: "80%",
+                      backgroundColor: "white",
+                      width: "100%",
                       display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      flexDirection: "row",
+                      justifyContent: "flex-start",
+                      alignItems: "flex-start",
                     }}
                   >
-                    <Text style={{ color: "black", marginRight: 15 }}>
-                      {index + 1}. {item[0]}
-                    </Text>
-                    <Text style={{ color: "black" }}>{item[1]}</Text>
+                    <View
+                      style={{
+                        marginRight: item[0] === user?.email ? 0 : 10,
+                        marginLeft: item[0] === user?.email ? 0 : 10,
+                        marginTop: item[0] === user?.email ? 8 : 8,
+                        marginBottom: item[0] === user?.email ? 7 : 7,
+                        width: item[0] === user?.email ? "76%" : "70%",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexDirection: "row",
+                        backgroundColor:
+                          item[0] === user?.email ? "#818384" : "white",
+                        borderRadius: 10,
+                        padding: item[0] === user?.email ? 10 : 0,
+                      }}
+                    >
+                      <Text
+                        style={
+                          index < 3
+                            ? badgeTextStyle
+                            : {
+                                color,
+                                marginRight,
+                              }
+                        }
+                      >
+                        <Text
+                          style={{
+                            fontSize: index < 3 ? 15 : 15,
+                            color: item[0] === user?.email ? "white" : "black",
+                          }}
+                        >
+                          {index < 3 ? badge : `${index + 1}.`} {truncatedEmail}
+                        </Text>
+                      </Text>
+
+                      <Text
+                        style={{
+                          color: item[0] === user?.email ? "white" : "black",
+                        }}
+                      >
+                        {item[1]}
+                      </Text>
+                    </View>
                   </View>
                 );
               }}
@@ -214,7 +319,7 @@ function LeaderboardModal({
               styles.buttonClose,
               { backgroundColor: hideModal ? "darkgray" : "#818384" },
             ]}
-            onPress={() => setLeaderboardVisible(!leaderboardVisible)}
+            onPress={() => onHideModal()}
             onTouchStart={() => setHideModal(!hideModal)}
             onTouchEnd={() => setHideModal(false)}
           >
