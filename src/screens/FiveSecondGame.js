@@ -22,6 +22,7 @@ import {
   doc,
   query,
   where,
+  serverTimestamp,
 } from "firebase/firestore";
 
 import { useAuth } from "../hooks/useAuth";
@@ -308,8 +309,16 @@ const shuffleArrayPreGame = (array) => {
 
 const shuffledArray = shuffleArrayPreGame(gameDecks);
 
+// function getRandomElement(array) {
+//   const randomIndex = Math.floor(Math.random() * array.length);
+//   return array[randomIndex];
+// }
+
 function getRandomElement(array) {
-  const randomIndex = Math.floor(Math.random() * array.length);
+  let randomIndex = Math.floor(Math.random() * array.length);
+  if (randomIndex === 0) {
+    randomIndex = 1;
+  }
   return array[randomIndex];
 }
 
@@ -373,6 +382,7 @@ export function FiveSecondGame({ navigation }) {
     if (score + 1 > highScore) {
       updateDoc(docRef, {
         FiveSecondGameScore: score + 1,
+        fiveSecondTimeStamp: serverTimestamp(),
       });
     }
   }
@@ -441,7 +451,18 @@ export function FiveSecondGame({ navigation }) {
     }
   };
 
-  console.log(timeRemaining, "timeRemaining");
+  const goToHome = () => {
+    setTimeout(() => {
+      navigation.navigate("Home");
+    }, 170);
+  };
+
+  const resetGameDelay = () => {
+    setTimeout(() => {
+      resetGame();
+    }, 170);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
@@ -566,7 +587,8 @@ export function FiveSecondGame({ navigation }) {
               <ThemedButton
                 name="bruce"
                 type="primary"
-                onPressOut={() => navigation.navigate("Home")}
+                // onPressOut={() => navigation.navigate("Home")}
+                onPressOut={goToHome}
                 width={70}
                 height={80}
                 borderRadius={360}
@@ -592,7 +614,7 @@ export function FiveSecondGame({ navigation }) {
               <ThemedButton
                 name="bruce"
                 type="primary"
-                onPressOut={() => navigation.navigate("Home")}
+                onPressOut={goToHome}
                 width={100}
                 height={110}
                 borderRadius={360}
@@ -612,7 +634,7 @@ export function FiveSecondGame({ navigation }) {
               <ThemedButton
                 name="bruce"
                 type="primary"
-                onPressOut={resetGame}
+                onPressOut={resetGameDelay}
                 width={99}
                 height={110}
                 borderRadius={360}

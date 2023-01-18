@@ -14,7 +14,8 @@ import { signOut } from "firebase/auth";
 import { LinearGradient } from "expo-linear-gradient";
 import { ThemedButton } from "react-native-really-awesome-button";
 import { useActionSheet } from "@expo/react-native-action-sheet";
-
+import CustomSwitch from "../components/CustomSwitch";
+import LeaderboardModal from "../components/LeaderboardModal";
 import { useAuth } from "../hooks/useAuth";
 import { auth } from "../config";
 import { db } from "../config/firebase";
@@ -33,6 +34,8 @@ import {
   where,
   limit,
   orderBy,
+  Timestamp,
+  serverTimestamp,
 } from "firebase/firestore";
 
 import {
@@ -49,18 +52,46 @@ export const HomeScreen = ({ navigation }) => {
   const [leaderBoardArrayOneMinGame, setLeaderBoardArrayOneMinGame] = useState(
     []
   );
+
+  const [leaderBoardArraySpeedGame, setLeaderBoardArraySpeedGame] = useState(
+    []
+  );
   const [minTouched, setMinTouched] = useState(false);
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
 
   const [speedTouched, setSpeedTouched] = useState(false);
   const [gameFinalScore, setGameFinalScore] = useState(0);
 
+  const onSelectSwitch = (index) => {
+    alert("Selected index: " + index);
+  };
+
   const getTopTenWithUsernameOneMinGame = () => {
+    //gets the query for the top ten scores of the day
+    // const today = new Date();
+
+    // const startOfToday = Timestamp.fromDate(
+    //   new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    // );
+    // const endOfToday = Timestamp.fromMillis(
+    //   startOfToday.toMillis() + 24 * 60 * 60 * 1000 - 1
+    // );
+
+    // const q = query(
+    //   collection(db, "users"),
+    //   orderBy("serverTimestamp", "desc"),
+    //   where("serverTimestamp", ">=", startOfToday),
+    //   where("serverTimestamp", "<=", endOfToday),
+    //   limit(10)
+    // );
+
     const q = query(
       collection(db, "users"),
       orderBy("highScore", "desc"),
+
       limit(10)
     );
+
     onSnapshot(q, (querySnapshot) => {
       const topTen = [];
       const scoreAndUsernameObj = {};
@@ -69,16 +100,48 @@ export const HomeScreen = ({ navigation }) => {
         topTen.push(doc.data().highScore);
         scoreAndUsernameObj[doc.data().username] = doc.data().highScore;
       });
-      //sort the scoreandusername object by the score
-      const sortedScoreAndUsernameObj = Object.keys(scoreAndUsernameObj)
-        .sort((a, b) => scoreAndUsernameObj[b] - scoreAndUsernameObj[a])
-        .reduce((r, k) => ((r[k] = scoreAndUsernameObj[k]), r), {});
+
+      const entries = Object.entries(scoreAndUsernameObj);
+      entries.sort((a, b) => b[1] - a[1]);
+      const sortedScoreAndUsernameObj = Object.fromEntries(entries);
       setLeaderBoardArrayOneMinGame(Object.entries(sortedScoreAndUsernameObj));
+
+      // const sortedScoreAndUsernameObj = Object.keys(scoreAndUsernameObj)
+      //   .sort((a, b) => scoreAndUsernameObj[b] - scoreAndUsernameObj[a])
+      //   .reduce((r, k) => ((r[k] = scoreAndUsernameObj[k]), r), {});
+      // setLeaderBoardArrayOneMinGame(Object.entries(sortedScoreAndUsernameObj));
+    });
+  };
+
+  const getTopTenWithUsernameSpeedGame = () => {
+    const q = query(
+      collection(db, "users"),
+      orderBy("FiveSecondGameScore", "desc"),
+
+      limit(10)
+    );
+
+    onSnapshot(q, (querySnapshot) => {
+      const topTen = [];
+      const scoreAndUsernameObj = {};
+
+      querySnapshot.forEach((doc) => {
+        topTen.push(doc.data().highScore);
+        scoreAndUsernameObj[doc.data().username] =
+          doc.data().FiveSecondGameScore;
+      });
+
+      const entries = Object.entries(scoreAndUsernameObj);
+      entries.sort((a, b) => b[1] - a[1]);
+      const sortedScoreAndUsernameObj = Object.fromEntries(entries);
+      setLeaderBoardArraySpeedGame(Object.entries(sortedScoreAndUsernameObj));
     });
   };
 
   useEffect(() => {
     getTopTenWithUsernameOneMinGame();
+    getTopTenWithUsernameSpeedGame();
+
     console.log("user: ", user);
   }, [user]);
 
@@ -134,11 +197,6 @@ export const HomeScreen = ({ navigation }) => {
         options,
         cancelButtonIndex,
         title: "Select the number of rounds",
-        // titleTextStyle: {
-        //   color: "black",
-        //   fontSize: 20,
-        //   fontWeight: "bold",
-        // },
       },
       (selectedIndex) => {
         if (selectedIndex === 3) return;
@@ -146,7 +204,6 @@ export const HomeScreen = ({ navigation }) => {
         navigation.navigate("DuelGame", {
           gameFinalScore: options[selectedIndex],
         });
-        console.log("selectedIndex: ", options[selectedIndex]);
       }
     );
   };
@@ -234,7 +291,7 @@ export const HomeScreen = ({ navigation }) => {
             )}
           /> */}
 
-          <Modal
+          {/* <Modal
             animationType="slide"
             transparent={true}
             visible={leaderboardVisible}
@@ -246,6 +303,16 @@ export const HomeScreen = ({ navigation }) => {
             <View style={styles.centeredView}>
               <View style={styles.modalView}>
                 <Text style={styles.modalText}>Leaderboard</Text>
+                <View style={{ alignItems: "center", margin: 10 }}>
+                  <CustomSwitch
+                    selectionMode={1}
+                    roundCorner={true}
+                    option1={"1 MIN"}
+                    option2={"Speed"}
+                    onSelectSwitch={onSelectSwitch}
+                    selectionColor={"#818384"}
+                  />
+                </View>
                 <View
                   style={{
                     display: "flex ",
@@ -311,7 +378,15 @@ export const HomeScreen = ({ navigation }) => {
                 </Pressable>
               </View>
             </View>
-          </Modal>
+          </Modal> */}
+
+          <LeaderboardModal
+            leaderboardVisible={leaderboardVisible}
+            setLeaderboardVisible={setLeaderboardVisible}
+            onSelectSwitch={onSelectSwitch}
+            leaderBoardArrayOneMinGame={leaderBoardArrayOneMinGame}
+            leaderBoardArraySpeedGame={leaderBoardArraySpeedGame}
+          />
 
           <View
             style={{
@@ -527,7 +602,7 @@ const styles = StyleSheet.create({
   centeredView: {
     // flex: 1,
     width: "100%",
-    height: "90%",
+    height: "80%",
     justifyContent: "center",
     alignItems: "center",
     marginTop: 22,
@@ -535,7 +610,7 @@ const styles = StyleSheet.create({
   modalView: {
     margin: 90,
     width: "90%",
-    height: "70%",
+    height: "89%",
     backgroundColor: "white",
     borderRadius: 20,
     padding: 35,
@@ -562,7 +637,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   modalText: {
-    marginBottom: 15,
+    marginBottom: 2,
     fontSize: 20,
     textAlign: "center",
   },

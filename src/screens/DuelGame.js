@@ -311,13 +311,31 @@ const shuffleArrayPreGame = (array) => {
 
 const shuffledArray = shuffleArrayPreGame(gameDecks);
 
+// function userOneRandom(array) {
+//   const randomIndex = Math.floor(Math.random() * array.length);
+//   return array[randomIndex];
+// }
+
+// function userTwoRandom(array) {
+//   const randomIndex = Math.floor(Math.random() * array.length);
+//   return array[randomIndex];
+// }
+
 function userOneRandom(array) {
-  const randomIndex = Math.floor(Math.random() * array.length);
+  let randomIndex = Math.floor(Math.random() * array.length);
+  if (randomIndex === 0) {
+    randomIndex = 1;
+  }
   return array[randomIndex];
 }
 
+let userOneChoice = userOneRandom(shuffledArray);
+
 function userTwoRandom(array) {
-  const randomIndex = Math.floor(Math.random() * array.length);
+  let randomIndex = Math.floor(Math.random() * array.length);
+  if (randomIndex === 0 || randomIndex === userOneChoice) {
+    randomIndex = 1;
+  }
   return array[randomIndex];
 }
 
@@ -445,6 +463,18 @@ export default function DuelGame({ route, navigation }) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
+  };
+
+  const goToHome = () => {
+    setTimeout(() => {
+      navigation.navigate("Home");
+    }, 170);
+  };
+
+  const resetGameDelay = () => {
+    setTimeout(() => {
+      resetGame();
+    }, 170);
   };
 
   return (
@@ -596,7 +626,8 @@ export default function DuelGame({ route, navigation }) {
               <ThemedButton
                 name="bruce"
                 type="primary"
-                onPressOut={() => navigation.navigate("Home")}
+                // onPressOut={() => navigation.navigate("Home")}
+                onPressOut={goToHome}
                 width={100}
                 height={110}
                 borderRadius={360}
@@ -616,7 +647,8 @@ export default function DuelGame({ route, navigation }) {
               <ThemedButton
                 name="bruce"
                 type="primary"
-                onPressOut={resetGame}
+                // onPressOut={resetGame}
+                onPressOut={resetGameDelay}
                 width={99}
                 height={110}
                 borderRadius={360}

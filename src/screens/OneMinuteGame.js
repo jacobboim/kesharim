@@ -23,6 +23,7 @@ import {
   updateDoc,
   doc,
   query,
+  serverTimestamp,
   where,
 } from "firebase/firestore";
 
@@ -312,8 +313,15 @@ export function OneMinuteGame({ navigation }) {
 
   const shuffledArray = shuffleArrayPreGame(gameDecks);
 
+  // function getRandomElement(array) {
+  //   const randomIndex = Math.floor(Math.random() * array.length);
+  //   return array[randomIndex];
+  // }
   function getRandomElement(array) {
-    const randomIndex = Math.floor(Math.random() * array.length);
+    let randomIndex = Math.floor(Math.random() * array.length);
+    if (randomIndex === 0) {
+      randomIndex = 1;
+    }
     return array[randomIndex];
   }
 
@@ -372,6 +380,7 @@ export function OneMinuteGame({ navigation }) {
     if (score + 1 > highScore) {
       updateDoc(docRef, {
         highScore: score + 1,
+        serverTimestamp: serverTimestamp(),
       });
     }
   }
@@ -409,6 +418,18 @@ export function OneMinuteGame({ navigation }) {
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+  };
+
+  const goToHome = () => {
+    setTimeout(() => {
+      navigation.navigate("Home");
+    }, 170);
+  };
+
+  const resetGameDelay = () => {
+    setTimeout(() => {
+      resetGame();
+    }, 170);
   };
 
   return (
@@ -526,7 +547,8 @@ export function OneMinuteGame({ navigation }) {
               <ThemedButton
                 name="bruce"
                 type="primary"
-                onPressOut={() => navigation.navigate("Home")}
+                // onPressOut={() => navigation.navigate("Home")}
+                onPressOut={goToHome}
                 width={70}
                 height={80}
                 borderRadius={360}
