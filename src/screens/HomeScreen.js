@@ -9,6 +9,7 @@ import {
   Alert,
   Modal,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { signOut } from "firebase/auth";
 import { LinearGradient } from "expo-linear-gradient";
@@ -16,15 +17,20 @@ import { ThemedButton } from "react-native-really-awesome-button";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import CustomSwitch from "../components/CustomSwitch";
 import LeaderboardModal from "../components/LeaderboardModal";
+import DecksModal from "../components/DecksModal";
 import { useAuth } from "../hooks/useAuth";
 import { auth } from "../config";
 import { db } from "../config/firebase";
+import { IMAGES } from "../../assets";
 import Animated, {
   BounceIn,
   FadeIn,
   FlipInEasyX,
   FlipOutEasyX,
 } from "react-native-reanimated";
+import handleAlldecks from "../components/decks/IconDecks";
+
+// import deckOptions from "../components/choseDeck/deckOoptions";
 
 import {
   collection,
@@ -40,27 +46,64 @@ import {
 
 import {
   Fontisto,
+  Entypo,
   Feather,
   Ionicons,
   MaterialIcons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 
+const screenWidth = Dimensions.get("screen").width;
+const screenHeight = Dimensions.get("screen").height;
+
 export const HomeScreen = ({ navigation }) => {
   const { user } = useAuth();
+  const { deckOptions } = handleAlldecks();
+  const spread = deckOptions();
+  const Randomssss = spread.RandomizeDecks;
+  const { chosenDeck } = spread;
+  // console.log(chosenDeck + " chosenDeck");
 
   const [leaderBoardArrayOneMinGame, setLeaderBoardArrayOneMinGame] = useState(
     []
   );
+
+  const [homeScreenDeckCHoice, sethomeScreenDeckCHoice] = useState();
 
   const [leaderBoardArraySpeedGame, setLeaderBoardArraySpeedGame] = useState(
     []
   );
   const [minTouched, setMinTouched] = useState(false);
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
-
+  const [decksModalVisible, setDecksModalVisible] = useState(false);
   const [speedTouched, setSpeedTouched] = useState(false);
   const [gameFinalScore, setGameFinalScore] = useState(0);
+
+  useEffect(() => {
+    const userQuerys = collection(db, "users");
+
+    const q = query(userQuerys, where("username", "==", `${user?.email}`));
+
+    const getCurrentDeckSnapShot = onSnapshot(q, (querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        sethomeScreenDeckCHoice(doc.data().currentDeck);
+      });
+    });
+    return () => {
+      getCurrentDeckSnapShot;
+    };
+  }, [homeScreenDeckCHoice, sethomeScreenDeckCHoice, user?.email]);
+
+  // const getCurrentDeck = () => {
+  //   const userQuerys = collection(db, "users");
+  //   const q = query(userQuerys, where("username", "==", `${user?.email}`));
+
+  //   const getCurrentDeckSnapShot = onSnapshot(q, (querySnapshot) => {
+  //     querySnapshot.forEach((doc) => {
+  //       sethomeScreenDeckCHoice(doc.data().currentDeck);
+  //     });
+  //   });
+  // };
 
   const onSelectSwitch = (index) => {
     alert("Selected index: " + index);
@@ -89,7 +132,7 @@ export const HomeScreen = ({ navigation }) => {
       collection(db, "users"),
       orderBy("highScore", "desc"),
 
-      limit(10)
+      limit(15)
     );
 
     onSnapshot(q, (querySnapshot) => {
@@ -105,11 +148,6 @@ export const HomeScreen = ({ navigation }) => {
       entries.sort((a, b) => b[1] - a[1]);
       const sortedScoreAndUsernameObj = Object.fromEntries(entries);
       setLeaderBoardArrayOneMinGame(Object.entries(sortedScoreAndUsernameObj));
-
-      // const sortedScoreAndUsernameObj = Object.keys(scoreAndUsernameObj)
-      //   .sort((a, b) => scoreAndUsernameObj[b] - scoreAndUsernameObj[a])
-      //   .reduce((r, k) => ((r[k] = scoreAndUsernameObj[k]), r), {});
-      // setLeaderBoardArrayOneMinGame(Object.entries(sortedScoreAndUsernameObj));
     });
   };
 
@@ -118,7 +156,7 @@ export const HomeScreen = ({ navigation }) => {
       collection(db, "users"),
       orderBy("FiveSecondGameScore", "desc"),
 
-      limit(10)
+      limit(15)
     );
 
     onSnapshot(q, (querySnapshot) => {
@@ -141,49 +179,17 @@ export const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     getTopTenWithUsernameOneMinGame();
     getTopTenWithUsernameSpeedGame();
-
-    console.log("user: ", user);
-  }, [user]);
+    // getCurrentDeck();
+    return () => {
+      getTopTenWithUsernameSpeedGame;
+      getTopTenWithUsernameOneMinGame;
+      // getCurrentDeck;
+    };
+  }, [user?.email]);
 
   const handleLogout = () => {
     signOut(auth).catch((error) => console.log("Error logging out: ", error));
   };
-
-  const buttonData = [
-    {
-      name: "bruce",
-      type: "primary",
-      onPressOut: () => navigation.navigate("OneMinuteGame"),
-      width: 110,
-      height: 110,
-      borderRadius: 150,
-      backgroundColor: "#818384",
-      icon: "stopwatch",
-      label: "1 MIN",
-    },
-    {
-      name: "bruce",
-      type: "primary",
-      onPressOut: () => navigation.navigate("FiveSecondGame"),
-      width: 110,
-      height: 110,
-      borderRadius: 150,
-      backgroundColor: "#818384",
-      icon: "stopwatch",
-      label: "Speed",
-    },
-    {
-      name: "bruce",
-      type: "primary",
-      onPressOut: () => navigation.navigate("DuelGame"),
-      width: 110,
-      height: 110,
-      borderRadius: 150,
-      backgroundColor: "#818384",
-      icon: "stopwatch",
-      label: "Duel",
-    },
-  ];
 
   const { showActionSheetWithOptions } = useActionSheet();
 
@@ -203,6 +209,7 @@ export const HomeScreen = ({ navigation }) => {
         setGameFinalScore(options[selectedIndex]);
         navigation.navigate("DuelGame", {
           gameFinalScore: options[selectedIndex],
+          finalDeckChoice: homeScreenDeckCHoice,
         });
       }
     );
@@ -230,15 +237,25 @@ export const HomeScreen = ({ navigation }) => {
     }, 150);
   };
 
+  const showDecksModal = () => {
+    setTimeout(() => {
+      setDecksModalVisible(!decksModalVisible);
+    }, 150);
+  };
+
   const goToOneMin = () => {
     setTimeout(() => {
-      navigation.navigate("OneMinuteGame");
+      navigation.navigate("OneMinuteGame", {
+        finalDeckChoice: homeScreenDeckCHoice,
+      });
     }, 150);
   };
 
   const goToSpeed = () => {
     setTimeout(() => {
-      navigation.navigate("FiveSecondGame");
+      navigation.navigate("FiveSecondGame", {
+        finalDeckChoice: homeScreenDeckCHoice,
+      });
     }, 150);
   };
 
@@ -248,146 +265,102 @@ export const HomeScreen = ({ navigation }) => {
     }, 150);
   };
 
+  const data = [
+    {
+      key: "1",
+      name: "gameDecks",
+      image: IMAGES.snapchat,
+      backgroundColor: "#546E7A",
+    },
+    {
+      key: "2",
+      name: "monsterDeck",
+      image: IMAGES.cuteMonster,
+      backgroundColor: "#546E7A",
+    },
+    {
+      key: "3",
+      name: "foodDeck",
+      image: IMAGES.donut,
+      backgroundColor: "#546E7A",
+    },
+    // {
+    //   key: "4",
+    //   name: "gameDecks4",
+    //   image: IMAGES.facebook,
+    //   backgroundColor: "#37474F",
+    // },
+    // {
+    //   key: "5",
+    //   name: "gameDecks5",
+    //   image: IMAGES.twitter,
+    //   backgroundColor: "#263238",
+    // },
+
+    // {
+    //   key: "6",
+    //   name: "gameDecks6",
+    //   image: IMAGES.beis,
+    //   backgroundColor: "#263238",
+    // },
+    // {
+    //   key: "7",
+    //   name: "gameDecks7",
+    //   image: IMAGES.drive,
+    //   backgroundColor: "#263238",
+    // },
+    // {
+    //   key: "8",
+    //   name: "gameDecks8",
+    //   image: IMAGES.torah,
+    //   backgroundColor: "#263238",
+    // },
+    // {
+    //   key: "9",
+    //   name: "gameDecks7",
+    //   image: IMAGES.drive,
+    //   backgroundColor: "#263238",
+    // },
+    // {
+    //   key: "10",
+    //   name: "gameDecks8",
+    //   image: IMAGES.torah,
+    //   backgroundColor: "#263238",
+    // },
+    // {
+    //   key: "11",
+    //   name: "gameDecks7",
+    //   image: IMAGES.drive,
+    //   backgroundColor: "#263238",
+    // },
+    // {
+    //   key: "12",
+    //   name: "gameDecks8",
+    //   image: IMAGES.torah,
+    //   backgroundColor: "#263238",
+    // },
+    // {
+    //   key: "13",
+    //   name: "gameDecks7",
+    //   image: IMAGES.drive,
+    //   backgroundColor: "#263238",
+    // },
+    // {
+    //   key: "14",
+    //   name: "gameDecks8",
+    //   image: IMAGES.torah,
+    //   backgroundColor: "#263238",
+    // },
+  ];
+
   return (
     <LinearGradient
       colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
-      // start={[0, 0]}
-      // end={[0, 1]}
       style={styles.linearGradient}
     >
       <View style={styles.container}>
         <Text style={styles.gameName}>Kesharim</Text>
         <View style={styles.gameOptionsContatier}>
-          {/* <FlatList
-            data={buttonData}
-            numColumns={2}
-            // ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-            keyExtractor={(item) => item.label}
-            renderItem={({ item }) => (
-              <View style={{ margin: 10 }}>
-                <ThemedButton
-                  name={item.name}
-                  type={item.type}
-                  onPressOut={item.onPressOut}
-                  width={item.width}
-                  height={item.height}
-                  borderRadius={item.borderRadius}
-                  backgroundColor={item.backgroundColor}
-                >
-                  <View
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Fontisto name={item?.icon} size={60} color="white" />
-                    <Text style={{ fontSize: 20, color: "white" }}>
-                      {item.label}
-                    </Text>
-                  </View>
-                </ThemedButton>
-              </View>
-            )}
-          /> */}
-
-          {/* <Modal
-            animationType="slide"
-            transparent={true}
-            visible={leaderboardVisible}
-            onRequestClose={() => {
-              Alert.alert("Modal has been closed.");
-              setLeaderboardVisible(!leaderboardVisible);
-            }}
-          >
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <Text style={styles.modalText}>Leaderboard</Text>
-                <View style={{ alignItems: "center", margin: 10 }}>
-                  <CustomSwitch
-                    selectionMode={1}
-                    roundCorner={true}
-                    option1={"1 MIN"}
-                    option2={"Speed"}
-                    onSelectSwitch={onSelectSwitch}
-                    selectionColor={"#818384"}
-                  />
-                </View>
-                <View
-                  style={{
-                    display: "flex ",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    flexDirection: "row",
-                    width: "100%",
-                    marginBottom: 2,
-                    marginTop: 10,
-                  }}
-                >
-                  <View
-                    style={{
-                      position: "absolute",
-                      left: 10,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontWeight: "800",
-                        fontSize: 15,
-                      }}
-                    >
-                      Username
-                    </Text>
-                  </View>
-                  <View style={{ position: "absolute", right: 3 }}>
-                    <Text style={{ fontWeight: "800", fontSize: 15 }}>
-                      Score
-                    </Text>
-                  </View>
-                </View>
-
-                <FlatList
-                  data={leaderBoardArrayOneMinGame}
-                  numColumns={1}
-                  scrollEnabled={false}
-                  // ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-                  keyExtractor={(item) => item[0]}
-                  renderItem={({ item, index }) => (
-                    <View
-                      style={{
-                        margin: 10,
-                        width: "80%",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        flexDirection: "row",
-                      }}
-                    >
-                      <Text style={{ color: "black", marginRight: 20 }}>
-                        {index + 1}. {item[0]}
-                      </Text>
-                      <Text style={{ color: "black" }}>{item[1]}</Text>
-                    </View>
-                  )}
-                />
-                <Pressable
-                  style={[styles.button, styles.buttonClose]}
-                  onPress={() => setLeaderboardVisible(!leaderboardVisible)}
-                >
-                  <Text style={styles.textStyle}>Hide Modal</Text>
-                </Pressable>
-              </View>
-            </View>
-          </Modal> */}
-
-          <LeaderboardModal
-            leaderboardVisible={leaderboardVisible}
-            setLeaderboardVisible={setLeaderboardVisible}
-            onSelectSwitch={onSelectSwitch}
-            leaderBoardArrayOneMinGame={leaderBoardArrayOneMinGame}
-            leaderBoardArraySpeedGame={leaderBoardArraySpeedGame}
-          />
-
           <View
             style={{
               display: "flex",
@@ -401,7 +374,7 @@ export const HomeScreen = ({ navigation }) => {
               name="bruce"
               type="primary"
               onPressOut={goToOneMin}
-              width={110}
+              width={106}
               height={110}
               borderRadius={150}
               backgroundColor="#818384"
@@ -434,7 +407,7 @@ export const HomeScreen = ({ navigation }) => {
               name="bruce"
               type="primary"
               onPressOut={goToSpeed}
-              width={110}
+              width={106}
               height={110}
               borderRadius={150}
               backgroundColor="#818384"
@@ -476,7 +449,7 @@ export const HomeScreen = ({ navigation }) => {
               name="bruce"
               type="primary"
               onPressOut={goToDuel}
-              width={110}
+              width={106}
               height={110}
               borderRadius={150}
               backgroundColor="#818384"
@@ -510,7 +483,9 @@ export const HomeScreen = ({ navigation }) => {
             alignItems: "center",
             flexDirection: "row",
             position: "absolute",
-            bottom: 50,
+
+            top: screenHeight / 1.45,
+
             width: "80%",
           }}
         >
@@ -538,9 +513,7 @@ export const HomeScreen = ({ navigation }) => {
           <ThemedButton
             name="bruce"
             type="primary"
-            style={styles.signOut}
-            // onPressOut={handleLogout}
-            onPressOut={twoOptionAlertHandler}
+            onPressOut={showDecksModal}
             width={80}
             height={85}
             borderRadius={360}
@@ -553,21 +526,75 @@ export const HomeScreen = ({ navigation }) => {
                 alignItems: "center",
               }}
             >
-              <Feather name="log-out" size={40} color="white" />
+              <Entypo name="emoji-happy" size={40} color="white" />
+            </View>
+          </ThemedButton>
+        </View>
+
+        <View
+          style={{
+            display: "flex",
+            justifyContent: "space-evenly",
+            alignItems: "center",
+            flexDirection: "row",
+            position: "absolute",
+            left: 125,
+            top: screenHeight / 1.14,
+
+            width: "100%",
+          }}
+        >
+          <ThemedButton
+            name="bruce"
+            type="primary"
+            style={styles.signOut}
+            // onPressOut={handleLogout}
+            onPressOut={twoOptionAlertHandler}
+            width={70}
+            height={75}
+            borderRadius={360}
+            backgroundColor="#818384"
+          >
+            <View
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Feather name="log-out" size={30} color="white" />
             </View>
           </ThemedButton>
         </View>
       </View>
+
+      <LeaderboardModal
+        leaderboardVisible={leaderboardVisible}
+        setLeaderboardVisible={setLeaderboardVisible}
+        onSelectSwitch={onSelectSwitch}
+        leaderBoardArrayOneMinGame={leaderBoardArrayOneMinGame}
+        leaderBoardArraySpeedGame={leaderBoardArraySpeedGame}
+      />
+      <DecksModal
+        decksModalVisible={decksModalVisible}
+        setDecksModalVisible={setDecksModalVisible}
+        dataForFlatListDecks={data}
+        sethomeScreenDeckCHoice={sethomeScreenDeckCHoice}
+        homeScreenDeckCHoice={homeScreenDeckCHoice}
+      />
     </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
     alignItems: "center",
     justifyContent: "center",
     display: "flex",
+    flexDirection: "column",
+    // width: "100%",
+    height: "70%",
   },
   gameName: {
     fontSize: 50,

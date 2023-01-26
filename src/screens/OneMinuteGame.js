@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -6,15 +6,12 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Dimensions,
-  Pressable,
-  Button,
-  Image,
-  FlatList,
 } from "react-native";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
 import { LinearGradient } from "expo-linear-gradient";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "react-native-really-awesome-button";
+import handleAlldecks from "../components/decks/IconDecks";
 import { IMAGES } from "../../assets";
 
 import {
@@ -35,15 +32,21 @@ import Animated, {
   FlipOutEasyX,
   BounceIn,
   FadeIn,
-  SlideOutLeft,
   FadeOut,
+  SlideInDown,
+  SlideOutDown,
+  SlideInUp,
 } from "react-native-reanimated";
 
 const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
 
 console.log(screenHeight, "screenheight");
-export function OneMinuteGame({ navigation }) {
+export const OneMinuteGame = ({ route, navigation }) => {
+  const { randomizeDeck, randomizeUserDeck } = handleAlldecks();
+  const getChosenDeck = route.params.finalDeckChoice;
+  console.log(getChosenDeck, "getChosenDeck");
+
   const gameDecks = [
     [
       { id: "safari", emoji: IMAGES.safari, rotation: 45 },
@@ -303,6 +306,560 @@ export function OneMinuteGame({ navigation }) {
     ],
   ];
 
+  const monsterDeck = [
+    [
+      { id: "bushyMonster", emoji: IMAGES.bushyMonster, rotation: 45 },
+      { id: "spottedMonster", emoji: IMAGES.spottedMonster, rotation: 90 },
+      { id: "oneEyeMonster", emoji: IMAGES.oneEyeMonster, rotation: 135 },
+      { id: "twoMonster", emoji: IMAGES.twoMonster, rotation: 45 },
+      { id: "alienMonster", emoji: IMAGES.alienMonster, rotation: 90 },
+      { id: "bigMonster2", emoji: IMAGES.bigMonster2, rotation: 135 },
+    ],
+    [
+      { id: "cuteMonster", emoji: IMAGES.cuteMonster, rotation: 45 },
+      { id: "slugMonster", emoji: IMAGES.slugMonster, rotation: 90 },
+      { id: "oneMonster", emoji: IMAGES.oneMonster, rotation: 135 },
+      { id: "pearMonster", emoji: IMAGES.pearMonster, rotation: 45 },
+      { id: "oneEyeMonster", emoji: IMAGES.oneEyeMonster, rotation: 90 },
+      { id: "eggMonster", emoji: IMAGES.eggMonster, rotation: 135 },
+    ],
+    [
+      { id: "cuteMonster", emoji: IMAGES.cuteMonster, rotation: 45 },
+      { id: "spottedMonster", emoji: IMAGES.spottedMonster, rotation: 90 },
+      { id: "threeMonster2", emoji: IMAGES.threeMonster2, rotation: 135 },
+      { id: "threeMonster", emoji: IMAGES.threeMonster, rotation: 45 },
+      { id: "boxMonster", emoji: IMAGES.boxMonster, rotation: 90 },
+      { id: "roundMonster2", emoji: IMAGES.roundMonster2, rotation: 135 },
+    ],
+    [
+      { id: "threeMonster", emoji: IMAGES.threeMonster, rotation: 45 },
+      { id: "muscleMonster", emoji: IMAGES.muscleMonster, rotation: 90 },
+      { id: "orgeMonster", emoji: IMAGES.orgeMonster, rotation: 135 },
+      { id: "eggMonster", emoji: IMAGES.eggMonster, rotation: 45 },
+      { id: "fourMonster", emoji: IMAGES.fourMonster, rotation: 90 },
+      { id: "twoMonster", emoji: IMAGES.twoMonster, rotation: 135 },
+    ],
+    [
+      { id: "pearMonster", emoji: IMAGES.pearMonster, rotation: 45 },
+      { id: "fiveMonster", emoji: IMAGES.fiveMonster, rotation: 90 },
+      { id: "flyingMonster", emoji: IMAGES.flyingMonster, rotation: 135 },
+      { id: "spottedMonster", emoji: IMAGES.spottedMonster, rotation: 45 },
+      { id: "bigMonster", emoji: IMAGES.bigMonster, rotation: 90 },
+      { id: "muscleMonster", emoji: IMAGES.muscleMonster, rotation: 135 },
+    ],
+    [
+      { id: "smileMonster", emoji: IMAGES.smileMonster, rotation: 45 },
+      { id: "roundMonster2", emoji: IMAGES.roundMonster2, rotation: 90 },
+      { id: "alienMonster", emoji: IMAGES.alienMonster, rotation: 135 },
+      { id: "slugMonster", emoji: IMAGES.slugMonster, rotation: 45 },
+      { id: "muscleMonster", emoji: IMAGES.muscleMonster, rotation: 90 },
+      {
+        id: "blueFriendMonster",
+        emoji: IMAGES.blueFriendMonster,
+        rotation: 135,
+      },
+    ],
+    [
+      { id: "threeMonster", emoji: IMAGES.threeMonster, rotation: 45 },
+      { id: "smileMonster", emoji: IMAGES.smileMonster, rotation: 90 },
+      { id: "frenchMonster", emoji: IMAGES.frenchMonster, rotation: 135 },
+      { id: "oneMonster", emoji: IMAGES.oneMonster, rotation: 45 },
+      { id: "fiveMonster", emoji: IMAGES.fiveMonster, rotation: 90 },
+      { id: "bushyMonster", emoji: IMAGES.bushyMonster, rotation: 135 },
+    ],
+    [
+      {
+        id: "blueFriendMonster",
+        emoji: IMAGES.blueFriendMonster,
+        rotation: 45,
+      },
+      { id: "fourMonster", emoji: IMAGES.fourMonster, rotation: 90 },
+      { id: "cuteMonster", emoji: IMAGES.cuteMonster, rotation: 135 },
+      { id: "fiveMonster", emoji: IMAGES.fiveMonster, rotation: 45 },
+      { id: "bigMonster2", emoji: IMAGES.bigMonster2, rotation: 90 },
+      { id: "hornMonster", emoji: IMAGES.hornMonster, rotation: 135 },
+    ],
+    [
+      { id: "frenchMonster", emoji: IMAGES.frenchMonster, rotation: 45 },
+      { id: "roundMonster2", emoji: IMAGES.roundMonster2, rotation: 90 },
+      { id: "friendMosnter", emoji: IMAGES.friendMosnter, rotation: 135 },
+      { id: "eggMonster", emoji: IMAGES.eggMonster, rotation: 45 },
+      { id: "bigMonster2", emoji: IMAGES.bigMonster2, rotation: 90 },
+      { id: "bigMonster", emoji: IMAGES.bigMonster, rotation: 135 },
+    ],
+    [
+      { id: "slugMonster", emoji: IMAGES.slugMonster, rotation: 45 },
+      { id: "squidMonster", emoji: IMAGES.squidMonster, rotation: 90 },
+      { id: "threeMonster", emoji: IMAGES.threeMonster, rotation: 135 },
+      { id: "roundedMonster", emoji: IMAGES.roundedMonster, rotation: 45 },
+      { id: "bigMonster2", emoji: IMAGES.bigMonster2, rotation: 90 },
+      { id: "flyingMonster", emoji: IMAGES.flyingMonster, rotation: 135 },
+    ],
+    [
+      { id: "pearMonster", emoji: IMAGES.pearMonster, rotation: 45 },
+      { id: "smileMonster", emoji: IMAGES.smileMonster, rotation: 90 },
+      { id: "bigMonster2", emoji: IMAGES.bigMonster2, rotation: 135 },
+      { id: "threeMonster2", emoji: IMAGES.threeMonster2, rotation: 45 },
+      { id: "orgeMonster", emoji: IMAGES.orgeMonster, rotation: 90 },
+      { id: "roungMonster", emoji: IMAGES.roungMonster, rotation: 135 },
+    ],
+    [
+      { id: "frenchMonster", emoji: IMAGES.frenchMonster, rotation: 45 },
+      { id: "roungMonster", emoji: IMAGES.roungMonster, rotation: 90 },
+      { id: "booMonster", emoji: IMAGES.booMonster, rotation: 135 },
+      { id: "fourMonster", emoji: IMAGES.fourMonster, rotation: 45 },
+      { id: "slugMonster", emoji: IMAGES.slugMonster, rotation: 90 },
+      { id: "spottedMonster", emoji: IMAGES.spottedMonster, rotation: 135 },
+    ],
+    [
+      { id: "frenchMonster", emoji: IMAGES.frenchMonster, rotation: 45 },
+      { id: "roundedMonster", emoji: IMAGES.roundedMonster, rotation: 90 },
+      { id: "muscleMonster", emoji: IMAGES.muscleMonster, rotation: 135 },
+      { id: "threeMonster2", emoji: IMAGES.threeMonster2, rotation: 45 },
+      { id: "hornMonster", emoji: IMAGES.hornMonster, rotation: 90 },
+      { id: "oneEyeMonster", emoji: IMAGES.oneEyeMonster, rotation: 135 },
+    ],
+    [
+      { id: "boxMonster", emoji: IMAGES.boxMonster, rotation: 45 },
+      { id: "bushyMonster", emoji: IMAGES.bushyMonster, rotation: 90 },
+      { id: "hornMonster", emoji: IMAGES.hornMonster, rotation: 135 },
+      { id: "orgeMonster", emoji: IMAGES.orgeMonster, rotation: 45 },
+      { id: "bigMonster", emoji: IMAGES.bigMonster, rotation: 90 },
+      { id: "slugMonster", emoji: IMAGES.slugMonster, rotation: 135 },
+    ],
+    [
+      { id: "friendMosnter", emoji: IMAGES.friendMosnter, rotation: 45 },
+      { id: "slugMonster", emoji: IMAGES.slugMonster, rotation: 90 },
+      { id: "twoMonster", emoji: IMAGES.twoMonster, rotation: 135 },
+      { id: "tentacleMonster", emoji: IMAGES.tentacleMonster, rotation: 45 },
+      { id: "fiveMonster", emoji: IMAGES.fiveMonster, rotation: 90 },
+      { id: "threeMonster2", emoji: IMAGES.threeMonster2, rotation: 135 },
+    ],
+    [
+      { id: "oneMonster", emoji: IMAGES.oneMonster, rotation: 45 },
+      { id: "squidMonster", emoji: IMAGES.squidMonster, rotation: 90 },
+      { id: "alienMonster", emoji: IMAGES.alienMonster, rotation: 135 },
+      { id: "fourMonster", emoji: IMAGES.fourMonster, rotation: 45 },
+      { id: "threeMonster2", emoji: IMAGES.threeMonster2, rotation: 90 },
+      { id: "bigMonster", emoji: IMAGES.bigMonster, rotation: 135 },
+    ],
+    [
+      { id: "orgeMonster", emoji: IMAGES.orgeMonster, rotation: 45 },
+      { id: "flyingMonster", emoji: IMAGES.flyingMonster, rotation: 90 },
+      { id: "cuteMonster", emoji: IMAGES.cuteMonster, rotation: 135 },
+      { id: "frenchMonster", emoji: IMAGES.frenchMonster, rotation: 45 },
+      { id: "alienMonster", emoji: IMAGES.alienMonster, rotation: 90 },
+      { id: "tentacleMonster", emoji: IMAGES.tentacleMonster, rotation: 135 },
+    ],
+    [
+      { id: "smileMonster", emoji: IMAGES.smileMonster, rotation: 45 },
+      { id: "spottedMonster", emoji: IMAGES.spottedMonster, rotation: 90 },
+      { id: "tentacleMonster", emoji: IMAGES.tentacleMonster, rotation: 135 },
+      { id: "squidMonster", emoji: IMAGES.squidMonster, rotation: 45 },
+      { id: "hornMonster", emoji: IMAGES.hornMonster, rotation: 90 },
+      { id: "eggMonster", emoji: IMAGES.eggMonster, rotation: 135 },
+    ],
+    [
+      { id: "roungMonster", emoji: IMAGES.roungMonster, rotation: 45 },
+      { id: "muscleMonster", emoji: IMAGES.muscleMonster, rotation: 90 },
+      { id: "cuteMonster", emoji: IMAGES.cuteMonster, rotation: 135 },
+      { id: "squidMonster", emoji: IMAGES.squidMonster, rotation: 45 },
+      { id: "bushyMonster", emoji: IMAGES.bushyMonster, rotation: 90 },
+      { id: "friendMosnter", emoji: IMAGES.friendMosnter, rotation: 135 },
+    ],
+    [
+      { id: "oneEyeMonster", emoji: IMAGES.oneEyeMonster, rotation: 45 },
+      { id: "threeMonster", emoji: IMAGES.threeMonster, rotation: 90 },
+      { id: "tentacleMonster", emoji: IMAGES.tentacleMonster, rotation: 135 },
+      { id: "roungMonster", emoji: IMAGES.roungMonster, rotation: 45 },
+      { id: "bigMonster", emoji: IMAGES.bigMonster, rotation: 90 },
+      {
+        id: "blueFriendMonster",
+        emoji: IMAGES.blueFriendMonster,
+        rotation: 135,
+      },
+    ],
+    [
+      { id: "roundedMonster", emoji: IMAGES.roundedMonster, rotation: 45 },
+      { id: "boxMonster", emoji: IMAGES.boxMonster, rotation: 90 },
+      { id: "eggMonster", emoji: IMAGES.eggMonster, rotation: 135 },
+      { id: "alienMonster", emoji: IMAGES.alienMonster, rotation: 45 },
+      { id: "fiveMonster", emoji: IMAGES.fiveMonster, rotation: 90 },
+      { id: "roungMonster", emoji: IMAGES.roungMonster, rotation: 135 },
+    ],
+    [
+      { id: "pearMonster", emoji: IMAGES.pearMonster, rotation: 45 },
+      { id: "bushyMonster", emoji: IMAGES.bushyMonster, rotation: 90 },
+      { id: "roundMonster2", emoji: IMAGES.roundMonster2, rotation: 135 },
+      { id: "fourMonster", emoji: IMAGES.fourMonster, rotation: 45 },
+      { id: "tentacleMonster", emoji: IMAGES.tentacleMonster, rotation: 90 },
+      { id: "roundedMonster", emoji: IMAGES.roundedMonster, rotation: 135 },
+    ],
+    [
+      { id: "threeMonster", emoji: IMAGES.threeMonster, rotation: 45 },
+      { id: "muscleMonster", emoji: IMAGES.muscleMonster, rotation: 90 },
+      { id: "orgeMonster", emoji: IMAGES.orgeMonster, rotation: 135 },
+      { id: "eggMonster", emoji: IMAGES.eggMonster, rotation: 45 },
+      { id: "fourMonster", emoji: IMAGES.fourMonster, rotation: 90 },
+      { id: "twoMonster", emoji: IMAGES.twoMonster, rotation: 135 },
+    ],
+    [
+      { id: "bushyMonster", emoji: IMAGES.bushyMonster, rotation: 45 },
+      { id: "flyingMonster", emoji: IMAGES.flyingMonster, rotation: 90 },
+      {
+        id: "blueFriendMonster",
+        emoji: IMAGES.blueFriendMonster,
+        rotation: 135,
+      },
+      { id: "eggMonster", emoji: IMAGES.eggMonster, rotation: 45 },
+      { id: "threeMonster2", emoji: IMAGES.threeMonster2, rotation: 90 },
+      { id: "booMonster", emoji: IMAGES.booMonster, rotation: 135 },
+    ],
+    [
+      { id: "boxMonster", emoji: IMAGES.boxMonster, rotation: 45 },
+      { id: "fourMonster", emoji: IMAGES.fourMonster, rotation: 90 },
+      { id: "flyingMonster", emoji: IMAGES.flyingMonster, rotation: 135 },
+      { id: "oneEyeMonster", emoji: IMAGES.oneEyeMonster, rotation: 45 },
+      { id: "friendMosnter", emoji: IMAGES.friendMosnter, rotation: 90 },
+      { id: "smileMonster", emoji: IMAGES.smileMonster, rotation: 135 },
+    ],
+    [
+      { id: "bigMonster2", emoji: IMAGES.bigMonster2, rotation: 45 },
+      { id: "booMonster", emoji: IMAGES.booMonster, rotation: 90 },
+      { id: "tentacleMonster", emoji: IMAGES.tentacleMonster, rotation: 135 },
+      { id: "oneMonster", emoji: IMAGES.oneMonster, rotation: 45 },
+      { id: "muscleMonster", emoji: IMAGES.muscleMonster, rotation: 90 },
+      { id: "boxMonster", emoji: IMAGES.boxMonster, rotation: 135 },
+    ],
+    [
+      { id: "boxMonster", emoji: IMAGES.boxMonster, rotation: 45 },
+      { id: "squidMonster", emoji: IMAGES.squidMonster, rotation: 90 },
+      { id: "frenchMonster", emoji: IMAGES.frenchMonster, rotation: 135 },
+      { id: "pearMonster", emoji: IMAGES.pearMonster, rotation: 45 },
+      {
+        id: "blueFriendMonster",
+        emoji: IMAGES.blueFriendMonster,
+        rotation: 90,
+      },
+      { id: "twoMonster", emoji: IMAGES.twoMonster, rotation: 135 },
+    ],
+    [
+      { id: "spottedMonster", emoji: IMAGES.spottedMonster, rotation: 45 },
+      { id: "roundedMonster", emoji: IMAGES.roundedMonster, rotation: 90 },
+      { id: "orgeMonster", emoji: IMAGES.orgeMonster, rotation: 135 },
+      {
+        id: "blueFriendMonster",
+        emoji: IMAGES.blueFriendMonster,
+        rotation: 45,
+      },
+      { id: "friendMosnter", emoji: IMAGES.friendMosnter, rotation: 90 },
+      { id: "oneMonster", emoji: IMAGES.oneMonster, rotation: 135 },
+    ],
+    [
+      { id: "roundMonster2", emoji: IMAGES.roundMonster2, rotation: 45 },
+      { id: "flyingMonster", emoji: IMAGES.flyingMonster, rotation: 90 },
+      { id: "oneMonster", emoji: IMAGES.oneMonster, rotation: 135 },
+      { id: "hornMonster", emoji: IMAGES.hornMonster, rotation: 45 },
+      { id: "twoMonster", emoji: IMAGES.twoMonster, rotation: 90 },
+      { id: "roungMonster", emoji: IMAGES.roungMonster, rotation: 135 },
+    ],
+    [
+      { id: "hornMonster", emoji: IMAGES.hornMonster, rotation: 45 },
+      { id: "friendMosnter", emoji: IMAGES.friendMosnter, rotation: 90 },
+      { id: "threeMonster", emoji: IMAGES.threeMonster, rotation: 135 },
+      { id: "alienMonster", emoji: IMAGES.alienMonster, rotation: 45 },
+      { id: "booMonster", emoji: IMAGES.booMonster, rotation: 90 },
+      { id: "pearMonster", emoji: IMAGES.pearMonster, rotation: 135 },
+    ],
+    [
+      { id: "roundMonster2", emoji: IMAGES.roundMonster2, rotation: 45 },
+      { id: "squidMonster", emoji: IMAGES.squidMonster, rotation: 90 },
+      { id: "oneEyeMonster", emoji: IMAGES.oneEyeMonster, rotation: 135 },
+      { id: "fiveMonster", emoji: IMAGES.fiveMonster, rotation: 45 },
+      { id: "orgeMonster", emoji: IMAGES.orgeMonster, rotation: 90 },
+      { id: "booMonster", emoji: IMAGES.booMonster, rotation: 135 },
+    ],
+    [
+      { id: "smileMonster", emoji: IMAGES.smileMonster, rotation: 45 },
+      { id: "twoMonster", emoji: IMAGES.twoMonster, rotation: 90 },
+      { id: "bigMonster", emoji: IMAGES.bigMonster, rotation: 135 },
+      { id: "cuteMonster", emoji: IMAGES.cuteMonster, rotation: 45 },
+      { id: "roundedMonster", emoji: IMAGES.roundedMonster, rotation: 90 },
+      { id: "booMonster", emoji: IMAGES.booMonster, rotation: 135 },
+    ],
+  ];
+
+  const foodDeck = [
+    [
+      { id: "broccoli", emoji: IMAGES.broccoli, rotation: 45 },
+      { id: "blueberry", emoji: IMAGES.blueberry, rotation: 90 },
+      { id: "steak", emoji: IMAGES.steak, rotation: 135 },
+      { id: "strawberry", emoji: IMAGES.strawberry, rotation: 45 },
+      { id: "orange", emoji: IMAGES.orange, rotation: 90 },
+      { id: "sandwhich", emoji: IMAGES.sandwhich, rotation: 135 },
+    ],
+    [
+      { id: "hotDog", emoji: IMAGES.hotDog, rotation: 45 },
+      { id: "donut", emoji: IMAGES.donut, rotation: 90 },
+      { id: "pineapple", emoji: IMAGES.pineapple, rotation: 135 },
+      { id: "cherry", emoji: IMAGES.cherry, rotation: 45 },
+      { id: "steak", emoji: IMAGES.steak, rotation: 90 },
+      { id: "cookie", emoji: IMAGES.cookie, rotation: 135 },
+    ],
+    [
+      { id: "hotDog", emoji: IMAGES.hotDog, rotation: 45 },
+      { id: "blueberry", emoji: IMAGES.blueberry, rotation: 90 },
+      { id: "iceCreamCone", emoji: IMAGES.iceCreamCone, rotation: 135 },
+      { id: "coconut", emoji: IMAGES.coconut, rotation: 45 },
+      { id: "birthdayCake", emoji: IMAGES.birthdayCake, rotation: 90 },
+      { id: "carrot", emoji: IMAGES.carrot, rotation: 135 },
+    ],
+    [
+      { id: "coconut", emoji: IMAGES.coconut, rotation: 45 },
+      { id: "frenchFries", emoji: IMAGES.frenchFries, rotation: 90 },
+      { id: "cherryCheesecake", emoji: IMAGES.cherryCheesecake, rotation: 135 },
+      { id: "cookie", emoji: IMAGES.cookie, rotation: 45 },
+      { id: "lemonade", emoji: IMAGES.lemonade, rotation: 90 },
+      { id: "strawberry", emoji: IMAGES.strawberry, rotation: 135 },
+    ],
+    [
+      { id: "cherry", emoji: IMAGES.cherry, rotation: 45 },
+      { id: "thanksgiving", emoji: IMAGES.thanksgiving, rotation: 90 },
+      { id: "chocolateBar", emoji: IMAGES.chocolateBar, rotation: 135 },
+      { id: "blueberry", emoji: IMAGES.blueberry, rotation: 45 },
+      { id: "hamburger", emoji: IMAGES.hamburger, rotation: 90 },
+      { id: "frenchFries", emoji: IMAGES.frenchFries, rotation: 135 },
+    ],
+    [
+      { id: "pancakeStack", emoji: IMAGES.pancakeStack, rotation: 45 },
+      { id: "carrot", emoji: IMAGES.carrot, rotation: 90 },
+      { id: "orange", emoji: IMAGES.orange, rotation: 135 },
+      { id: "donut", emoji: IMAGES.donut, rotation: 45 },
+      { id: "frenchFries", emoji: IMAGES.frenchFries, rotation: 90 },
+      { id: "tomato", emoji: IMAGES.tomato, rotation: 135 },
+    ],
+    [
+      { id: "coconut", emoji: IMAGES.coconut, rotation: 45 },
+      { id: "pancakeStack", emoji: IMAGES.pancakeStack, rotation: 90 },
+      { id: "cola", emoji: IMAGES.cola, rotation: 135 },
+      { id: "pineapple", emoji: IMAGES.pineapple, rotation: 45 },
+      { id: "thanksgiving", emoji: IMAGES.thanksgiving, rotation: 90 },
+      { id: "broccoli", emoji: IMAGES.broccoli, rotation: 135 },
+    ],
+    [
+      { id: "tomato", emoji: IMAGES.tomato, rotation: 45 },
+      { id: "lemonade", emoji: IMAGES.lemonade, rotation: 90 },
+      { id: "hotDog", emoji: IMAGES.hotDog, rotation: 135 },
+      { id: "thanksgiving", emoji: IMAGES.thanksgiving, rotation: 45 },
+      { id: "sandwhich", emoji: IMAGES.sandwhich, rotation: 90 },
+      { id: "grapes", emoji: IMAGES.grapes, rotation: 135 },
+    ],
+    [
+      { id: "cola", emoji: IMAGES.cola, rotation: 45 },
+      { id: "carrot", emoji: IMAGES.carrot, rotation: 90 },
+      { id: "corn", emoji: IMAGES.corn, rotation: 135 },
+      { id: "cookie", emoji: IMAGES.cookie, rotation: 45 },
+      { id: "sandwhich", emoji: IMAGES.sandwhich, rotation: 90 },
+      { id: "hamburger", emoji: IMAGES.hamburger, rotation: 135 },
+    ],
+    [
+      { id: "donut", emoji: IMAGES.donut, rotation: 45 },
+      { id: "mango", emoji: IMAGES.mango, rotation: 90 },
+      { id: "coconut", emoji: IMAGES.coconut, rotation: 135 },
+      { id: "milkBottle", emoji: IMAGES.milkBottle, rotation: 45 },
+      { id: "sandwhich", emoji: IMAGES.sandwhich, rotation: 90 },
+      { id: "chocolateBar", emoji: IMAGES.chocolateBar, rotation: 135 },
+    ],
+    [
+      { id: "cherry", emoji: IMAGES.cherry, rotation: 45 },
+      { id: "pancakeStack", emoji: IMAGES.pancakeStack, rotation: 90 },
+      { id: "sandwhich", emoji: IMAGES.sandwhich, rotation: 135 },
+      { id: "iceCreamCone", emoji: IMAGES.iceCreamCone, rotation: 45 },
+      { id: "cherryCheesecake", emoji: IMAGES.cherryCheesecake, rotation: 90 },
+      { id: "pizza", emoji: IMAGES.pizza, rotation: 135 },
+    ],
+    [
+      { id: "cola", emoji: IMAGES.cola, rotation: 45 },
+      { id: "pizza", emoji: IMAGES.pizza, rotation: 90 },
+      { id: "banana", emoji: IMAGES.banana, rotation: 135 },
+      { id: "lemonade", emoji: IMAGES.lemonade, rotation: 45 },
+      { id: "donut", emoji: IMAGES.donut, rotation: 90 },
+      { id: "blueberry", emoji: IMAGES.blueberry, rotation: 135 },
+    ],
+    [
+      { id: "cola", emoji: IMAGES.cola, rotation: 45 },
+      { id: "milkBottle", emoji: IMAGES.milkBottle, rotation: 90 },
+      { id: "frenchFries", emoji: IMAGES.frenchFries, rotation: 135 },
+      { id: "iceCreamCone", emoji: IMAGES.iceCreamCone, rotation: 45 },
+      { id: "grapes", emoji: IMAGES.grapes, rotation: 90 },
+      { id: "steak", emoji: IMAGES.steak, rotation: 135 },
+    ],
+    [
+      { id: "birthdayCake", emoji: IMAGES.birthdayCake, rotation: 45 },
+      { id: "broccoli", emoji: IMAGES.broccoli, rotation: 90 },
+      { id: "grapes", emoji: IMAGES.grapes, rotation: 135 },
+      { id: "cherryCheesecake", emoji: IMAGES.cherryCheesecake, rotation: 45 },
+      { id: "hamburger", emoji: IMAGES.hamburger, rotation: 90 },
+      { id: "donut", emoji: IMAGES.donut, rotation: 135 },
+    ],
+    [
+      { id: "corn", emoji: IMAGES.corn, rotation: 45 },
+      { id: "donut", emoji: IMAGES.donut, rotation: 90 },
+      { id: "strawberry", emoji: IMAGES.strawberry, rotation: 135 },
+      { id: "taco", emoji: IMAGES.taco, rotation: 45 },
+      { id: "thanksgiving", emoji: IMAGES.thanksgiving, rotation: 90 },
+      { id: "iceCreamCone", emoji: IMAGES.iceCreamCone, rotation: 135 },
+    ],
+    [
+      { id: "pineapple", emoji: IMAGES.pineapple, rotation: 45 },
+      { id: "mango", emoji: IMAGES.mango, rotation: 90 },
+      { id: "orange", emoji: IMAGES.orange, rotation: 135 },
+      { id: "lemonade", emoji: IMAGES.lemonade, rotation: 45 },
+      { id: "iceCreamCone", emoji: IMAGES.iceCreamCone, rotation: 90 },
+      { id: "hamburger", emoji: IMAGES.hamburger, rotation: 135 },
+    ],
+    [
+      { id: "cherryCheesecake", emoji: IMAGES.cherryCheesecake, rotation: 45 },
+      { id: "chocolateBar", emoji: IMAGES.chocolateBar, rotation: 90 },
+      { id: "hotDog", emoji: IMAGES.hotDog, rotation: 135 },
+      { id: "cola", emoji: IMAGES.cola, rotation: 45 },
+      { id: "orange", emoji: IMAGES.orange, rotation: 90 },
+      { id: "taco", emoji: IMAGES.taco, rotation: 135 },
+    ],
+    [
+      { id: "pancakeStack", emoji: IMAGES.pancakeStack, rotation: 45 },
+      { id: "blueberry", emoji: IMAGES.blueberry, rotation: 90 },
+      { id: "taco", emoji: IMAGES.taco, rotation: 135 },
+      { id: "mango", emoji: IMAGES.mango, rotation: 45 },
+      { id: "grapes", emoji: IMAGES.grapes, rotation: 90 },
+      { id: "cookie", emoji: IMAGES.cookie, rotation: 135 },
+    ],
+    [
+      { id: "pizza", emoji: IMAGES.pizza, rotation: 45 },
+      { id: "frenchFries", emoji: IMAGES.frenchFries, rotation: 90 },
+      { id: "hotDog", emoji: IMAGES.hotDog, rotation: 135 },
+      { id: "mango", emoji: IMAGES.mango, rotation: 45 },
+      { id: "broccoli", emoji: IMAGES.broccoli, rotation: 90 },
+      { id: "corn", emoji: IMAGES.corn, rotation: 135 },
+    ],
+    [
+      { id: "steak", emoji: IMAGES.steak, rotation: 45 },
+      { id: "coconut", emoji: IMAGES.coconut, rotation: 90 },
+      { id: "taco", emoji: IMAGES.taco, rotation: 135 },
+      { id: "pizza", emoji: IMAGES.pizza, rotation: 45 },
+      { id: "hamburger", emoji: IMAGES.hamburger, rotation: 90 },
+      { id: "tomato", emoji: IMAGES.tomato, rotation: 135 },
+    ],
+    [
+      { id: "milkBottle", emoji: IMAGES.milkBottle, rotation: 45 },
+      { id: "birthdayCake", emoji: IMAGES.birthdayCake, rotation: 90 },
+      { id: "cookie", emoji: IMAGES.cookie, rotation: 135 },
+      { id: "orange", emoji: IMAGES.orange, rotation: 45 },
+      { id: "thanksgiving", emoji: IMAGES.thanksgiving, rotation: 90 },
+      { id: "pizza", emoji: IMAGES.pizza, rotation: 135 },
+    ],
+    [
+      { id: "cherry", emoji: IMAGES.cherry, rotation: 45 },
+      { id: "broccoli", emoji: IMAGES.broccoli, rotation: 90 },
+      { id: "carrot", emoji: IMAGES.carrot, rotation: 135 },
+      { id: "lemonade", emoji: IMAGES.lemonade, rotation: 45 },
+      { id: "taco", emoji: IMAGES.taco, rotation: 90 },
+      { id: "milkBottle", emoji: IMAGES.milkBottle, rotation: 135 },
+    ],
+    [
+      { id: "coconut", emoji: IMAGES.coconut, rotation: 45 },
+      { id: "frenchFries", emoji: IMAGES.frenchFries, rotation: 90 },
+      { id: "cherryCheesecake", emoji: IMAGES.cherryCheesecake, rotation: 135 },
+      { id: "cookie", emoji: IMAGES.cookie, rotation: 45 },
+      { id: "lemonade", emoji: IMAGES.lemonade, rotation: 90 },
+      { id: "strawberry", emoji: IMAGES.strawberry, rotation: 135 },
+    ],
+    [
+      { id: "broccoli", emoji: IMAGES.broccoli, rotation: 45 },
+      { id: "chocolateBar", emoji: IMAGES.chocolateBar, rotation: 90 },
+      { id: "tomato", emoji: IMAGES.tomato, rotation: 135 },
+      { id: "cookie", emoji: IMAGES.cookie, rotation: 45 },
+      { id: "iceCreamCone", emoji: IMAGES.iceCreamCone, rotation: 90 },
+      { id: "banana", emoji: IMAGES.banana, rotation: 135 },
+    ],
+    [
+      { id: "birthdayCake", emoji: IMAGES.birthdayCake, rotation: 45 },
+      { id: "lemonade", emoji: IMAGES.lemonade, rotation: 90 },
+      { id: "chocolateBar", emoji: IMAGES.chocolateBar, rotation: 135 },
+      { id: "steak", emoji: IMAGES.steak, rotation: 45 },
+      { id: "corn", emoji: IMAGES.corn, rotation: 90 },
+      { id: "pancakeStack", emoji: IMAGES.pancakeStack, rotation: 135 },
+    ],
+    [
+      { id: "sandwhich", emoji: IMAGES.sandwhich, rotation: 45 },
+      { id: "banana", emoji: IMAGES.banana, rotation: 90 },
+      { id: "taco", emoji: IMAGES.taco, rotation: 135 },
+      { id: "pineapple", emoji: IMAGES.pineapple, rotation: 45 },
+      { id: "frenchFries", emoji: IMAGES.frenchFries, rotation: 90 },
+      { id: "birthdayCake", emoji: IMAGES.birthdayCake, rotation: 135 },
+    ],
+    [
+      { id: "birthdayCake", emoji: IMAGES.birthdayCake, rotation: 45 },
+      { id: "mango", emoji: IMAGES.mango, rotation: 90 },
+      { id: "cola", emoji: IMAGES.cola, rotation: 135 },
+      { id: "cherry", emoji: IMAGES.cherry, rotation: 45 },
+      { id: "tomato", emoji: IMAGES.tomato, rotation: 90 },
+      { id: "strawberry", emoji: IMAGES.strawberry, rotation: 135 },
+    ],
+    [
+      { id: "blueberry", emoji: IMAGES.blueberry, rotation: 45 },
+      { id: "milkBottle", emoji: IMAGES.milkBottle, rotation: 90 },
+      { id: "cherryCheesecake", emoji: IMAGES.cherryCheesecake, rotation: 135 },
+      { id: "tomato", emoji: IMAGES.tomato, rotation: 45 },
+      { id: "corn", emoji: IMAGES.corn, rotation: 90 },
+      { id: "pineapple", emoji: IMAGES.pineapple, rotation: 135 },
+    ],
+    [
+      { id: "carrot", emoji: IMAGES.carrot, rotation: 45 },
+      { id: "chocolateBar", emoji: IMAGES.chocolateBar, rotation: 90 },
+      { id: "pineapple", emoji: IMAGES.pineapple, rotation: 135 },
+      { id: "grapes", emoji: IMAGES.grapes, rotation: 45 },
+      { id: "strawberry", emoji: IMAGES.strawberry, rotation: 90 },
+      { id: "pizza", emoji: IMAGES.pizza, rotation: 135 },
+    ],
+    [
+      { id: "grapes", emoji: IMAGES.grapes, rotation: 45 },
+      { id: "corn", emoji: IMAGES.corn, rotation: 90 },
+      { id: "coconut", emoji: IMAGES.coconut, rotation: 135 },
+      { id: "orange", emoji: IMAGES.orange, rotation: 45 },
+      { id: "banana", emoji: IMAGES.banana, rotation: 90 },
+      { id: "cherry", emoji: IMAGES.cherry, rotation: 135 },
+    ],
+    [
+      { id: "carrot", emoji: IMAGES.carrot, rotation: 45 },
+      { id: "mango", emoji: IMAGES.mango, rotation: 90 },
+      { id: "steak", emoji: IMAGES.steak, rotation: 135 },
+      { id: "thanksgiving", emoji: IMAGES.thanksgiving, rotation: 45 },
+      { id: "cherryCheesecake", emoji: IMAGES.cherryCheesecake, rotation: 90 },
+      { id: "banana", emoji: IMAGES.banana, rotation: 135 },
+    ],
+    [
+      { id: "pancakeStack", emoji: IMAGES.pancakeStack, rotation: 45 },
+      { id: "strawberry", emoji: IMAGES.strawberry, rotation: 90 },
+      { id: "hamburger", emoji: IMAGES.hamburger, rotation: 135 },
+      { id: "hotDog", emoji: IMAGES.hotDog, rotation: 45 },
+      { id: "milkBottle", emoji: IMAGES.milkBottle, rotation: 90 },
+      { id: "banana", emoji: IMAGES.banana, rotation: 135 },
+    ],
+  ];
+
+  const getUSerChosenDeck = () => {
+    if (getChosenDeck === "gameDecks") {
+      return gameDecks;
+    }
+    if (getChosenDeck === "monsterDeck") {
+      return monsterDeck;
+    }
+    if (getChosenDeck === "foodDeck") {
+      return foodDeck;
+    }
+  };
+
   const shuffleArrayPreGame = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -311,12 +868,10 @@ export function OneMinuteGame({ navigation }) {
     return array;
   };
 
-  const shuffledArray = shuffleArrayPreGame(gameDecks);
+  const shuffledArray = shuffleArrayPreGame(
+    getUSerChosenDeck().map((deck) => shuffleArrayPreGame(deck))
+  );
 
-  // function getRandomElement(array) {
-  //   const randomIndex = Math.floor(Math.random() * array.length);
-  //   return array[randomIndex];
-  // }
   function getRandomElement(array) {
     let randomIndex = Math.floor(Math.random() * array.length);
     if (randomIndex === 0) {
@@ -330,37 +885,29 @@ export function OneMinuteGame({ navigation }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const [userDeck, setUserDeck] = useState(randomUserDeck);
+  const [gameDeck, setGameDeck] = useState(shuffledArray);
+
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState();
-  const [loading, setLoading] = useState(false);
 
-  const [gameDeck, setGameDeck] = useState(shuffledArray);
   const [timeRemaining, setTimeRemaining] = useState(60);
   const [gameOver, setGameOver] = useState(false);
   const [notInDeck, setNotInDeck] = useState(false);
   const [roundOver, setRoundOver] = useState(true);
-  const [roundOverForUser, setRoundOverForUser] = useState(true);
 
   const { user } = useAuth();
-
-  const userQuerys = collection(db, "users");
-  const q = query(userQuerys, where("username", "==", `${user?.email}`));
-
-  onSnapshot(q, (querySnapshot) => {
-    querySnapshot.forEach((doc) => {
-      setHighScore(doc.data().highScore);
-      console.log(highScore, "highScore");
-    });
-  });
+  const refs = useRef([]);
 
   useEffect(() => {
-    if (notInDeck) {
-      const timeout = setTimeout(() => {
-        setNotInDeck(false);
-      }, 1500);
-      return () => clearTimeout(timeout);
-    }
-  }, [notInDeck]);
+    const userQuerys = collection(db, "users");
+    const q = query(userQuerys, where("username", "==", `${user?.email}`));
+
+    onSnapshot(q, (querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        setHighScore(doc.data().highScore);
+      });
+    });
+  }, [user?.email]);
 
   //make a reset function
   const resetGame = () => {
@@ -369,7 +916,7 @@ export function OneMinuteGame({ navigation }) {
     setGameOver(false);
     setTimeRemaining(60);
 
-    setGameDeck(shuffleArrayPreGame(gameDecks));
+    setGameDeck(shuffleArrayPreGame(shuffledArray));
     setUserDeck(getRandomElement(shuffledArray));
   };
 
@@ -390,13 +937,10 @@ export function OneMinuteGame({ navigation }) {
       setUserDeck([...gameDeck[currentIndex]]);
       // setScore(score + 1);
       handleButtonPress();
-      console.log(userDeck, "userDeck");
 
       setRoundOver(false);
-      setRoundOverForUser(false);
 
       setTimeout(() => setRoundOver(true), 500);
-      setTimeout(() => setRoundOverForUser(true), 500);
 
       if (currentIndex === gameDeck.length - 1) {
         const beforeShuffle = gameDeck;
@@ -409,6 +953,9 @@ export function OneMinuteGame({ navigation }) {
       }
     } else {
       setNotInDeck(true);
+      setTimeout(() => {
+        setNotInDeck(false);
+      }, 1200);
     }
   };
 
@@ -489,7 +1036,7 @@ export function OneMinuteGame({ navigation }) {
                       <Animated.Image
                         source={emoji.emoji}
                         style={{
-                          width: 45,
+                          width: emoji?.width || 45,
                           height: 45,
                           transform: [{ rotate: `${emoji.rotation}deg` }],
                         }}
@@ -499,6 +1046,48 @@ export function OneMinuteGame({ navigation }) {
                   </Animated.View>
                 )}
               </View>
+
+              {/* test icon size view */}
+              {/* <View
+                style={[
+                  styles.gameContainer,
+                  { alignItems: "center", justifyContent: "center" },
+                ]}
+              >
+                <View style={[styles.userDeckContainerList]}>
+                  <Animated.View
+                    style={{
+                      // backgroundColor: "white",
+                      backgroundColor: notInDeck
+                        ? "rgba(212, 83, 8, 0.6)"
+                        : "rgba(255, 255, 255, 0.3)",
+                      margin: 10,
+                      borderRadius: 100,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <TouchableOpacity
+                      disabled={gameOver === true || notInDeck ? true : false}
+                      // onPress={() => handleClick(item.id)}
+                      style={{
+                        padding: 8,
+                        margin: 8,
+                      }}
+                    >
+                      <Animated.Image
+                        entering={FadeIn.duration(900).delay(90)}
+                        source={IMAGES.frenchFries}
+                        style={{
+                          width: 55,
+                          height: 55,
+                          opacity: gameOver === true ? 0.5 : 1,
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </Animated.View>
+                </View>
+              </View> */}
 
               <View
                 style={[
@@ -511,29 +1100,45 @@ export function OneMinuteGame({ navigation }) {
                     data={userDeck}
                     numColumns={3}
                     scrollEnabled={false}
+                    ItemSeparatorComponent={() => (
+                      <View style={{ height: 10 }} />
+                    )}
                     contentContainerStyle={{ alignItems: "center" }}
                     renderItem={({ item, index }) => (
-                      <TouchableOpacity
-                        disabled={gameOver === true || notInDeck ? true : false}
-                        key={item.id}
-                        onPress={() => handleClick(item.id)}
+                      <Animated.View
                         style={{
-                          padding: 10,
+                          // backgroundColor: "white",
+                          backgroundColor: notInDeck
+                            ? "rgba(212, 83, 8, 0.6)"
+                            : "rgba(255, 255, 255, 0.3)",
                           margin: 10,
+                          borderRadius: 100,
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
                       >
-                        <Animated.Image
-                          entering={BounceIn.duration(900).delay(index * 100)}
-                          source={item.emoji}
+                        <TouchableOpacity
+                          disabled={
+                            gameOver === true || notInDeck ? true : false
+                          }
+                          key={item.id}
+                          onPress={() => handleClick(item.id)}
                           style={{
-                            width: 50,
-                            height: 50,
-                            fontSize: 50,
-                            backgroundColor: notInDeck ? "red" : "transparent",
-                            opacity: gameOver === true ? 0.5 : 1,
+                            padding: 8,
+                            margin: 8,
                           }}
-                        />
-                      </TouchableOpacity>
+                        >
+                          <Animated.Image
+                            entering={FadeIn.duration(900).delay(index * 90)}
+                            source={item.emoji}
+                            style={{
+                              width: item?.width || 55,
+                              height: 55,
+                              opacity: gameOver === true ? 0.5 : 1,
+                            }}
+                          />
+                        </TouchableOpacity>
+                      </Animated.View>
                     )}
                     keyExtractor={(item) => item.id.toString()}
                   />
@@ -594,7 +1199,8 @@ export function OneMinuteGame({ navigation }) {
               <ThemedButton
                 name="bruce"
                 type="primary"
-                onPressOut={resetGame}
+                // onPressOut={resetGame}
+                onPressOut={resetGameDelay}
                 width={99}
                 height={110}
                 borderRadius={360}
@@ -628,7 +1234,7 @@ export function OneMinuteGame({ navigation }) {
       </LinearGradient>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -707,6 +1313,9 @@ const styles = StyleSheet.create({
     // top: screenHeight / 2.5,
     // backgroundColor: "yellow",
     backgroundColor: "rgba(255, 255, 255, 0.3)",
+
+    // backgroundColor: "rgba(209, 242, 246, 0.9)",
+
     borderRadius: 40,
     width: "98%",
     height: "20%",

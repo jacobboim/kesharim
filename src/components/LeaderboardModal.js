@@ -9,7 +9,6 @@ import {
   Modal,
 } from "react-native";
 import CustomSwitch from "./CustomSwitch";
-import DropDownPicker from "react-native-dropdown-picker";
 import { useAuth } from "../hooks/useAuth";
 
 function LeaderboardModal({
@@ -20,15 +19,7 @@ function LeaderboardModal({
 }) {
   const [gameMode, setGameMode] = useState("oneMin");
   const [hideModal, setHideModal] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState();
-  const [open, setOpen] = useState(false);
   const { user } = useAuth();
-
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState([
-    { label: "Apple", value: "apple" },
-    { label: "Banana", value: "banana" },
-  ]);
 
   const onHideModal = () => {
     setLeaderboardVisible(!leaderboardVisible);
@@ -61,37 +52,6 @@ function LeaderboardModal({
               selectionColor={"#818384"}
             />
           </View>
-
-          {/* <View>
-            <DropDownPicker
-              open={open}
-              value={value}
-              items={items}
-              // stickyHeaderIndices={[0]}
-              style={{ backgroundColor: "yellow" }}
-              labelStyle={{
-                fontSize: 18,
-                color: "#000",
-                zIndex: 1,
-                backgroundColor: "green",
-              }}
-              containerStyle={{
-                width: 100,
-                height: 40,
-
-                zIndex: 1,
-              }}
-              disabledStyle={{
-                backgroundColor: "red",
-                zIndex: 1,
-                backfaceVisibility: "visible",
-              }}
-              textStyle={{ fontSize: 18, backgroundColor: "red", zIndex: 1 }}
-              setOpen={setOpen}
-              setValue={setValue}
-              setItems={setItems}
-            />
-          </View> */}
 
           <View
             style={{
@@ -136,9 +96,15 @@ function LeaderboardModal({
             <FlatList
               data={leaderBoardArrayOneMinGame}
               numColumns={1}
-              scrollEnabled={false}
+              scrollEnabled={true}
+              showsHorizontalScrollIndicator={false}
               // ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
               keyExtractor={(item) => item[0]}
+              style={{
+                width: "100%",
+                flexGrow: 0,
+                height: "68%",
+              }}
               renderItem={({ item, index }) => {
                 let color = "black";
                 let badge = "";
@@ -179,14 +145,15 @@ function LeaderboardModal({
                         marginLeft: item[0] === user?.email ? 0 : 10,
                         marginTop: item[0] === user?.email ? 8 : 8,
                         marginBottom: item[0] === user?.email ? 7 : 7,
-                        width: item[0] === user?.email ? "76%" : "70%",
+                        // width: "90%",
+                        width: item[0] === user?.email ? "93.5%" : "87%",
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         flexDirection: "row",
                         backgroundColor:
                           item[0] === user?.email ? "#818384" : "white",
-                        borderRadius: 10,
+                        borderRadius: 20,
                         padding: item[0] === user?.email ? 10 : 0,
                       }}
                     >
@@ -226,9 +193,15 @@ function LeaderboardModal({
             <FlatList
               data={leaderBoardArraySpeedGame}
               numColumns={1}
-              scrollEnabled={false}
+              scrollEnabled={true}
+              showsHorizontalScrollIndicator={false}
               // ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
               keyExtractor={(item) => item[0]}
+              style={{
+                width: "100%",
+                flexGrow: 0,
+                height: "68%",
+              }}
               renderItem={({ item, index }) => {
                 let color = "black";
                 let badge = "";
@@ -269,14 +242,15 @@ function LeaderboardModal({
                         marginLeft: item[0] === user?.email ? 0 : 10,
                         marginTop: item[0] === user?.email ? 8 : 8,
                         marginBottom: item[0] === user?.email ? 7 : 7,
-                        width: item[0] === user?.email ? "76%" : "70%",
+                        // width: "90%",
+                        width: item[0] === user?.email ? "93.5%" : "87%",
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         flexDirection: "row",
                         backgroundColor:
                           item[0] === user?.email ? "#818384" : "white",
-                        borderRadius: 10,
+                        borderRadius: 20,
                         padding: item[0] === user?.email ? 10 : 0,
                       }}
                     >
@@ -317,13 +291,16 @@ function LeaderboardModal({
             style={[
               styles.button,
               styles.buttonClose,
-              { backgroundColor: hideModal ? "darkgray" : "#818384" },
+              {
+                backgroundColor: hideModal ? "darkgray" : "#818384",
+                width: 90,
+              },
             ]}
             onPress={() => onHideModal()}
             onTouchStart={() => setHideModal(!hideModal)}
             onTouchEnd={() => setHideModal(false)}
           >
-            <Text style={styles.textStyle}>Hide Modal</Text>
+            <Text style={styles.textStyle}>Close</Text>
           </Pressable>
         </View>
       </View>
@@ -353,18 +330,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  // signOut: {
-  //   position: "absolute",
-  //   bottom: -195,
-  //   left: 84,
-  // },
+
   linearGradient: {
     position: "absolute",
     left: 0,
     right: 0,
     top: 0,
     height: "100%",
-    // flex: 1,
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",
@@ -380,14 +352,12 @@ const styles = StyleSheet.create({
   modalView: {
     margin: 90,
     width: "90%",
-    height: "87%",
+    height: "88%",
     backgroundColor: "white",
     borderRadius: 25,
-    // padding: 35,
     paddingLeft: 25,
     paddingRight: 25,
     paddingTop: 20,
-    // paddingBottom: 25,
     alignItems: "center",
   },
   button: {
@@ -399,9 +369,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F194FF",
   },
   buttonClose: {
-    // backgroundColor: "#818384",
-    // backgroundColor: "yellow",
-
     marginTop: 15,
     marginBottom: 15,
     position: "absolute",
@@ -416,7 +383,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 20,
     textAlign: "center",
-    // fontFamily: "AmericanTypewriter",
     fontWeight: "bold",
   },
+  // centeredView: {
+  //   flex: 1,
+  //   justifyContent: "center",
+  //   alignItems: "center",
+  //   marginTop: 0,
+  // },
 });
