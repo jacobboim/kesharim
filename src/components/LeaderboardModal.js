@@ -10,20 +10,27 @@ import {
 } from "react-native";
 import CustomSwitch from "./CustomSwitch";
 import { useAuth } from "../hooks/useAuth";
+import Checkbox from "expo-checkbox";
 
 function LeaderboardModal({
   leaderboardVisible,
   setLeaderboardVisible,
   leaderBoardArrayOneMinGame,
   leaderBoardArraySpeedGame,
+  oneMinGameTodayStats,
+  fiveSecGameTodayStats,
 }) {
   const [gameMode, setGameMode] = useState("oneMin");
   const [hideModal, setHideModal] = useState(false);
+
+  const [todaysStats, setTodaysStats] = useState(false);
+
   const { user } = useAuth();
 
   const onHideModal = () => {
     setLeaderboardVisible(!leaderboardVisible);
     setGameMode("oneMin");
+    setTodaysStats(false);
   };
 
   return (
@@ -39,6 +46,32 @@ function LeaderboardModal({
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.modalText}>Leaderboard</Text>
+          <View
+            style={{
+              position: "absolute",
+              right: 30,
+              top: 24,
+            }}
+          >
+            <View
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ fontWeight: "700", fontSize: 12 }}>Today's</Text>
+              <Text style={{ fontWeight: "700", fontSize: 12 }}>Stats</Text>
+            </View>
+
+            <Checkbox
+              style={{ position: "absolute", right: 12, top: 30 }}
+              value={todaysStats}
+              onValueChange={() => {
+                setTodaysStats(!todaysStats);
+              }}
+            />
+          </View>
 
           <View style={{ marginBottom: 15 }}>
             <CustomSwitch
@@ -94,7 +127,9 @@ function LeaderboardModal({
           ></View>
           {gameMode === "oneMin" ? (
             <FlatList
-              data={leaderBoardArrayOneMinGame}
+              data={
+                todaysStats ? oneMinGameTodayStats : leaderBoardArrayOneMinGame
+              }
               numColumns={1}
               scrollEnabled={true}
               showsHorizontalScrollIndicator={false}
@@ -191,7 +226,9 @@ function LeaderboardModal({
             />
           ) : (
             <FlatList
-              data={leaderBoardArraySpeedGame}
+              data={
+                todaysStats ? fiveSecGameTodayStats : leaderBoardArraySpeedGame
+              }
               numColumns={1}
               scrollEnabled={true}
               showsHorizontalScrollIndicator={false}

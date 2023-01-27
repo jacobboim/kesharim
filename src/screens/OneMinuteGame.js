@@ -894,9 +894,29 @@ export const OneMinuteGame = ({ route, navigation }) => {
   const [gameOver, setGameOver] = useState(false);
   const [notInDeck, setNotInDeck] = useState(false);
   const [roundOver, setRoundOver] = useState(true);
+  const [todaysHighscore, setTodaysHighscore] = useState();
+  const [todaysHighScoreTime, setTodaysHighScoreTime] = useState();
+  const [showGameOverMessage, setShowGameOverMessage] = useState(false);
+  const [matchingID, setMatchingID] = useState();
 
   const { user } = useAuth();
   const refs = useRef([]);
+
+  function checkIfNewDay(todaysHighScoreTime) {
+    let currentDate = new Date();
+
+    let serverDate = new Date(todaysHighScoreTime.toDate());
+    const docRef = doc(db, "users", user?.email);
+
+    if (currentDate.getDate() !== serverDate.getDate()) {
+      oneMinGameTodayHighScore = 0;
+      todaysHighScoreTime = currentDate;
+      updateDoc(docRef, {
+        oneMinGameTodayHighScore: oneMinGameTodayHighScore,
+        todaysHighScoreTime: currentDate,
+      });
+    }
+  }
 
   useEffect(() => {
     const userQuerys = collection(db, "users");
@@ -905,17 +925,48 @@ export const OneMinuteGame = ({ route, navigation }) => {
     onSnapshot(q, (querySnapshot) => {
       querySnapshot.forEach((doc) => {
         setHighScore(doc.data().highScore);
+        setTodaysHighscore(doc.data().oneMinGameTodayHighScore);
+        setTodaysHighScoreTime(doc.data().todaysHighScoreTime);
       });
     });
   }, [user?.email]);
 
+  useEffect(() => {
+    if (todaysHighScoreTime) {
+      checkIfNewDay(todaysHighScoreTime);
+    }
+  }, [todaysHighScoreTime]);
+
+  useEffect(() => {
+    if (gameOver) {
+      setTimeout(() => {
+        setShowGameOverMessage(true);
+      }, 1050);
+    }
+  }, [gameOver]);
+
+  const findMatchingId = () => {
+    gameDeck[currentIndex].forEach((gameDeckItem) => {
+      let found = userDeck.find((userDeckItem) => {
+        return gameDeckItem.id === userDeckItem.id;
+      });
+      if (found) {
+        setMatchingID(found.id);
+        return;
+      }
+    });
+  };
+
+  useEffect(() => {
+    findMatchingId();
+  }, [currentIndex, gameDeck, userDeck]);
   //make a reset function
   const resetGame = () => {
     setScore(0);
     setCurrentIndex(0);
     setGameOver(false);
     setTimeRemaining(60);
-
+    setShowGameOverMessage(false);
     setGameDeck(shuffleArrayPreGame(shuffledArray));
     setUserDeck(getRandomElement(shuffledArray));
   };
@@ -932,11 +983,25 @@ export const OneMinuteGame = ({ route, navigation }) => {
     }
   }
 
+  function todaysHighScore() {
+    const docRef = doc(db, "users", user?.email);
+
+    // checkIfNewDay(todaysHighScoreTime);
+    if (score + 1 > todaysHighscore) {
+      updateDoc(docRef, {
+        oneMinGameTodayHighScore: score + 1,
+        todaysHighScoreTime: serverTimestamp(),
+      });
+    }
+  }
+
   const handleClick = (clickedEmoji) => {
     if (gameDeck[currentIndex].some((emoji) => emoji.id === clickedEmoji)) {
       setUserDeck([...gameDeck[currentIndex]]);
       // setScore(score + 1);
+
       handleButtonPress();
+      todaysHighScore();
 
       setRoundOver(false);
 
@@ -990,7 +1055,7 @@ export const OneMinuteGame = ({ route, navigation }) => {
           <Text style={styles.highScoreText}>{highScore}</Text>
         </View>
         <>
-          {!gameOver && (
+          {!showGameOverMessage && (
             <Animated.View
               entering={FadeIn.duration(2000)}
               style={styles.timerContainer}
@@ -1019,7 +1084,7 @@ export const OneMinuteGame = ({ route, navigation }) => {
             </Animated.View>
           )}
 
-          {!gameOver && (
+          {!showGameOverMessage && (
             <>
               <View style={styles.newMiddleBarConatiner}>
                 {roundOver && (
@@ -1039,6 +1104,11 @@ export const OneMinuteGame = ({ route, navigation }) => {
                           width: emoji?.width || 45,
                           height: 45,
                           transform: [{ rotate: `${emoji.rotation}deg` }],
+                          opacity: gameOver
+                            ? emoji.id === matchingID
+                              ? 1
+                              : 0.3
+                            : 1,
                         }}
                         key={index}
                       />
@@ -1089,7 +1159,8 @@ export const OneMinuteGame = ({ route, navigation }) => {
                 </View>
               </View> */}
 
-              <View
+              <Animated.View
+                exiting={FadeOut.duration(800)}
                 style={[
                   styles.gameContainer,
                   { alignItems: "center", justifyContent: "center" },
@@ -1134,7 +1205,11 @@ export const OneMinuteGame = ({ route, navigation }) => {
                             style={{
                               width: item?.width || 55,
                               height: 55,
-                              opacity: gameOver === true ? 0.5 : 1,
+                              opacity: gameOver
+                                ? item.id === matchingID
+                                  ? 1
+                                  : 0.3
+                                : 1,
                             }}
                           />
                         </TouchableOpacity>
@@ -1143,7 +1218,7 @@ export const OneMinuteGame = ({ route, navigation }) => {
                     keyExtractor={(item) => item.id.toString()}
                   />
                 </View>
-              </View>
+              </Animated.View>
             </>
           )}
 
@@ -1173,8 +1248,11 @@ export const OneMinuteGame = ({ route, navigation }) => {
           )}
         </>
 
-        {gameOver && (
-          <View style={styles.gameOverContainer}>
+        {showGameOverMessage && (
+          <Animated.View
+            entering={FadeIn.duration(800).delay(200)}
+            style={styles.gameOverContainer}
+          >
             <View style={styles.gameOverContainerOptions}>
               <ThemedButton
                 name="bruce"
@@ -1226,7 +1304,7 @@ export const OneMinuteGame = ({ route, navigation }) => {
             <Text style={{ fontSize: 50, marginTop: 180, color: "white" }}>
               Game Over
             </Text>
-          </View>
+          </Animated.View>
         )}
         <View style={[styles.scoreContainer]}>
           <Text style={{ fontSize: 50, color: "white" }}>{score}</Text>

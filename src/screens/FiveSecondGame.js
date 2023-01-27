@@ -900,11 +900,31 @@ export function FiveSecondGame({ route, navigation }) {
   const [roundOverForUser, setRoundOverForUser] = useState(true);
   const [playAgain, setPlayAgain] = useState(false);
   const [goHome, setGoHome] = useState(false);
-  // const [matchingEmojis, setMatchingEmojis] = useState([]);
+  const [matchingEmojis, setMatchingEmojis] = useState([]);
+  const [matchingID, setMatchingID] = useState();
   // const [nonMatchingEmojis, setNonMatchingEmojis] = useState([]);
   // const [fadeAnim] = useState(new RNAnimated.Value(1));
+  const [todaysHighFiveSecTime, setTodaysHighFiveSecTime] = useState();
+  const [todaysFiveSecHighscore, setTodaysFiveSecHighscore] = useState();
+  const [showGameOverMessage, setShowGameOverMessage] = useState(false);
 
   const { user } = useAuth();
+
+  function checkIfNewDay(todaysHighFiveSecTime) {
+    let currentDate = new Date();
+
+    let serverDate = new Date(todaysHighFiveSecTime.toDate());
+    const docRef = doc(db, "users", user?.email);
+
+    if (currentDate.getDate() !== serverDate.getDate()) {
+      fiveMinGameTodayHighScore = 0;
+      todaysHighFiveSecTime = currentDate;
+      updateDoc(docRef, {
+        fiveMinGameTodayHighScore: fiveMinGameTodayHighScore,
+        todaysHighFiveSecTime: currentDate,
+      });
+    }
+  }
 
   useEffect(() => {
     const userQuerys = collection(db, "users");
@@ -913,9 +933,41 @@ export function FiveSecondGame({ route, navigation }) {
     onSnapshot(q, (querySnapshot) => {
       querySnapshot.forEach((doc) => {
         setHighScore(doc.data().FiveSecondGameScore);
+        setTodaysFiveSecHighscore(doc.data().fiveMinGameTodayHighScore);
+        setTodaysHighFiveSecTime(doc.data().todaysHighFiveSecTime);
       });
     });
   }, [user?.email]);
+
+  useEffect(() => {
+    if (todaysHighFiveSecTime) {
+      checkIfNewDay(todaysHighFiveSecTime);
+    }
+  }, [todaysHighFiveSecTime]);
+
+  useEffect(() => {
+    if (gameOver) {
+      setTimeout(() => {
+        setShowGameOverMessage(true);
+      }, 1050);
+    }
+  }, [gameOver]);
+
+  const findMatchingId = () => {
+    gameDeck[currentIndex].forEach((gameDeckItem) => {
+      let found = userDeck.find((userDeckItem) => {
+        return gameDeckItem.id === userDeckItem.id;
+      });
+      if (found) {
+        setMatchingID(found.id);
+        return;
+      }
+    });
+  };
+
+  useEffect(() => {
+    findMatchingId();
+  }, [currentIndex, gameDeck, userDeck]);
 
   //make a reset function
   const resetGame = () => {
@@ -923,7 +975,7 @@ export function FiveSecondGame({ route, navigation }) {
     setCurrentIndex(0);
     setGameOver(false);
     setTimeRemaining(10);
-
+    setShowGameOverMessage(false);
     setGameDeck(shuffleArrayPreGame(shuffledArray));
     setUserDeck(getRandomElement(shuffledArray));
     // setGameDeck(randomizeDeck);
@@ -938,6 +990,18 @@ export function FiveSecondGame({ route, navigation }) {
       updateDoc(docRef, {
         FiveSecondGameScore: score + 1,
         fiveSecondTimeStamp: serverTimestamp(),
+      });
+    }
+  }
+
+  function todaysHighScore() {
+    const docRef = doc(db, "users", user?.email);
+
+    // checkIfNewDay(todaysHighScoreTime);
+    if (score + 1 > todaysFiveSecHighscore) {
+      updateDoc(docRef, {
+        fiveMinGameTodayHighScore: score + 1,
+        todaysHighFiveSecTime: serverTimestamp(),
       });
     }
   }
@@ -977,10 +1041,13 @@ export function FiveSecondGame({ route, navigation }) {
   //   }).start();
   // }, [nonMatchingEmojis]);
 
+  // let matchingId;
+
   const handleClick = (clickedEmoji) => {
     if (gameDeck[currentIndex].some((emoji) => emoji.id === clickedEmoji)) {
       setUserDeck([...gameDeck[currentIndex]]);
       handleButtonPress();
+      todaysHighScore();
 
       setRoundOver(false);
       setRoundOverForUser(false);
@@ -990,12 +1057,9 @@ export function FiveSecondGame({ route, navigation }) {
       setTimeout(() => setRoundOver(true), 500);
       setTimeout(() => setRoundOverForUser(true), 500);
 
-      // setMatchingEmojis(
-      //   gameDeck[currentIndex].filter((emoji) => emoji.id === clickedEmoji)
-      // );
-      // setNonMatchingEmojis(
-      //   gameDeck[currentIndex].filter((emoji) => emoji.id !== clickedEmoji)
-      // );
+      setMatchingEmojis(
+        gameDeck[currentIndex].filter((emoji) => emoji.id === clickedEmoji)
+      );
 
       if (currentIndex === gameDeck.length - 1) {
         const beforeShuffle = gameDeck;
@@ -1007,8 +1071,6 @@ export function FiveSecondGame({ route, navigation }) {
         setCurrentIndex(currentIndex + 1);
       }
     } else {
-      // keep the game deck the same
-      // setGameDeck([...gameDeck]);
       setNotInDeck(true);
       setTimeout(() => setNotInDeck(false), 1200);
     }
@@ -1044,7 +1106,7 @@ export function FiveSecondGame({ route, navigation }) {
           <Text style={styles.highScoreText}>{highScore}</Text>
         </View>
         <>
-          {!gameOver && (
+          {!showGameOverMessage && (
             <Animated.View
               entering={FadeIn.duration(1000).delay(200)}
               exiting={FadeOut.duration(800)}
@@ -1065,9 +1127,11 @@ export function FiveSecondGame({ route, navigation }) {
 
                       if (!roundWon) {
                         setRoundWon(false);
+                        // setTimeout(() => setGameOver(true), 2000);
                         setGameOver(true);
                       } else {
                         setGameOver(true);
+                        // setTimeout(() => setGameOver(true), 2000);
                       }
                       return {
                         shouldRepeat: roundWon ? true : false,
@@ -1089,7 +1153,7 @@ export function FiveSecondGame({ route, navigation }) {
             </Animated.View>
           )}
 
-          {!gameOver && (
+          {!showGameOverMessage && (
             <>
               <View style={styles.newMiddleBarConatiner}>
                 {roundOver && (
@@ -1103,42 +1167,29 @@ export function FiveSecondGame({ route, navigation }) {
                     {gameDeck[currentIndex].map((emoji, index) => (
                       <Animated.Image
                         source={emoji.emoji}
-                        style={{
-                          width: 45,
-                          height: 45,
-                          transform: [{ rotate: `${emoji.rotation}deg` }],
-                        }}
+                        style={[
+                          {
+                            width: 45,
+                            height: 45,
+                            transform: [{ rotate: `${emoji.rotation}deg` }],
+                            opacity: gameOver
+                              ? emoji.id === matchingID
+                                ? 1
+                                : 0.3
+                              : 1,
+                          },
+                        ]}
                         key={index}
                       />
                     ))}
-                    {/* {matchingEmojis.map((emoji, index) => (
-                      <Image
-                        source={emoji.emoji}
-                        style={{
-                          width: 45,
-                          height: 45,
-                          transform: [{ rotate: `${emoji.rotation}deg` }],
-                        }}
-                        key={index}
-                      />
-                    ))}
-                    {nonMatchingEmojis.map((emoji, index) => (
-                      <Animated.Image
-                        source={emoji.emoji}
-                        style={{
-                          width: 45,
-                          height: 45,
-                          transform: [{ rotate: `${emoji.rotation}deg` }],
-                          opacity: fadeAnim,
-                        }}
-                        key={index}
-                      />
-                    ))} */}
                   </Animated.View>
                 )}
               </View>
 
-              <View style={[styles.userDeckContainerList]}>
+              <Animated.View
+                exiting={FadeOut.duration(800)}
+                style={[styles.userDeckContainerList]}
+              >
                 <Animated.FlatList
                   data={userDeck}
                   numColumns={3}
@@ -1146,7 +1197,6 @@ export function FiveSecondGame({ route, navigation }) {
                   contentContainerStyle={{ alignItems: "center" }}
                   renderItem={({ item, index }) => (
                     <Animated.View
-                      // entering={BounceIn.duration(900).delay(index * 100)}
                       style={{
                         backgroundColor: notInDeck
                           ? "rgba(212, 83, 8, 0.6)"
@@ -1170,9 +1220,14 @@ export function FiveSecondGame({ route, navigation }) {
                           entering={FadeIn.duration(900).delay(index * 90)}
                           source={item.emoji}
                           style={{
-                            width: 47,
-                            height: 47,
-                            opacity: gameOver === true ? 0.5 : 1,
+                            width: 50,
+                            height: 50,
+                            // opacity: gameOver === true ? 0.5 : 1,
+                            opacity: gameOver
+                              ? item.id === matchingID
+                                ? 1
+                                : 0.3
+                              : 1,
                           }}
                         />
                       </TouchableOpacity>
@@ -1180,7 +1235,7 @@ export function FiveSecondGame({ route, navigation }) {
                   )}
                   keyExtractor={(item) => item.id.toString()}
                 />
-              </View>
+              </Animated.View>
             </>
           )}
 
@@ -1210,8 +1265,11 @@ export function FiveSecondGame({ route, navigation }) {
           )}
         </>
 
-        {gameOver && (
-          <View style={styles.gameOverContainer}>
+        {showGameOverMessage && (
+          <Animated.View
+            entering={FadeIn.duration(800).delay(200)}
+            style={styles.gameOverContainer}
+          >
             <View style={styles.gameOverContainerOptions}>
               <ThemedButton
                 name="bruce"
@@ -1262,8 +1320,9 @@ export function FiveSecondGame({ route, navigation }) {
             <Text style={{ fontSize: 50, marginTop: 180, color: "white" }}>
               Game Over
             </Text>
-          </View>
+          </Animated.View>
         )}
+
         <View style={[styles.scoreContainer]}>
           <Text style={{ fontSize: 50, color: "white" }}>{score}</Text>
         </View>

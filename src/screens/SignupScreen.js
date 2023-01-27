@@ -11,7 +11,13 @@ import { useTogglePasswordVisibility } from "../hooks";
 import { signupValidationSchema } from "../utils";
 
 import { db } from "../config/firebase";
-import { collection, addDoc, setDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  setDoc,
+  doc,
+  serverTimestamp,
+} from "firebase/firestore";
 
 export const SignupScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState("");
@@ -23,6 +29,10 @@ export const SignupScreen = ({ navigation }) => {
       username: newUser,
       highScore: 0,
       FiveSecondGameScore: 0,
+      oneMinGameTodayHighScore: 0,
+      fiveMinGameTodayHighScore: 0,
+      todaysHighScoreTime: serverTimestamp(),
+      currentDeck: "gameDecks",
     });
   }
 

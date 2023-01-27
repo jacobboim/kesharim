@@ -39,7 +39,10 @@ import {
   query,
   where,
   limit,
+  getDocs,
+  getDoc,
   orderBy,
+  updateDoc,
   Timestamp,
   serverTimestamp,
 } from "firebase/firestore";
@@ -68,15 +71,15 @@ export const HomeScreen = ({ navigation }) => {
     []
   );
 
+  const [oneMinGameTodayStats, setOneMinGameTodayStats] = useState([]);
+  const [fiveSecGameTodayStats, setFiveSecGameTodayStats] = useState([]);
   const [homeScreenDeckCHoice, sethomeScreenDeckCHoice] = useState();
 
   const [leaderBoardArraySpeedGame, setLeaderBoardArraySpeedGame] = useState(
     []
   );
-  const [minTouched, setMinTouched] = useState(false);
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
   const [decksModalVisible, setDecksModalVisible] = useState(false);
-  const [speedTouched, setSpeedTouched] = useState(false);
   const [gameFinalScore, setGameFinalScore] = useState(0);
 
   useEffect(() => {
@@ -94,40 +97,52 @@ export const HomeScreen = ({ navigation }) => {
     };
   }, [homeScreenDeckCHoice, sethomeScreenDeckCHoice, user?.email]);
 
-  // const getCurrentDeck = () => {
-  //   const userQuerys = collection(db, "users");
-  //   const q = query(userQuerys, where("username", "==", `${user?.email}`));
-
-  //   const getCurrentDeckSnapShot = onSnapshot(q, (querySnapshot) => {
-  //     querySnapshot.forEach((doc) => {
-  //       sethomeScreenDeckCHoice(doc.data().currentDeck);
-  //     });
-  //   });
-  // };
-
   const onSelectSwitch = (index) => {
     alert("Selected index: " + index);
   };
 
+  // const checkForAddedFeilds = () => {
+  //   const userQuerys = collection(db, "users");
+  //   const q = query(userQuerys, where("username", "==", `${user?.email}`));
+  //   const docRef = doc(db, "users", user?.email);
+
+  //   onSnapshot(q, (querySnapshot) => {
+  //     querySnapshot.forEach((doc) => {
+  //       if (doc.data().fiveMinGameTodayHighScore === undefined) {
+  //         updateDoc(docRef, {
+  //           fiveMinGameTodayHighScore: 0,
+  //         });
+  //       } else {
+  //         console.log("no need to add feilds");
+  //       }
+  //     });
+  //   });
+  // };
+
+  // const checkForAddedFeilds = async () => {
+  //   const userQuerys = collection(db, "users");
+  //   const q = query(userQuerys, where("username", "==", `${user?.email}`));
+  //   const docRef = doc(db, "users", user?.email);
+  //   try {
+  //     const doc = await getDoc(docRef);
+
+  //     if (!doc.exists) {
+  //       docRef.set({ fiveMinGameTodayHighScore: 0 });
+  //     } else {
+  //       if (doc.data().fiveMinGameTodayHighScore === undefined) {
+  //         docRef.update({
+  //           fiveMinGameTodayHighScore: 0,
+  //         });
+  //       } else {
+  //         console.log("no need to add feilds");
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log("Error getting document:", error);
+  //   }
+  // };
+
   const getTopTenWithUsernameOneMinGame = () => {
-    //gets the query for the top ten scores of the day
-    // const today = new Date();
-
-    // const startOfToday = Timestamp.fromDate(
-    //   new Date(today.getFullYear(), today.getMonth(), today.getDate())
-    // );
-    // const endOfToday = Timestamp.fromMillis(
-    //   startOfToday.toMillis() + 24 * 60 * 60 * 1000 - 1
-    // );
-
-    // const q = query(
-    //   collection(db, "users"),
-    //   orderBy("serverTimestamp", "desc"),
-    //   where("serverTimestamp", ">=", startOfToday),
-    //   where("serverTimestamp", "<=", endOfToday),
-    //   limit(10)
-    // );
-
     const q = query(
       collection(db, "users"),
       orderBy("highScore", "desc"),
@@ -148,6 +163,78 @@ export const HomeScreen = ({ navigation }) => {
       entries.sort((a, b) => b[1] - a[1]);
       const sortedScoreAndUsernameObj = Object.fromEntries(entries);
       setLeaderBoardArrayOneMinGame(Object.entries(sortedScoreAndUsernameObj));
+    });
+  };
+
+  const getTopTenWithUsernameOneMinGameToday = () => {
+    //gets the query for the top ten scores of the day
+    const today = new Date();
+
+    const startOfToday = Timestamp.fromDate(
+      new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    );
+    const endOfToday = Timestamp.fromMillis(
+      startOfToday.toMillis() + 24 * 60 * 60 * 1000 - 1
+    );
+
+    const q = query(
+      collection(db, "users"),
+      orderBy("todaysHighScoreTime", "desc"),
+      where("todaysHighScoreTime", ">=", startOfToday),
+      where("todaysHighScoreTime", "<=", endOfToday),
+      limit(10)
+    );
+
+    onSnapshot(q, (querySnapshot) => {
+      const topTen = [];
+      const scoreAndUsernameObj = {};
+
+      querySnapshot.forEach((doc) => {
+        topTen.push(doc.data().highScore);
+        scoreAndUsernameObj[doc.data().username] =
+          doc.data().oneMinGameTodayHighScore;
+      });
+
+      const entries = Object.entries(scoreAndUsernameObj);
+      entries.sort((a, b) => b[1] - a[1]);
+      const sortedScoreAndUsernameObj = Object.fromEntries(entries);
+      setOneMinGameTodayStats(Object.entries(sortedScoreAndUsernameObj));
+    });
+  };
+
+  const getTopTenWithUsernameFiveSecGameToday = () => {
+    //gets the query for the top ten scores of the day
+    const today = new Date();
+
+    const startOfToday = Timestamp.fromDate(
+      new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    );
+    const endOfToday = Timestamp.fromMillis(
+      startOfToday.toMillis() + 24 * 60 * 60 * 1000 - 1
+    );
+
+    const q = query(
+      collection(db, "users"),
+      orderBy("todaysHighFiveSecTime", "desc"),
+      where("todaysHighFiveSecTime", ">=", startOfToday),
+      where("todaysHighFiveSecTime", "<=", endOfToday),
+      limit(10)
+    );
+
+    onSnapshot(q, (querySnapshot) => {
+      const topTen = [];
+      const scoreAndUsernameObj = {};
+
+      querySnapshot.forEach((doc) => {
+        topTen.push(doc.data().highScore);
+        scoreAndUsernameObj[doc.data().username] =
+          doc.data().fiveMinGameTodayHighScore;
+      });
+
+      const entries = Object.entries(scoreAndUsernameObj);
+      entries.sort((a, b) => b[1] - a[1]);
+      const sortedScoreAndUsernameObj = Object.fromEntries(entries);
+      setFiveSecGameTodayStats(Object.entries(sortedScoreAndUsernameObj));
     });
   };
 
@@ -180,9 +267,15 @@ export const HomeScreen = ({ navigation }) => {
     getTopTenWithUsernameOneMinGame();
     getTopTenWithUsernameSpeedGame();
     // getCurrentDeck();
+    getTopTenWithUsernameOneMinGameToday();
+    getTopTenWithUsernameFiveSecGameToday();
+    // checkForAddedFeilds();
     return () => {
       getTopTenWithUsernameSpeedGame;
       getTopTenWithUsernameOneMinGame;
+      getTopTenWithUsernameOneMinGameToday;
+      getTopTenWithUsernameFiveSecGameToday;
+      // checkForAddedFeilds;
       // getCurrentDeck;
     };
   }, [user?.email]);
@@ -307,48 +400,6 @@ export const HomeScreen = ({ navigation }) => {
     //   key: "7",
     //   name: "gameDecks7",
     //   image: IMAGES.drive,
-    //   backgroundColor: "#263238",
-    // },
-    // {
-    //   key: "8",
-    //   name: "gameDecks8",
-    //   image: IMAGES.torah,
-    //   backgroundColor: "#263238",
-    // },
-    // {
-    //   key: "9",
-    //   name: "gameDecks7",
-    //   image: IMAGES.drive,
-    //   backgroundColor: "#263238",
-    // },
-    // {
-    //   key: "10",
-    //   name: "gameDecks8",
-    //   image: IMAGES.torah,
-    //   backgroundColor: "#263238",
-    // },
-    // {
-    //   key: "11",
-    //   name: "gameDecks7",
-    //   image: IMAGES.drive,
-    //   backgroundColor: "#263238",
-    // },
-    // {
-    //   key: "12",
-    //   name: "gameDecks8",
-    //   image: IMAGES.torah,
-    //   backgroundColor: "#263238",
-    // },
-    // {
-    //   key: "13",
-    //   name: "gameDecks7",
-    //   image: IMAGES.drive,
-    //   backgroundColor: "#263238",
-    // },
-    // {
-    //   key: "14",
-    //   name: "gameDecks8",
-    //   image: IMAGES.torah,
     //   backgroundColor: "#263238",
     // },
   ];
@@ -574,6 +625,8 @@ export const HomeScreen = ({ navigation }) => {
         onSelectSwitch={onSelectSwitch}
         leaderBoardArrayOneMinGame={leaderBoardArrayOneMinGame}
         leaderBoardArraySpeedGame={leaderBoardArraySpeedGame}
+        oneMinGameTodayStats={oneMinGameTodayStats}
+        fiveSecGameTodayStats={fiveSecGameTodayStats}
       />
       <DecksModal
         decksModalVisible={decksModalVisible}
