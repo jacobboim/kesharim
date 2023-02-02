@@ -16,6 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "react-native-really-awesome-button";
 import { IMAGES } from "../../assets";
+import { ProgressBar } from "react-native-paper";
 
 import Animated, {
   BounceIn,
@@ -34,7 +35,7 @@ const screenHeight = Dimensions.get("screen").height;
 
 export default function DuelGame({ route, navigation }) {
   const getChosenDeck = route.params.finalDeckChoice;
-  console.log(getChosenDeck, "getChosenDeck");
+  // console.log(getChosenDeck, "getChosenDeck");
 
   const gameDecks = [
     [
@@ -893,6 +894,8 @@ export default function DuelGame({ route, navigation }) {
   const [notInDeckOne, setNotInDeckOne] = useState(false);
   const [notInDeckTwo, setNotInDeckTwo] = useState(false);
   const [roundOver, setRoundOver] = useState(true);
+  const [showGameOverMessage, setShowGameOverMessage] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const [startDisabled, setStartDisabled] = useState(true);
 
@@ -933,11 +936,37 @@ export default function DuelGame({ route, navigation }) {
     }
   }, [notInDeckTwo]);
 
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (progress >= 1) {
+  //       clearInterval(interval);
+  //       return;
+  //     }
+  //     setProgress(progress + 0.01);
+  //   }, 100);
+  //   return () => clearInterval(interval);
+  // }, [progress]);
+
+  useEffect(() => {
+    const totalScore = userOneScore + userTwoScore;
+    const newProgress = totalScore / Number(route.params.gameFinalScore);
+    setProgress(newProgress);
+  }, [userOneScore, userTwoScore]);
+
+  useEffect(() => {
+    if (gameOver) {
+      setTimeout(() => {
+        setShowGameOverMessage(true);
+      }, 500);
+    }
+  }, [gameOver]);
+
   const resetGame = () => {
     setUserOneScore(0);
     setUserTwoScore(0);
     setCurrentIndex(0);
     setGameOver(false);
+    setShowGameOverMessage(false);
 
     setGameDeck(shuffledArray);
     setUserOneDeck(defaultUserOne);
@@ -977,14 +1006,14 @@ export default function DuelGame({ route, navigation }) {
     }
   };
 
-  useEffect(() => {
-    if (roundOver) {
-      const timeout = setTimeout(() => {
-        setRoundOver(true);
-      }, 500);
-      return () => clearTimeout(timeout);
-    }
-  }, [roundOver]);
+  // useEffect(() => {
+  //   if (roundOver) {
+  //     const timeout = setTimeout(() => {
+  //       setRoundOver(true);
+  //     }, 500);
+  //     return () => clearTimeout(timeout);
+  //   }
+  // }, [roundOver]);
 
   const shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
@@ -1005,6 +1034,8 @@ export default function DuelGame({ route, navigation }) {
     }, 170);
   };
 
+  const progressColor = "#263238";
+
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
@@ -1017,8 +1048,21 @@ export default function DuelGame({ route, navigation }) {
             { alignItems: "center", justifyContent: "center" },
           ]}
         >
-          {!gameOver && (
+          {!showGameOverMessage && (
             <>
+              <View style={[styles.progressTwoContainer]}>
+                <ProgressBar
+                  style={{
+                    height: 10,
+                    width: 300,
+                    backgroundColor: "white",
+                    borderRadius: 10,
+                  }}
+                  progress={progress}
+                  // color="#6200ee"
+                  color={progressColor}
+                />
+              </View>
               <View style={[styles.scoreContainerTwo]}>
                 <Text
                   style={{
@@ -1070,7 +1114,7 @@ export default function DuelGame({ route, navigation }) {
                           style={{
                             width: 47,
                             height: 47,
-                            opacity: gameOver === true ? 0.5 : 1,
+                            // opacity: gameOver === true ? 0.5 : 1,
                             transform: [{ rotate: `180deg` }],
                           }}
                         />
@@ -1080,6 +1124,7 @@ export default function DuelGame({ route, navigation }) {
                   keyExtractor={(item) => item.id}
                 />
               </View>
+
               {roundOver && (
                 <Animated.View
                   entering={FlipInEasyX.duration(875)}
@@ -1140,13 +1185,26 @@ export default function DuelGame({ route, navigation }) {
                           style={{
                             width: 47,
                             height: 47,
-                            opacity: gameOver === true ? 0.5 : 1,
+                            // opacity: gameOver === true ? 0.5 : 1,
                           }}
                         />
                       </TouchableOpacity>
                     </Animated.View>
                   )}
                   keyExtractor={(item) => item.id}
+                />
+              </View>
+              <View style={[styles.progressContainer]}>
+                <ProgressBar
+                  style={{
+                    height: 10,
+                    width: 300,
+                    backgroundColor: "white",
+                    borderRadius: 10,
+                  }}
+                  progress={progress}
+                  // color="#6200ee"
+                  color={progressColor}
                 />
               </View>
               <View style={[styles.scoreContainer]}>
@@ -1158,8 +1216,11 @@ export default function DuelGame({ route, navigation }) {
           )}
         </View>
 
-        {gameOver && (
-          <View style={styles.gameOverContainer}>
+        {showGameOverMessage && (
+          <Animated.View
+            entering={FadeIn.duration(800).delay(200)}
+            style={styles.gameOverContainer}
+          >
             <View style={[styles.scoreContainerTwo]}>
               <Text
                 style={{
@@ -1175,6 +1236,7 @@ export default function DuelGame({ route, navigation }) {
               <Text
                 style={{
                   fontSize: 50,
+                  fontWeight: "bold",
                   color: "white",
                   transform: [{ rotate: `180deg` }],
                 }}
@@ -1231,7 +1293,9 @@ export default function DuelGame({ route, navigation }) {
               </ThemedButton>
             </View>
             <View style={styles.playOneWinContainer}>
-              <Text style={{ fontSize: 50, color: "white" }}>
+              <Text
+                style={{ fontSize: 50, color: "white", fontWeight: "bold" }}
+              >
                 {userOneScore > userTwoScore ? "YOU WIN" : "YOU LOSE"}
               </Text>
             </View>
@@ -1240,7 +1304,7 @@ export default function DuelGame({ route, navigation }) {
                 {userOneScore}
               </Text>
             </View>
-          </View>
+          </Animated.View>
         )}
       </LinearGradient>
     </SafeAreaView>
@@ -1299,7 +1363,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-evenly",
     position: "absolute",
-    top: 370,
+    // top: 370,
+    top: screenHeight / 2.14,
+
     // backgroundColor: "rgba(255, 255, 255, 0.65)",
     backgroundColor: "rgba(255, 255, 255, 0.3)",
 
@@ -1323,14 +1389,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    top: 500,
+    // top: 500,
+    top: screenHeight / 1.67,
   },
   userTwoDeckContainer: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    top: screenHeight / 7,
+    top: screenHeight / 5.12,
   },
 
   scoreContainer: {
@@ -1339,7 +1406,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    top: 740,
+    // top: 740,
+    top: screenHeight / 1.15,
+  },
+
+  progressContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    // top: 740,
+    top: screenHeight / 1.07,
+    height: 50,
+    width: "100%",
+  },
+
+  progressTwoContainer: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    // top: 740,
+    top: screenHeight / 18.4,
+    height: 50,
+    width: "100%",
+    transform: [{ rotate: "180deg" }],
   },
 
   scoreContainerTwo: {
@@ -1348,7 +1441,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    top: 50,
+    top: 80,
   },
   linearGradient: {
     position: "absolute",

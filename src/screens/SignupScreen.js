@@ -28,11 +28,14 @@ export const SignupScreen = ({ navigation }) => {
     setDoc(docRef, {
       username: newUser,
       highScore: 0,
+      currentDeck: "gameDecks",
       FiveSecondGameScore: 0,
       oneMinGameTodayHighScore: 0,
       fiveMinGameTodayHighScore: 0,
+      fiveSecondTimeStamp: serverTimestamp(),
       todaysHighScoreTime: serverTimestamp(),
-      currentDeck: "gameDecks",
+      todaysHighFiveSecTime: serverTimestamp(),
+      serverTimestamp: serverTimestamp(),
     });
   }
 

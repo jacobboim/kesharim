@@ -4,6 +4,8 @@ import { HomeScreen } from "./HomeScreen";
 import { ForgotPasswordScreen } from "./ForgotPasswordScreen";
 import { OneMinuteGame } from "./OneMinuteGame";
 import { FiveSecondGame } from "./FiveSecondGame";
+import { MultiGameJoin } from "./MultiGameJoin";
+import { MultiGame } from "./MultiGame";
 
 export {
   LoginScreen,
@@ -12,4 +14,6 @@ export {
   ForgotPasswordScreen,
   OneMinuteGame,
   FiveSecondGame,
+  MultiGameJoin,
+  MultiGame,
 };

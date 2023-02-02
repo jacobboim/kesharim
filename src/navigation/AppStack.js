@@ -1,7 +1,13 @@
 import * as React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { HomeScreen, OneMinuteGame, FiveSecondGame } from "../screens";
+import {
+  HomeScreen,
+  OneMinuteGame,
+  FiveSecondGame,
+  MultiGameJoin,
+  MultiGame,
+} from "../screens";
 // import OneMinuteGame from "../screens/OneMinuteGame";
 // import FiveSecondGame from "../screens/FiveSecondGame";
 import DuelGame from "../screens/DuelGame";
@@ -29,6 +35,16 @@ export const AppStack = () => {
       <Stack.Screen
         name="DuelGame"
         component={DuelGame}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MultiGameJoin"
+        component={MultiGameJoin}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MultiGame"
+        component={MultiGame}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

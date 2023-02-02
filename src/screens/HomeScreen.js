@@ -9,6 +9,7 @@ import {
   Alert,
   Modal,
   TouchableOpacity,
+  ActivityIndicator,
   Dimensions,
 } from "react-native";
 import { signOut } from "firebase/auth";
@@ -81,6 +82,7 @@ export const HomeScreen = ({ navigation }) => {
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
   const [decksModalVisible, setDecksModalVisible] = useState(false);
   const [gameFinalScore, setGameFinalScore] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const userQuerys = collection(db, "users");
@@ -270,6 +272,9 @@ export const HomeScreen = ({ navigation }) => {
     getTopTenWithUsernameOneMinGameToday();
     getTopTenWithUsernameFiveSecGameToday();
     // checkForAddedFeilds();
+
+    setLoading(false);
+
     return () => {
       getTopTenWithUsernameSpeedGame;
       getTopTenWithUsernameOneMinGame;
@@ -358,6 +363,14 @@ export const HomeScreen = ({ navigation }) => {
     }, 150);
   };
 
+  const goToMulti = () => {
+    setTimeout(() => {
+      navigation.navigate("MultiGameJoin", {
+        finalDeckChoice: homeScreenDeckCHoice,
+      });
+    }, 150);
+  };
+
   const data = [
     {
       key: "1",
@@ -375,6 +388,12 @@ export const HomeScreen = ({ navigation }) => {
       key: "3",
       name: "foodDeck",
       image: IMAGES.donut,
+      backgroundColor: "#546E7A",
+    },
+    {
+      key: "4",
+      name: "flagDeck",
+      image: IMAGES.usa,
       backgroundColor: "#546E7A",
     },
     // {
@@ -403,6 +422,10 @@ export const HomeScreen = ({ navigation }) => {
     //   backgroundColor: "#263238",
     // },
   ];
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#818384" />;
+  }
 
   return (
     <LinearGradient
@@ -487,12 +510,19 @@ export const HomeScreen = ({ navigation }) => {
 
           <View
             style={{
+              // display: "flex",
+              // justifyContent: "flex-start",
+              // alignItems: "center",
+              // flexDirection: "row",
+              // width: "100%",
+              // marginLeft: 50,
+              // marginTop: 30,
               display: "flex",
-              justifyContent: "flex-start",
+              justifyContent: "space-evenly",
               alignItems: "center",
               flexDirection: "row",
-              width: "100%",
-              marginLeft: 50,
+              width: "95%",
+              // marginLeft: 50,
               marginTop: 30,
             }}
           >
@@ -520,6 +550,34 @@ export const HomeScreen = ({ navigation }) => {
                     style={{ fontSize: 18, color: "white", fontWeight: "bold" }}
                   >
                     DUEL
+                  </Text>
+                </View>
+              </View>
+            </ThemedButton>
+            <ThemedButton
+              name="bruce"
+              type="primary"
+              onPressOut={goToMulti}
+              width={106}
+              height={110}
+              borderRadius={150}
+              backgroundColor="#818384"
+            >
+              <View
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <View style={{ position: "absolute", top: -42 }}>
+                  <Ionicons name="people-sharp" size={60} color="white" />
+                </View>
+                <View style={{ position: "absolute", top: 15 }}>
+                  <Text
+                    style={{ fontSize: 18, color: "white", fontWeight: "bold" }}
+                  >
+                    MULTI
                   </Text>
                 </View>
               </View>
