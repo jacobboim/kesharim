@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,10 @@ import {
   StyleSheet,
   SafeAreaView,
   Dimensions,
+  KeyboardAvoidingView,
   Alert,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { db } from "../config/firebase";
 import {
@@ -20,9 +23,14 @@ import {
   query,
   where,
   onSnapshot,
+  serverTimestamp,
 } from "firebase/firestore";
+import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
+
 import { useAuth } from "../hooks/useAuth";
 import { ThemedButton } from "react-native-really-awesome-button";
+import { useActionSheet } from "@expo/react-native-action-sheet";
+import { LinearGradient } from "expo-linear-gradient";
 
 const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
@@ -34,11 +42,37 @@ export const MultiGameJoin = ({ route, navigation }) => {
   const [gameData, setGameData] = useState({});
   const [onlyOnePlayer, setOnlyOnePlayer] = useState(true);
   const [userOneDeck, setUserOneDeck] = useState();
+  const [numberOfRounds, setNumberOfRounds] = useState();
 
   const { user } = useAuth();
   const getChosenDeck = route.params.finalDeckChoice;
+  const { showActionSheetWithOptions } = useActionSheet();
+  const inputRef = useRef(null);
 
-  const handleCreateGame = async () => {
+  const onPressInput = () => {
+    Keyboard.dismiss();
+    inputRef.current.blur();
+  };
+
+  const onPress = () => {
+    const options = ["25", "15", "5", "Cancel"];
+    const cancelButtonIndex = 3;
+
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        title: "Select the number of rounds",
+      },
+      (selectedIndex) => {
+        if (selectedIndex === 3) return;
+        const changeToNumber = Number(options[selectedIndex]);
+        handleCreateGame(changeToNumber);
+      }
+    );
+  };
+
+  const handleCreateGame = async (numround) => {
     const shortendEmail = user?.email.split("@")[0];
 
     const docRef = doc(db, "games", shortendEmail);
@@ -56,9 +90,13 @@ export const MultiGameJoin = ({ route, navigation }) => {
       users: [shortendEmail],
       roundOverMulti: true,
       userOneClickPlayAgain: false,
+      multiStartDisabled: true,
+      multiNotInDeckOne: false,
+      multiNotInDeckTwo: false,
+      numRounds: numround,
+      gameCreatedDate: serverTimestamp(),
     })
       .then(() => {
-        // console.log("Document written with ID: ", docRef.id);
         setGameId(docRef.id);
         setNewGame(true);
         setUserOneDeck(getChosenDeck);
@@ -78,7 +116,6 @@ export const MultiGameJoin = ({ route, navigation }) => {
 
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      // console.log("Document data:", docSnap.data());
       updateDoc(docRef, {
         playerTwo: user?.email,
         users: arrayUnion(shortendEmail),
@@ -95,31 +132,11 @@ export const MultiGameJoin = ({ route, navigation }) => {
         });
 
       console.log("both players are in the game");
-
-      // navigation.navigate("MultiGame");
-      // setPlayerTwo(user?.email);
-      // setOnlyOnePlayer(false);
-      // return unsubscribe;
     } else {
       console.log("No such document!");
       Alert.alert("No such game exists");
     }
   };
-
-  // useEffect(() => {
-  //   if (gameData.playOne && gameData.playTwo) {
-  //     console.log("both players are in the game");
-  //     navigation.navigate("MultiGame", {
-  //       gameId: gameData.id,
-  //       // getChosenDeck: gameData.currentDeck,
-  //       gameDeckData: gameData.gameDeck,
-  //     });
-
-  //     // navigation.navigate("MultiGame");
-  //   } else {
-  //     console.log("one player is in the game");
-  //   }
-  // }, [gameData]);
 
   const goToHome = () => {
     setTimeout(() => {
@@ -127,68 +144,114 @@ export const MultiGameJoin = ({ route, navigation }) => {
     }, 170);
   };
   return (
-    <>
-      <View style={styles.goHomeContainer}>
-        <ThemedButton
-          name="bruce"
-          type="primary"
-          // onPressOut={() => navigation.navigate("Home")}
-          onPressOut={goToHome}
-          width={70}
-          height={80}
-          borderRadius={360}
-          backgroundColor="#818384"
-        >
-          <View
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ color: "blue", fontSize: 50 }}>Home</Text>
-          </View>
-        </ThemedButton>
-      </View>
-      <View style={styles.container}>
-        <TextInput
-          style={styles.textInput}
-          value={gameId}
-          onChangeText={(text) => setGameId(text)}
-          placeholder="Enter game ID"
-        />
-        <TouchableOpacity
-          onPress={() => handleJoinGame(gameId, userOneDeck)}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>Join Game</Text>
-        </TouchableOpacity>
+    // <SafeAreaView style={styles.container}>
+    <LinearGradient
+      colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
+      style={styles.linearGradient}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <View style={styles.Gamecontainer}>
+            <TextInput
+              ref={inputRef}
+              style={styles.textInput}
+              value={gameId}
+              onChangeText={(text) => setGameId(text)}
+              autoCapitalize="none"
+              placeholder="Enter game ID"
+            />
 
-        <TouchableOpacity onPress={handleCreateGame} style={styles.button}>
-          <Text style={styles.buttonText}>Create Game</Text>
-        </TouchableOpacity>
-      </View>
-    </>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+                width: "100%",
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => handleJoinGame(gameId, userOneDeck)}
+                style={styles.button}
+              >
+                <Text style={styles.buttonText}>Join Game</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={onPress} style={styles.button}>
+                <Text style={styles.buttonText}>Create Game</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.goHomeContainer}>
+            <ThemedButton
+              name="bruce"
+              type="primary"
+              // onPressOut={() => navigation.navigate("Home")}
+              onPressOut={goToHome}
+              width={70}
+              height={80}
+              borderRadius={360}
+              backgroundColor="#818384"
+            >
+              <View
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Entypo name="home" size={25} color="white" />
+              </View>
+            </ThemedButton>
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    </LinearGradient>
+    // </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    display: "flex",
+    flexDirection: "column",
+    height: "70%",
+  },
+
+  Gamecontainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    display: "flex",
+    flexDirection: "column",
+    // width: "100%",
+    height: "70%",
+  },
+
+  linearGradient: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    height: "100%",
+    // flex: 1,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
   },
   textInput: {
     height: 40,
-    width: 200,
-    borderColor: "gray",
+    width: screenWidth - 200,
+    borderColor: "white",
+    color: "black",
+    backgroundColor: "white",
     borderWidth: 1,
     marginBottom: 10,
     padding: 10,
   },
   button: {
-    backgroundColor: "blue",
+    backgroundColor: "#818384",
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
@@ -206,20 +269,6 @@ const styles = StyleSheet.create({
     width: screenWidth,
     top: 40,
   },
-  goHomeContainer: {
-    // position: "absolute",
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-evenly",
-    marginTop: 80,
-    //place at the bottom left of the screen
-    // bottom: 165,
-    // left: 15,
-    //place at the top left of the screen
-    // bottom: 500,
-    // left: 10,
-  },
 
   gameOverContainer: {
     flex: 1,
@@ -227,6 +276,12 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+  },
+  goHomeContainer: {
+    position: "absolute",
+
+    top: 50,
+    left: 20,
   },
   highScoreContainer: {
     display: "flex",
@@ -257,9 +312,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "absolute",
     top: screenHeight / 4.5,
-    // backgroundColor: "yellow",
-    // backgroundColor: "rgba(255, 255, 255, 0.3)",
-    // borderRadius: 40,
     width: "100%",
     height: "40%",
   },
@@ -269,11 +321,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-evenly",
     position: "absolute",
-    // top: screenHeight / 2.5,
-    // backgroundColor: "yellow",
     backgroundColor: "rgba(255, 255, 255, 0.3)",
-
-    // backgroundColor: "rgba(209, 242, 246, 0.9)",
 
     borderRadius: 40,
     width: "98%",
@@ -302,10 +350,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    // top: 720,
     top: screenHeight / 1.13,
-
-    // marginTop: screenHeight / 3,
   },
   linearGradient: {
     position: "absolute",
@@ -313,7 +358,6 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     height: "130%",
-    // flex: 1,
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-start",

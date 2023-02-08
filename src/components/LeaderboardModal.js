@@ -6,6 +6,7 @@ import {
   FlatList,
   Pressable,
   Alert,
+  TouchableWithoutFeedback,
   Modal,
 } from "react-native";
 import CustomSwitch from "./CustomSwitch";
@@ -43,6 +44,7 @@ function LeaderboardModal({
         setLeaderboardVisible(!leaderboardVisible);
       }}
     >
+      {/* <TouchableWithoutFeedback onPress={onHideModal}> */}
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.modalText}>Leaderboard</Text>
@@ -341,6 +343,7 @@ function LeaderboardModal({
           </Pressable>
         </View>
       </View>
+      {/* </TouchableWithoutFeedback> */}
     </Modal>
   );
 }

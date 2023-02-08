@@ -87,7 +87,7 @@ function DecksModal({
               // )}
               style={{
                 width: "99%",
-                height: "90%",
+                height: "87%",
                 flexGrow: 0,
               }}
               renderItem={({ item }) => (
@@ -97,8 +97,7 @@ function DecksModal({
                     justifyContent: "flex-start",
                     alignItems: "center",
                     width: "50%",
-                    // height: "100%",
-                    // backgroundColor: "red",
+                    // height: "30%",
                   }}
                   onPress={() => {
                     // sethomeScreenDeckCHoice(item.name);
@@ -115,7 +114,7 @@ function DecksModal({
                           : "transparent",
                       borderRadius: 15,
 
-                      height: "80.8%",
+                      height: "70.8%",
                     }}
                   >
                     <View

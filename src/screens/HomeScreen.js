@@ -97,7 +97,7 @@ export const HomeScreen = ({ navigation }) => {
     return () => {
       getCurrentDeckSnapShot;
     };
-  }, [homeScreenDeckCHoice, sethomeScreenDeckCHoice, user?.email]);
+  }, [homeScreenDeckCHoice, user?.email]);
 
   const onSelectSwitch = (index) => {
     alert("Selected index: " + index);
@@ -144,7 +144,7 @@ export const HomeScreen = ({ navigation }) => {
   //   }
   // };
 
-  const getTopTenWithUsernameOneMinGame = () => {
+  const getTopTenWithUsernameOneMinGame = async () => {
     const q = query(
       collection(db, "users"),
       orderBy("highScore", "desc"),
@@ -152,23 +152,29 @@ export const HomeScreen = ({ navigation }) => {
       limit(15)
     );
 
-    onSnapshot(q, (querySnapshot) => {
-      const topTen = [];
-      const scoreAndUsernameObj = {};
+    // onSnapshot(q, (querySnapshot) => {
+    const topTen = [];
+    const scoreAndUsernameObj = {};
+    const querySnapshot = await getDocs(q);
 
-      querySnapshot.forEach((doc) => {
-        topTen.push(doc.data().highScore);
-        scoreAndUsernameObj[doc.data().username] = doc.data().highScore;
-      });
-
-      const entries = Object.entries(scoreAndUsernameObj);
-      entries.sort((a, b) => b[1] - a[1]);
-      const sortedScoreAndUsernameObj = Object.fromEntries(entries);
-      setLeaderBoardArrayOneMinGame(Object.entries(sortedScoreAndUsernameObj));
+    querySnapshot.forEach((doc) => {
+      topTen.push(doc.data().highScore);
+      scoreAndUsernameObj[doc.data().username] = doc.data().highScore;
     });
+
+    // querySnapshot.forEach((doc) => {
+    //   topTen.push(doc.data().highScore);
+    //   scoreAndUsernameObj[doc.data().username] = doc.data().highScore;
+    // });
+
+    const entries = Object.entries(scoreAndUsernameObj);
+    entries.sort((a, b) => b[1] - a[1]);
+    const sortedScoreAndUsernameObj = Object.fromEntries(entries);
+    setLeaderBoardArrayOneMinGame(Object.entries(sortedScoreAndUsernameObj));
+    // });
   };
 
-  const getTopTenWithUsernameOneMinGameToday = () => {
+  const getTopTenWithUsernameOneMinGameToday = async () => {
     //gets the query for the top ten scores of the day
     const today = new Date();
 
@@ -187,24 +193,31 @@ export const HomeScreen = ({ navigation }) => {
       limit(10)
     );
 
-    onSnapshot(q, (querySnapshot) => {
-      const topTen = [];
-      const scoreAndUsernameObj = {};
+    // onSnapshot(q, (querySnapshot) => {
+    const topTen = [];
+    const scoreAndUsernameObj = {};
+    const querySnapshot = await getDocs(q);
 
-      querySnapshot.forEach((doc) => {
-        topTen.push(doc.data().highScore);
-        scoreAndUsernameObj[doc.data().username] =
-          doc.data().oneMinGameTodayHighScore;
-      });
+    // querySnapshot.forEach((doc) => {
+    //   topTen.push(doc.data().highScore);
+    //   scoreAndUsernameObj[doc.data().username] =
+    //     doc.data().oneMinGameTodayHighScore;
+    // });
 
-      const entries = Object.entries(scoreAndUsernameObj);
-      entries.sort((a, b) => b[1] - a[1]);
-      const sortedScoreAndUsernameObj = Object.fromEntries(entries);
-      setOneMinGameTodayStats(Object.entries(sortedScoreAndUsernameObj));
+    querySnapshot.forEach((doc) => {
+      topTen.push(doc.data().highScore);
+      scoreAndUsernameObj[doc.data().username] =
+        doc.data().oneMinGameTodayHighScore;
     });
+
+    const entries = Object.entries(scoreAndUsernameObj);
+    entries.sort((a, b) => b[1] - a[1]);
+    const sortedScoreAndUsernameObj = Object.fromEntries(entries);
+    setOneMinGameTodayStats(Object.entries(sortedScoreAndUsernameObj));
+    // });
   };
 
-  const getTopTenWithUsernameFiveSecGameToday = () => {
+  const getTopTenWithUsernameFiveSecGameToday = async () => {
     //gets the query for the top ten scores of the day
     const today = new Date();
 
@@ -223,24 +236,31 @@ export const HomeScreen = ({ navigation }) => {
       limit(10)
     );
 
-    onSnapshot(q, (querySnapshot) => {
-      const topTen = [];
-      const scoreAndUsernameObj = {};
+    // onSnapshot(q, (querySnapshot) => {
+    const topTen = [];
+    const scoreAndUsernameObj = {};
+    const querySnapshot = await getDocs(q);
 
-      querySnapshot.forEach((doc) => {
-        topTen.push(doc.data().highScore);
-        scoreAndUsernameObj[doc.data().username] =
-          doc.data().fiveMinGameTodayHighScore;
-      });
+    // querySnapshot.forEach((doc) => {
+    //   topTen.push(doc.data().highScore);
+    //   scoreAndUsernameObj[doc.data().username] =
+    //     doc.data().fiveMinGameTodayHighScore;
+    // });
 
-      const entries = Object.entries(scoreAndUsernameObj);
-      entries.sort((a, b) => b[1] - a[1]);
-      const sortedScoreAndUsernameObj = Object.fromEntries(entries);
-      setFiveSecGameTodayStats(Object.entries(sortedScoreAndUsernameObj));
+    querySnapshot.forEach((doc) => {
+      topTen.push(doc.data().highScore);
+      scoreAndUsernameObj[doc.data().username] =
+        doc.data().fiveMinGameTodayHighScore;
     });
+
+    const entries = Object.entries(scoreAndUsernameObj);
+    entries.sort((a, b) => b[1] - a[1]);
+    const sortedScoreAndUsernameObj = Object.fromEntries(entries);
+    setFiveSecGameTodayStats(Object.entries(sortedScoreAndUsernameObj));
+    // });
   };
 
-  const getTopTenWithUsernameSpeedGame = () => {
+  const getTopTenWithUsernameSpeedGame = async () => {
     const q = query(
       collection(db, "users"),
       orderBy("FiveSecondGameScore", "desc"),
@@ -248,42 +268,44 @@ export const HomeScreen = ({ navigation }) => {
       limit(15)
     );
 
-    onSnapshot(q, (querySnapshot) => {
-      const topTen = [];
-      const scoreAndUsernameObj = {};
+    // onSnapshot(q, (querySnapshot) => {
+    const topTen = [];
+    const scoreAndUsernameObj = {};
+    const querySnapshot = await getDocs(q);
 
-      querySnapshot.forEach((doc) => {
-        topTen.push(doc.data().highScore);
-        scoreAndUsernameObj[doc.data().username] =
-          doc.data().FiveSecondGameScore;
-      });
+    // querySnapshot.forEach((doc) => {
+    //   topTen.push(doc.data().highScore);
+    //   scoreAndUsernameObj[doc.data().username] =
+    //     doc.data().FiveSecondGameScore;
+    // });
 
-      const entries = Object.entries(scoreAndUsernameObj);
-      entries.sort((a, b) => b[1] - a[1]);
-      const sortedScoreAndUsernameObj = Object.fromEntries(entries);
-      setLeaderBoardArraySpeedGame(Object.entries(sortedScoreAndUsernameObj));
+    querySnapshot.forEach((doc) => {
+      topTen.push(doc.data().highScore);
+      scoreAndUsernameObj[doc.data().username] = doc.data().FiveSecondGameScore;
     });
+
+    const entries = Object.entries(scoreAndUsernameObj);
+    entries.sort((a, b) => b[1] - a[1]);
+    const sortedScoreAndUsernameObj = Object.fromEntries(entries);
+    setLeaderBoardArraySpeedGame(Object.entries(sortedScoreAndUsernameObj));
+    // });
   };
 
   useEffect(() => {
-    getTopTenWithUsernameOneMinGame();
     getTopTenWithUsernameSpeedGame();
-    // getCurrentDeck();
+    getTopTenWithUsernameOneMinGame();
     getTopTenWithUsernameOneMinGameToday();
     getTopTenWithUsernameFiveSecGameToday();
-    // checkForAddedFeilds();
 
     setLoading(false);
 
     return () => {
-      getTopTenWithUsernameSpeedGame;
-      getTopTenWithUsernameOneMinGame;
-      getTopTenWithUsernameOneMinGameToday;
-      getTopTenWithUsernameFiveSecGameToday;
-      // checkForAddedFeilds;
-      // getCurrentDeck;
+      getTopTenWithUsernameSpeedGame();
+      getTopTenWithUsernameOneMinGame();
+      getTopTenWithUsernameOneMinGameToday();
+      getTopTenWithUsernameFiveSecGameToday();
     };
-  }, [user?.email]);
+  }, [user?.email, leaderboardVisible]);
 
   const handleLogout = () => {
     signOut(auth).catch((error) => console.log("Error logging out: ", error));
@@ -304,8 +326,33 @@ export const HomeScreen = ({ navigation }) => {
       },
       (selectedIndex) => {
         if (selectedIndex === 3) return;
-        setGameFinalScore(options[selectedIndex]);
+        const changeToNumber = Number(options[selectedIndex]);
+        // setGameFinalScore(options[selectedIndex]);
+        setGameFinalScore(changeToNumber);
         navigation.navigate("DuelGame", {
+          // gameFinalScore: options[selectedIndex],
+          gameFinalScore: changeToNumber,
+          finalDeckChoice: homeScreenDeckCHoice,
+        });
+      }
+    );
+  };
+
+  const onPressMulti = () => {
+    const options = ["25", "15", "5", "Cancel"];
+    // const destructiveButtonIndex = 0;
+    const cancelButtonIndex = 3;
+
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        title: "Select the number of rounds",
+      },
+      (selectedIndex) => {
+        if (selectedIndex === 3) return;
+        setGameFinalScore(options[selectedIndex]);
+        navigation.navigate("MultiGameJoin", {
           gameFinalScore: options[selectedIndex],
           finalDeckChoice: homeScreenDeckCHoice,
         });
@@ -396,12 +443,13 @@ export const HomeScreen = ({ navigation }) => {
       image: IMAGES.usa,
       backgroundColor: "#546E7A",
     },
-    // {
-    //   key: "4",
-    //   name: "gameDecks4",
-    //   image: IMAGES.facebook,
-    //   backgroundColor: "#37474F",
-    // },
+    {
+      key: "5",
+      name: "characterDeck",
+      image: IMAGES.ironMan,
+      backgroundColor: "#546E7A",
+    },
+
     // {
     //   key: "5",
     //   name: "gameDecks5",
