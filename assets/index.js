@@ -190,4 +190,6 @@ export const IMAGES = {
   stormtrooper: require("./images/stormtrooper.png"),
   kermit: require("./images/kermit.png"),
   luigi: require("./images/luigi.png"),
+
+  coinGif: require("./images/coinGif.gif"),
 };

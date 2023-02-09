@@ -8,6 +8,7 @@ import {
   Pressable,
   Alert,
   Modal,
+  Image,
   TouchableOpacity,
   ActivityIndicator,
   Dimensions,
@@ -30,8 +31,10 @@ import Animated, {
   FlipOutEasyX,
 } from "react-native-reanimated";
 import handleAlldecks from "../components/decks/IconDecks";
+import { OneMinuteGame } from "./OneMinuteGame";
+import { MultiGameJoin } from "./MultiGameJoin";
 
-// import deckOptions from "../components/choseDeck/deckOoptions";
+import * as Linking from "expo-linking";
 
 import {
   collection,
@@ -56,6 +59,7 @@ import {
   MaterialIcons,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
+import { async } from "@firebase/util";
 
 const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
@@ -83,6 +87,9 @@ export const HomeScreen = ({ navigation }) => {
   const [decksModalVisible, setDecksModalVisible] = useState(false);
   const [gameFinalScore, setGameFinalScore] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [frame, setFrame] = useState(0);
+  const [coins, setCoins] = useState(0);
+  const [gameDecksUnlocked, setGameDecksUnlocked] = useState([]);
 
   useEffect(() => {
     const userQuerys = collection(db, "users");
@@ -95,54 +102,49 @@ export const HomeScreen = ({ navigation }) => {
       });
     });
     return () => {
-      getCurrentDeckSnapShot;
+      getCurrentDeckSnapShot();
     };
   }, [homeScreenDeckCHoice, user?.email]);
+
+  // const getCoinsDoc = async () => {
+  //   const userQuerys = collection(db, "users");
+
+  //   const q = query(userQuerys, where("username", "==", `${user?.email}`));
+
+  //   const querySnapshot = await getDocs(q);
+
+  //   querySnapshot.forEach((doc) => {
+  //     setCoins(doc.data().coins);
+  //     setGameDecksUnlocked(doc.data().gameDecksUnlocked);
+  //   });
+  // };
+
+  // useEffect(() => {
+  //   getCoinsDoc();
+  //   return () => {
+  //     getCoinsDoc();
+  //   };
+  // }, [user?.email, setCoins]);
+
+  useEffect(() => {
+    const userQuerys = collection(db, "users");
+
+    const q = query(userQuerys, where("username", "==", `${user?.email}`));
+
+    const getCurrentDeckSnapShot = onSnapshot(q, (querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        setCoins(doc.data().coins);
+        setGameDecksUnlocked(doc.data().gameDecksUnlocked);
+      });
+    });
+    return () => {
+      getCurrentDeckSnapShot();
+    };
+  }, [user?.email]);
 
   const onSelectSwitch = (index) => {
     alert("Selected index: " + index);
   };
-
-  // const checkForAddedFeilds = () => {
-  //   const userQuerys = collection(db, "users");
-  //   const q = query(userQuerys, where("username", "==", `${user?.email}`));
-  //   const docRef = doc(db, "users", user?.email);
-
-  //   onSnapshot(q, (querySnapshot) => {
-  //     querySnapshot.forEach((doc) => {
-  //       if (doc.data().fiveMinGameTodayHighScore === undefined) {
-  //         updateDoc(docRef, {
-  //           fiveMinGameTodayHighScore: 0,
-  //         });
-  //       } else {
-  //         console.log("no need to add feilds");
-  //       }
-  //     });
-  //   });
-  // };
-
-  // const checkForAddedFeilds = async () => {
-  //   const userQuerys = collection(db, "users");
-  //   const q = query(userQuerys, where("username", "==", `${user?.email}`));
-  //   const docRef = doc(db, "users", user?.email);
-  //   try {
-  //     const doc = await getDoc(docRef);
-
-  //     if (!doc.exists) {
-  //       docRef.set({ fiveMinGameTodayHighScore: 0 });
-  //     } else {
-  //       if (doc.data().fiveMinGameTodayHighScore === undefined) {
-  //         docRef.update({
-  //           fiveMinGameTodayHighScore: 0,
-  //         });
-  //       } else {
-  //         console.log("no need to add feilds");
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log("Error getting document:", error);
-  //   }
-  // };
 
   const getTopTenWithUsernameOneMinGame = async () => {
     const q = query(
@@ -338,28 +340,6 @@ export const HomeScreen = ({ navigation }) => {
     );
   };
 
-  const onPressMulti = () => {
-    const options = ["25", "15", "5", "Cancel"];
-    // const destructiveButtonIndex = 0;
-    const cancelButtonIndex = 3;
-
-    showActionSheetWithOptions(
-      {
-        options,
-        cancelButtonIndex,
-        title: "Select the number of rounds",
-      },
-      (selectedIndex) => {
-        if (selectedIndex === 3) return;
-        setGameFinalScore(options[selectedIndex]);
-        navigation.navigate("MultiGameJoin", {
-          gameFinalScore: options[selectedIndex],
-          finalDeckChoice: homeScreenDeckCHoice,
-        });
-      }
-    );
-  };
-
   const twoOptionAlertHandler = () => {
     Alert.alert(
       "Sign Out",
@@ -424,30 +404,40 @@ export const HomeScreen = ({ navigation }) => {
       name: "gameDecks",
       image: IMAGES.snapchat,
       backgroundColor: "#546E7A",
+      displayName: "Media",
+      price: 100,
     },
     {
       key: "2",
       name: "monsterDeck",
       image: IMAGES.cuteMonster,
       backgroundColor: "#546E7A",
+      displayName: "Monster",
+      price: 100,
     },
     {
       key: "3",
       name: "foodDeck",
       image: IMAGES.donut,
       backgroundColor: "#546E7A",
+      displayName: "Food",
+      price: 200,
     },
     {
       key: "4",
       name: "flagDeck",
       image: IMAGES.usa,
       backgroundColor: "#546E7A",
+      displayName: "Flag",
+      price: 300,
     },
     {
       key: "5",
       name: "characterDeck",
       image: IMAGES.ironMan,
       backgroundColor: "#546E7A",
+      displayName: "Character",
+      price: 400,
     },
 
     // {
@@ -471,6 +461,22 @@ export const HomeScreen = ({ navigation }) => {
     // },
   ];
 
+  const getCoinsNumberLength = (coinsNumber) => {
+    if (coinsNumber.length === 1) {
+      return 60;
+    } else if (coinsNumber.length === 2) {
+      return 70;
+    } else if (coinsNumber.length === 3) {
+      return 75;
+    } else if (coinsNumber.length === 4) {
+      return 85;
+    } else if (coinsNumber.length === 5) {
+      return 89;
+    } else if (coinsNumber.length === 6) {
+      return 95;
+    }
+  };
+
   if (loading) {
     return <ActivityIndicator size="large" color="#818384" />;
   }
@@ -480,8 +486,53 @@ export const HomeScreen = ({ navigation }) => {
       colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
       style={styles.linearGradient}
     >
+      <View
+        style={{
+          position: "absolute",
+          top: screenHeight * 0.05,
+          left: 20,
+          backgroundColor: "#818384",
+          borderRadius: 50,
+        }}
+      >
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-evenly",
+            alignItems: "center",
+            width: getCoinsNumberLength(coins.toString()),
+          }}
+        >
+          <Image
+            style={{
+              width: 25,
+              height: 25,
+            }}
+            source={IMAGES.coinGif}
+            onLoad={() => {
+              setTimeout(() => setFrame(1), 0);
+            }}
+            onFrameChange={(frame) => {
+              setTimeout(() => setFrame(frame + 1), 0);
+            }}
+            frameIndex={frame % 10}
+          />
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 17,
+              fontWeight: "bold",
+            }}
+          >
+            {coins ? coins : 0}
+          </Text>
+        </View>
+      </View>
+
       <View style={styles.container}>
         <Text style={styles.gameName}>Kesharim</Text>
+
         <View style={styles.gameOptionsContatier}>
           <View
             style={{
@@ -740,6 +791,8 @@ export const HomeScreen = ({ navigation }) => {
         dataForFlatListDecks={data}
         sethomeScreenDeckCHoice={sethomeScreenDeckCHoice}
         homeScreenDeckCHoice={homeScreenDeckCHoice}
+        gameDecksUnlocked={gameDecksUnlocked}
+        coins={coins}
       />
     </LinearGradient>
   );

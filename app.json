@@ -1,5 +1,6 @@
 {
   "expo": {
+    "scheme": "kesharim",
     "name": "Kesharim",
     "slug": "Kesharim",
     "version": "1.0.6",

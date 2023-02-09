@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -6,12 +6,14 @@ import {
   FlatList,
   Pressable,
   Alert,
+  Dimensions,
   Modal,
   Image,
 } from "react-native";
 import CustomSwitch from "./CustomSwitch";
 import { useAuth } from "../hooks/useAuth";
 import Checkbox from "expo-checkbox";
+import { IMAGES } from "../../assets";
 
 import { db } from "../config/firebase";
 
@@ -19,14 +21,12 @@ import {
   collection,
   onSnapshot,
   doc,
-  query,
-  where,
   updateDoc,
-  limit,
-  orderBy,
-  Timestamp,
-  serverTimestamp,
+  getDoc,
 } from "firebase/firestore";
+import { async } from "@firebase/util";
+
+const screenHeight = Dimensions.get("screen").height;
 
 function DecksModal({
   decksModalVisible,
@@ -34,10 +34,63 @@ function DecksModal({
   dataForFlatListDecks,
   sethomeScreenDeckCHoice,
   homeScreenDeckCHoice,
+  gameDecksUnlocked,
+  coins,
 }) {
   const [gameMode, setGameMode] = useState("oneMin");
   const [hideModal, setHideModal] = useState(false);
+  const [currentCoins, setCurrentCoins] = useState(0);
+  const [frame, setFrame] = useState(0);
+
   const { user } = useAuth();
+
+  const handlePurchase = async (amount, deckName) => {
+    const docRef = doc(db, "users", user?.email);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists() && docSnap.data()) {
+      const coinsData = docSnap.data().coins;
+      const purchasedData = docSnap.data().gameDecksUnlocked;
+
+      if (coinsData >= amount) {
+        const newCoins = coinsData - amount;
+        const newPurchased = [...purchasedData, deckName];
+        updateDoc(docRef, {
+          coins: newCoins,
+          gameDecksUnlocked: newPurchased,
+        });
+      }
+
+      // else {
+      //   // Not enough coins to make the purchase
+      //   Alert.alert("Not enough coins to make the purchase");
+      // }
+    }
+  };
+
+  const twoOptionAlertHandler = (amount, deckName) => {
+    if (coins >= amount) {
+      Alert.alert(
+        "Purchase Deck",
+        "Are you sure you want to purchase this deck for " +
+          amount +
+          " coins you'll have left " +
+          (coins - amount) +
+          " coins?",
+        [
+          { text: "Yes", onPress: () => handlePurchase(amount, deckName) },
+          {
+            text: "No",
+            onPress: () => console.log("No Pressed"),
+            style: "cancel",
+          },
+        ],
+        { cancelable: false }
+      );
+    } else {
+      Alert.alert("Not enough coins to make the purchase");
+    }
+  };
 
   function handleButtonPress(item) {
     const docRef = doc(db, "users", user?.email);
@@ -66,7 +119,6 @@ function DecksModal({
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.modalText}>Decks</Text>
-
           <View
             style={{
               display: "flex ",
@@ -90,71 +142,134 @@ function DecksModal({
                 height: "87%",
                 flexGrow: 0,
               }}
-              renderItem={({ item }) => (
-                <Pressable
-                  style={{
-                    display: "flex",
-                    justifyContent: "flex-start",
-                    alignItems: "center",
-                    width: "50%",
-                    // height: "30%",
-                  }}
-                  onPress={() => {
-                    // sethomeScreenDeckCHoice(item.name);
-                    handleButtonPress(item);
-                    // console.log("item.key", item.name);
-                  }}
-                >
-                  <View
-                    style={{
-                      borderWidth: item.name === homeScreenDeckCHoice ? 5 : 0,
-                      borderColor:
-                        item.name === homeScreenDeckCHoice
-                          ? "blue"
-                          : "transparent",
-                      borderRadius: 15,
+              renderItem={({ item }) => {
+                const alredyUnlocked = gameDecksUnlocked.includes(item.name)
+                  ? false
+                  : true;
+                const opacity = gameDecksUnlocked.includes(item.name) ? 1 : 0.5;
+                const disabled = gameDecksUnlocked.includes(item.name)
+                  ? false
+                  : true;
 
-                      height: "70.8%",
+                return (
+                  <Pressable
+                    disabled={disabled}
+                    style={{
+                      display: "flex",
+                      justifyContent: "flex-start",
+                      alignItems: "center",
+                      width: "50%",
+                    }}
+                    onPress={() => {
+                      handleButtonPress(item);
                     }}
                   >
                     <View
                       style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        width: "50%",
-                        backgroundColor: item.backgroundColor,
-                        padding: 10,
-                        borderRadius: 10,
-                        // marginBottom: 10,
+                        marginBottom: 15,
                       }}
                     >
-                      <Image
+                      <View
                         style={{
-                          width: 50,
-                          height: 50,
+                          display: "flex",
+                          flexDirection: "row",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          width: "50%",
+                          backgroundColor: item.backgroundColor,
+                          padding: 10,
+                          borderRadius: 10,
+                          borderWidth:
+                            item.name === homeScreenDeckCHoice ? 5 : 0,
+                          borderColor:
+                            item.name === homeScreenDeckCHoice
+                              ? "blue"
+                              : "transparent",
+                          borderRadius: 15,
+                          opacity: opacity,
                         }}
-                        source={item.image}
-                      />
-                      {/* <View
-                      style={{
-                        position: "absolute",
-                      }}
-                    >
-                      <Checkbox
-                        value={item.name === homeScreenDeckCHoice}
-                        onValueChange={() => {
-                          // sethomeScreenDeckCHoice(item.name);
-                          handleButtonPress(item);
-                          // console.log("item.key", item.name);
+                      >
+                        <Image
+                          style={{
+                            width: 50,
+                            height: 50,
+                          }}
+                          source={item.image}
+                        />
+                      </View>
+
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          color: "black",
+                          textAlign: "center",
+                          fontWeight: "500",
                         }}
-                      />
-                    </View> */}
+                      >
+                        {item.displayName}
+                      </Text>
+
+                      {alredyUnlocked && (
+                        <Pressable
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            width: "50%",
+                            backgroundColor: "#818384",
+                            padding: 10,
+                            borderRadius: 10,
+                          }}
+                          onPress={() => {
+                            // handlePurchase(item.price, item.name);
+                            twoOptionAlertHandler(item.price, item.name);
+                          }}
+                        >
+                          {/* <View
+                            style={{
+                              display: "flex",
+                              flexDirection: "row",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              width: "50%",
+                              backgroundColor: "#818384",
+                              padding: 10,
+                              borderRadius: 10,
+                            }}
+                          > */}
+                          <Image
+                            style={{
+                              width: 25,
+                              height: 25,
+                            }}
+                            source={IMAGES.coinGif}
+                            onLoad={() => {
+                              setTimeout(() => setFrame(1), 0);
+                            }}
+                            onFrameChange={(frame) => {
+                              setTimeout(() => setFrame(frame + 1), 0);
+                            }}
+                            frameIndex={frame % 10}
+                          />
+
+                          <Text
+                            style={{
+                              fontSize: 15,
+                              color: "white",
+                              textAlign: "center",
+                              fontWeight: "500",
+                            }}
+                          >
+                            {item.price}
+                          </Text>
+                          {/* </View> */}
+                        </Pressable>
+                      )}
                     </View>
-                  </View>
-                </Pressable>
-              )}
+                  </Pressable>
+                );
+              }}
             />
           </View>
 
@@ -218,7 +333,7 @@ const styles = StyleSheet.create({
     height: "80%",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22,
+    marginTop: screenHeight / 2 - 350,
   },
   modalView: {
     margin: 90,

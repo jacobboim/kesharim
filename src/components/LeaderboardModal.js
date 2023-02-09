@@ -7,11 +7,13 @@ import {
   Pressable,
   Alert,
   TouchableWithoutFeedback,
+  Dimensions,
   Modal,
 } from "react-native";
 import CustomSwitch from "./CustomSwitch";
 import { useAuth } from "../hooks/useAuth";
 import Checkbox from "expo-checkbox";
+const screenHeight = Dimensions.get("screen").height;
 
 function LeaderboardModal({
   leaderboardVisible,
@@ -387,7 +389,8 @@ const styles = StyleSheet.create({
     height: "80%",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22,
+    // marginTop: 22,
+    marginTop: screenHeight / 2 - 350,
   },
   modalView: {
     margin: 90,

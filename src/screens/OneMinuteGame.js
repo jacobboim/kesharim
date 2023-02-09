@@ -22,6 +22,7 @@ import {
   query,
   serverTimestamp,
   where,
+  getDoc,
 } from "firebase/firestore";
 
 import { useAuth } from "../hooks/useAuth";
@@ -129,6 +130,26 @@ export const OneMinuteGame = ({ route, navigation }) => {
     }
   }, [todaysHighScoreTime]);
 
+  // const getOneMinGameData = async () => {
+  //   const userQuerys = collection(db, "users");
+  //   const q = query(userQuerys, where("username", "==", `${user?.email}`));
+
+  //   const querySnapshot = await getDocs(q);
+  //   querySnapshot.forEach((doc) => {
+  //     setHighScore(doc.data().highScore);
+  //     setTodaysHighscore(doc.data().oneMinGameTodayHighScore);
+  //     setTodaysHighScoreTime(doc.data().todaysHighScoreTime);
+  //   });
+  // };
+
+  // useEffect(() => {
+  //   getOneMinGameData();
+
+  //   return () => {
+  //     getOneMinGameData();
+  //   };
+  // }, [user?.email, setHighScore]);
+
   useEffect(() => {
     const userQuerys = collection(db, "users");
     const q = query(userQuerys, where("username", "==", `${user?.email}`));
@@ -141,8 +162,47 @@ export const OneMinuteGame = ({ route, navigation }) => {
       });
     });
   }, [user?.email]);
+
+  const updateCoins = async (score) => {
+    let coins = 0;
+
+    if (score === 0) {
+      coins = 0;
+    } else if (score >= 1 && score < 5) {
+      coins = 5;
+    } else if (score >= 5 && score < 10) {
+      coins = 10;
+    } else if (score >= 10 && score < 15) {
+      coins = 15;
+    } else if (score >= 15 && score < 20) {
+      coins = 20;
+    } else if (score >= 20 && score < 25) {
+      coins = 25;
+    } else if (score >= 25 && score < 30) {
+      coins = 30;
+    } else if (score >= 30 && score < 35) {
+      coins = 35;
+    } else if (score >= 35 && score <= 40) {
+      coins = 40;
+    } else {
+      coins = 50;
+    }
+
+    const docRef = doc(db, "users", user?.email);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const coinsData = docSnap.data().coins;
+      const newCoins = coinsData + coins;
+      updateDoc(docRef, {
+        coins: newCoins,
+      });
+    }
+  };
+
   useEffect(() => {
     if (gameOver) {
+      updateCoins(score);
       setTimeout(() => {
         setShowGameOverMessage(true);
       }, 1050);
@@ -248,6 +308,34 @@ export const OneMinuteGame = ({ route, navigation }) => {
     setTimeout(() => {
       resetGame();
     }, 170);
+  };
+
+  const getCoinsEarned = () => {
+    let coins = 0;
+
+    if (score === 0) {
+      coins = 0;
+    } else if (score >= 1 && score < 5) {
+      coins = 5;
+    } else if (score >= 5 && score < 10) {
+      coins = 10;
+    } else if (score >= 10 && score < 15) {
+      coins = 15;
+    } else if (score >= 15 && score < 20) {
+      coins = 20;
+    } else if (score >= 20 && score < 25) {
+      coins = 25;
+    } else if (score >= 25 && score < 30) {
+      coins = 30;
+    } else if (score >= 30 && score < 35) {
+      coins = 35;
+    } else if (score >= 35 && score <= 40) {
+      coins = 40;
+    } else {
+      coins = 50;
+    }
+
+    return coins;
   };
 
   return (
@@ -529,15 +617,36 @@ export const OneMinuteGame = ({ route, navigation }) => {
                 </View>
               </ThemedButton>
             </View>
+            <View style={[styles.gameOverScoreContainer]}>
+              <Text
+                style={{
+                  fontSize: 40,
+                  color: "white",
+                }}
+              >
+                Score: {score}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 40,
+                  color: "white",
+                }}
+              >
+                Coins Earned: {getCoinsEarned()}
+              </Text>
+            </View>
 
-            <Text style={{ fontSize: 50, marginTop: 180, color: "white" }}>
-              Game Over
-            </Text>
+            {/* <Text style={{ fontSize: 50, marginTop: 190, color: "white" }}> */}
+
+            <Text style={styles.gameOverText}>Game Over</Text>
           </Animated.View>
         )}
-        <View style={[styles.scoreContainer]}>
-          <Text style={{ fontSize: 50, color: "white" }}>{score}</Text>
-        </View>
+
+        {!showGameOverMessage && (
+          <View style={[styles.scoreContainer]}>
+            <Text style={{ fontSize: 50, color: "white" }}>{score}</Text>
+          </View>
+        )}
       </LinearGradient>
     </SafeAreaView>
   );
@@ -557,7 +666,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-evenly",
     width: screenWidth,
-    top: 40,
+    top: screenHeight / -5.5,
   },
   goHomeContainer: {
     position: "absolute",
@@ -644,6 +753,31 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     top: screenHeight / 3,
   },
+
+  gameOverText: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    // top: 720,
+    top: screenHeight / 1.15,
+    fontSize: 50,
+    color: "white",
+  },
+  gameOverScoreContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    // top: 720,
+    width: screenWidth,
+    top: screenHeight / 1.63,
+
+    // marginTop: screenHeight / 3,
+  },
+
   scoreContainer: {
     display: "flex",
     flexDirection: "row",

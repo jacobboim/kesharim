@@ -36,6 +36,8 @@ export const SignupScreen = ({ navigation }) => {
       todaysHighScoreTime: serverTimestamp(),
       todaysHighFiveSecTime: serverTimestamp(),
       serverTimestamp: serverTimestamp(),
+      coins: 25,
+      gameDecksUnlocked: ["gameDecks", "monsterDeck"],
     });
   }
 

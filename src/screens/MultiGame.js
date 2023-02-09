@@ -274,7 +274,7 @@ export function MultiGame({ route, navigation }) {
   }, [currentIndex, gameDeck, userOneDeck]);
 
   useEffect(() => {
-    if (multiUserOneScore + multiUserTwoScore === numberRounds) {
+    if (multiUserOneScore + multiUserTwoScore >= numberRounds) {
       const timeout = setTimeout(() => {
         setGameOver(true);
       }, 900);
@@ -339,8 +339,8 @@ export function MultiGame({ route, navigation }) {
       gameDeck: stringDeck,
       playerOneScore: 0,
       playerTwoScore: 0,
-      playerOneIndex: 0,
-      playerTwoIndex: 0,
+      playerOneIndex: 28,
+      playerTwoIndex: 29,
       multiDefaultUserOne: multiDefaultUserOne,
       multiDefaultUserTwo: multiDefaultUserTwo,
       userOneClickPlayAgain: true,
@@ -675,15 +675,6 @@ export function MultiGame({ route, navigation }) {
                           }}
                         >
                           <TouchableOpacity
-                            // disabled={
-                            //   gameOver === true ||
-                            //   multiStartDisabled === true ||
-                            //   (playerOne === user?.email && multiNotInDeckOne)
-                            //     ? true
-                            //     : playerOne !== user?.email && multiNotInDeckTwo
-                            //     ? true
-                            //     : false
-                            // }
                             disabled={shouldBeDisabled()}
                             key={item.id}
                             onPress={() =>
@@ -768,7 +759,10 @@ export function MultiGame({ route, navigation }) {
                         transform: [{ rotate: `180deg` }],
                       }}
                     >
-                      {multiUserTwoScore}
+                      {/* {multiUserTwoScore} */}
+                      {playerOne === user?.email
+                        ? multiUserTwoScore
+                        : multiUserOneScore}
                     </Text>
                   </View>
                   <View style={styles.playTwoWinContainer}>
@@ -780,9 +774,13 @@ export function MultiGame({ route, navigation }) {
                         transform: [{ rotate: `180deg` }],
                       }}
                     >
-                      {multiUserOneScore < multiUserTwoScore
-                        ? "YOU WIN"
-                        : "YOU LOSE"}
+                      {playerOne === user?.email &&
+                      multiUserOneScore > multiUserTwoScore
+                        ? "YOU LOSE"
+                        : playerOne !== user?.email &&
+                          multiUserOneScore < multiUserTwoScore
+                        ? "YOU LOSE"
+                        : "YOU WIN"}
                     </Text>
                   </View>
                   <View style={styles.gameOverContainerOptions}>
@@ -863,15 +861,21 @@ export function MultiGame({ route, navigation }) {
                         fontWeight: "bold",
                       }}
                     >
-                      {multiUserOneScore > multiUserTwoScore
+                      {playerOne === user?.email &&
+                      multiUserOneScore > multiUserTwoScore
+                        ? "YOU WIN"
+                        : playerOne !== user?.email &&
+                          multiUserOneScore < multiUserTwoScore
                         ? "YOU WIN"
                         : "YOU LOSE"}
                     </Text>
                   </View>
                   <View style={[styles.scoreContainer]}>
                     <Text style={{ fontSize: 50, color: "white" }}>
-                      {/* {userOneScore} */}
-                      {multiUserOneScore}
+                      {/* {multiUserOneScore} */}
+                      {playerOne === user?.email
+                        ? multiUserOneScore
+                        : multiUserTwoScore}
                     </Text>
                   </View>
                 </Animated.View>

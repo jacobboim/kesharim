@@ -26,6 +26,7 @@ import {
   query,
   where,
   serverTimestamp,
+  getDoc,
 } from "firebase/firestore";
 
 import { useAuth } from "../hooks/useAuth";
@@ -150,8 +151,47 @@ export function FiveSecondGame({ route, navigation }) {
     });
   }, [user?.email]);
 
+  const updateCoins = async (score) => {
+    let coins = 0;
+
+    if (score === 0) {
+      coins = 0;
+    } else if (score >= 1 && score < 5) {
+      coins = 5;
+    } else if (score >= 5 && score < 10) {
+      coins = 10;
+    } else if (score >= 10 && score < 15) {
+      coins = 15;
+    } else if (score >= 15 && score < 20) {
+      coins = 20;
+    } else if (score >= 20 && score < 25) {
+      coins = 25;
+    } else if (score >= 25 && score < 30) {
+      coins = 30;
+    } else if (score >= 30 && score < 35) {
+      coins = 35;
+    } else if (score >= 35 && score <= 40) {
+      coins = 40;
+    } else {
+      coins = 50;
+    }
+
+    const docRef = doc(db, "users", user?.email);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const coinsData = docSnap.data().coins;
+      const newCoins = coinsData + coins;
+      updateDoc(docRef, {
+        coins: newCoins,
+      });
+    }
+  };
+
   useEffect(() => {
     if (gameOver) {
+      updateCoins(score);
+
       setTimeout(() => {
         setShowGameOverMessage(true);
       }, 1050);
@@ -291,6 +331,33 @@ export function FiveSecondGame({ route, navigation }) {
     }, 170);
   };
 
+  const getCoinsEarned = () => {
+    let coins = 0;
+
+    if (score === 0) {
+      coins = 0;
+    } else if (score >= 1 && score < 5) {
+      coins = 5;
+    } else if (score >= 5 && score < 10) {
+      coins = 10;
+    } else if (score >= 10 && score < 15) {
+      coins = 15;
+    } else if (score >= 15 && score < 20) {
+      coins = 20;
+    } else if (score >= 20 && score < 25) {
+      coins = 25;
+    } else if (score >= 25 && score < 30) {
+      coins = 30;
+    } else if (score >= 30 && score < 35) {
+      coins = 35;
+    } else if (score >= 35 && score <= 40) {
+      coins = 40;
+    } else {
+      coins = 50;
+    }
+
+    return coins;
+  };
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
@@ -467,6 +534,89 @@ export function FiveSecondGame({ route, navigation }) {
               <ThemedButton
                 name="bruce"
                 type="primary"
+                onPressOut={() => navigation.navigate("Home")}
+                width={100}
+                height={110}
+                borderRadius={360}
+                backgroundColor="#818384"
+              >
+                <View
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Entypo name="home" size={70} color="white" />
+                </View>
+              </ThemedButton>
+
+              <ThemedButton
+                name="bruce"
+                type="primary"
+                // onPressOut={resetGame}
+                onPressOut={resetGameDelay}
+                width={99}
+                height={110}
+                borderRadius={360}
+                backgroundColor="#818384"
+              >
+                <View
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Ionicons
+                    name="play"
+                    size={65}
+                    color="white"
+                    style={{ paddingLeft: 5 }}
+                  />
+                </View>
+              </ThemedButton>
+            </View>
+            <View style={[styles.gameOverScoreContainer]}>
+              <Text
+                style={{
+                  fontSize: 40,
+                  color: "white",
+                }}
+              >
+                Score: {score}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 40,
+                  color: "white",
+                }}
+              >
+                Coins Earned: {getCoinsEarned()}
+              </Text>
+            </View>
+
+            {/* <Text style={{ fontSize: 50, marginTop: 190, color: "white" }}> */}
+
+            <Text style={styles.gameOverText}>Game Over</Text>
+          </Animated.View>
+        )}
+
+        {!showGameOverMessage && (
+          <View style={[styles.scoreContainer]}>
+            <Text style={{ fontSize: 50, color: "white" }}>{score}</Text>
+          </View>
+        )}
+
+        {/* {showGameOverMessage && (
+          <Animated.View
+            entering={FadeIn.duration(800).delay(200)}
+            style={styles.gameOverContainer}
+          >
+            <View style={styles.gameOverContainerOptions}>
+              <ThemedButton
+                name="bruce"
+                type="primary"
                 onPressOut={goToHome}
                 width={100}
                 height={110}
@@ -518,7 +668,7 @@ export function FiveSecondGame({ route, navigation }) {
 
         <View style={[styles.scoreContainer]}>
           <Text style={{ fontSize: 50, color: "white" }}>{score}</Text>
-        </View>
+        </View> */}
       </LinearGradient>
     </SafeAreaView>
   );
@@ -538,7 +688,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-evenly",
     width: screenWidth,
-    top: 40,
+    // top: 40,
+    top: screenHeight / -5.5,
   },
   gameOverContainer: {
     flex: 1,
@@ -617,6 +768,30 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: screenHeight / 1.6,
   },
+  gameOverText: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    // top: 720,
+    top: screenHeight / 1.15,
+    fontSize: 50,
+    color: "white",
+  },
+  gameOverScoreContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    // top: 720,
+    width: screenWidth,
+    top: screenHeight / 1.63,
+
+    // marginTop: screenHeight / 3,
+  },
+
   scoreContainer: {
     display: "flex",
     flexDirection: "row",
@@ -625,6 +800,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     // top: 720,
     top: screenHeight / 1.13,
+
     // marginTop: screenHeight / 3,
   },
   linearGradient: {
