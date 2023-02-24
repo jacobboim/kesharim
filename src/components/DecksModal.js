@@ -10,22 +10,13 @@ import {
   Modal,
   Image,
 } from "react-native";
-import CustomSwitch from "./CustomSwitch";
 import { useAuth } from "../hooks/useAuth";
-import Checkbox from "expo-checkbox";
 import { IMAGES } from "../../assets";
 import themesContext from "../config/themesContext";
 
 import { db } from "../config/firebase";
 
-import {
-  collection,
-  onSnapshot,
-  doc,
-  updateDoc,
-  getDoc,
-} from "firebase/firestore";
-import { async } from "@firebase/util";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
 
 const screenHeight = Dimensions.get("screen").height;
 
@@ -187,9 +178,10 @@ function DecksModal({
                           width: "50%",
                           backgroundColor: item.backgroundColor,
                           padding: 10,
-                          borderRadius: 10,
-                          borderWidth:
-                            item.name === homeScreenDeckCHoice ? 5 : 0,
+                          // borderWidth:
+                          //   item.name === homeScreenDeckCHoice ? 4 : 4,
+                          borderWidth: 5,
+
                           borderColor:
                             item.name === homeScreenDeckCHoice
                               ? theme.borderColor
@@ -200,8 +192,8 @@ function DecksModal({
                       >
                         <Image
                           style={{
-                            width: 50,
-                            height: 50,
+                            width: 45,
+                            height: 45,
                           }}
                           source={item.image}
                         />

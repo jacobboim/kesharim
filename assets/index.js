@@ -1,4 +1,11 @@
 export const IMAGES = {
+  //Tutorial Images
+  howToPlay: require("./images/howToPlay.png"),
+  howTo: require("./images/howTo.png"),
+
+  multiPlayer: require("./images/multiPlayer.png"),
+
+  //Logo Deck
   medium: require("./images/medium.png"),
   sketch: require("./images/sketch.png"),
   android: require("./images/android.png"),
@@ -86,7 +93,7 @@ export const IMAGES = {
   roundMonster2: require("./images/roundMonster2.png"),
   orgeMonster: require("./images/orgeMonster.png"),
 
-  //testing food
+  //Food Deck
   broccoli: require("./images/broccoli.png"),
   carrot: require("./images/carrot.png"),
   corn: require("./images/corn.png"),

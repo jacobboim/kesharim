@@ -23,7 +23,7 @@ const themes = {
     primaryColor: "#3B4F77",
     secondaryColor: "#435D71",
     accentColor: "#4E6D8A",
-    borderColor: "#2F4C6B",
+    borderColor: "#0D1825",
   },
   purple: {
     //purple theme good pattern

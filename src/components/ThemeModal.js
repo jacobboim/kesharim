@@ -9,35 +9,18 @@ import {
   Dimensions,
   Platform,
   Modal,
-  Image,
 } from "react-native";
-import CustomSwitch from "./CustomSwitch";
-import { useAuth } from "../hooks/useAuth";
-import Checkbox from "expo-checkbox";
 import { IMAGES } from "../../assets";
 import { EventRegister } from "react-native-event-listeners";
 import themesContext from "../config/themesContext";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { db } from "../config/firebase";
-
-import {
-  collection,
-  onSnapshot,
-  doc,
-  updateDoc,
-  getDoc,
-} from "firebase/firestore";
-
-import { async } from "@firebase/util";
-
 const screenHeight = Dimensions.get("screen").height;
 
 function ThemeModal({ themeModalVisible, setThemeModalVisible, themeData }) {
   const theme = useContext(themesContext);
   const [themeState, setThemeState] = useState("DEFAULT");
-  const [gameMode, setGameMode] = useState("oneMin");
   const [hideModal, setHideModal] = useState(false);
 
   function handleButtonPress(item) {
@@ -46,7 +29,6 @@ function ThemeModal({ themeModalVisible, setThemeModalVisible, themeData }) {
 
   const onHideModal = () => {
     setThemeModalVisible(!themeModalVisible);
-    setGameMode("oneMin");
   };
 
   useEffect(() => {

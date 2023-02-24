@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import { StatusBar } from "expo-status-bar";
 import {
   StyleSheet,
   Text,
@@ -7,11 +6,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Dimensions,
-  Pressable,
-  Button,
-  Image,
   Platform,
-  FlatList,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
@@ -37,7 +32,6 @@ export default function DuelGame({ route, navigation }) {
   const theme = useContext(themesContext);
 
   const getChosenDeck = route.params.finalDeckChoice;
-  // console.log(getChosenDeck, "getChosenDeck");
   const {
     gameDecks,
     monsterDeck,

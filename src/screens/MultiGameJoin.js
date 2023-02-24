@@ -5,12 +5,11 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   Dimensions,
-  KeyboardAvoidingView,
   Alert,
   TouchableWithoutFeedback,
   Keyboard,
+  KeyboardAvoidingView,
   FlatList,
 } from "react-native";
 import { db } from "../config/firebase";
@@ -37,6 +36,8 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 import { LinearGradient } from "expo-linear-gradient";
 import themesContext from "../config/themesContext";
 
+import DropDownPicker from "react-native-dropdown-picker";
+
 const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
 
@@ -53,10 +54,26 @@ export const MultiGameJoin = ({ route, navigation }) => {
   const { showActionSheetWithOptions } = useActionSheet();
   const inputRef = useRef(null);
 
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("Public");
+  const [items, setItems] = useState([
+    { label: "Public", value: "Public" },
+    { label: "Private", value: "Private" },
+  ]);
+
+  const [openRoundNumber, setOpenRoundNumber] = useState(false);
+  const [valueRoundNumber, setValueRoundNumber] = useState(5);
+  const [itemsRoundNumber, setItemsRoundNumber] = useState([
+    { label: 5, value: 5 },
+    { label: 15, value: 15 },
+    { label: 25, value: 25 },
+  ]);
+
   useEffect(() => {
     const q = query(
       collection(db, "games"),
       where("playerTwo", "==", null),
+      where("gameType", "==", "Public"),
       orderBy("gameCreatedDate", "asc")
     );
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -89,25 +106,25 @@ export const MultiGameJoin = ({ route, navigation }) => {
     inputRef.current.blur();
   };
 
-  const onPress = () => {
-    const options = ["25", "15", "5", "Cancel"];
-    const cancelButtonIndex = 3;
+  // const onPress = () => {
+  //   const options = ["25", "15", "5", "Cancel"];
+  //   const cancelButtonIndex = 3;
 
-    showActionSheetWithOptions(
-      {
-        options,
-        cancelButtonIndex,
-        title: "Select the number of rounds",
-      },
-      (selectedIndex) => {
-        if (selectedIndex === 3) return;
-        const changeToNumber = Number(options[selectedIndex]);
-        handleCreateGame(changeToNumber);
-      }
-    );
-  };
+  //   showActionSheetWithOptions(
+  //     {
+  //       options,
+  //       cancelButtonIndex,
+  //       title: "Select the number of rounds",
+  //     },
+  //     (selectedIndex) => {
+  //       if (selectedIndex === 3) return;
+  //       const changeToNumber = Number(options[selectedIndex]);
+  //       handleCreateGame(changeToNumber);
+  //     }
+  //   );
+  // };
 
-  const handleCreateGame = async (numround) => {
+  const handleCreateGame = async () => {
     const shortendEmail = user?.email.split("@")[0];
 
     const docRef = doc(db, "games", shortendEmail);
@@ -128,9 +145,11 @@ export const MultiGameJoin = ({ route, navigation }) => {
       multiStartDisabled: true,
       multiNotInDeckOne: false,
       multiNotInDeckTwo: false,
-      numRounds: numround,
+      // numRounds: numround,
+      numRounds: valueRoundNumber,
       gameCreatedDate: serverTimestamp(),
       gameCountDown: 3,
+      gameType: value,
     })
       .then(() => {
         setGameId(docRef.id);
@@ -180,11 +199,13 @@ export const MultiGameJoin = ({ route, navigation }) => {
     }, 170);
   };
   return (
-    // <SafeAreaView style={styles.container}>
     <LinearGradient
       colors={theme.backgroundArray}
       style={styles.linearGradient}
     >
+      {/* <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      > */}
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <View style={styles.Gamecontainer}>
@@ -213,7 +234,7 @@ export const MultiGameJoin = ({ route, navigation }) => {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={onPress}
+                onPress={handleCreateGame}
                 style={[{ backgroundColor: theme.buttonColor }, styles.button]}
               >
                 <Text style={styles.buttonText}>Create Game</Text>
@@ -223,12 +244,77 @@ export const MultiGameJoin = ({ route, navigation }) => {
             <View
               style={{
                 display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-around",
+                width: "80%",
+                marginTop: 20,
+              }}
+            >
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 15,
+                  fontWeight: "bold",
+                }}
+              >
+                Game Type:
+              </Text>
+
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 15,
+                  fontWeight: "bold",
+                  marginLeft: 70,
+                }}
+              >
+                Number Rounds:
+              </Text>
+            </View>
+
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+                width: "100%",
+                marginTop: 2,
+                zIndex: 2,
+              }}
+            >
+              <DropDownPicker
+                open={open}
+                value={value}
+                items={items}
+                setOpen={setOpen}
+                setValue={setValue}
+                setItems={setItems}
+                containerStyle={{ height: 40, width: "35%" }}
+                // dropDownDirection="TOP"
+              />
+
+              <DropDownPicker
+                open={openRoundNumber}
+                value={valueRoundNumber}
+                items={itemsRoundNumber}
+                setOpen={setOpenRoundNumber}
+                setValue={setValueRoundNumber}
+                setItems={setItemsRoundNumber}
+                containerStyle={{ height: 40, width: "35%" }}
+                // dropDownDirection="TOP"
+              />
+            </View>
+
+            <View
+              style={{
+                zIndex: 1,
+                display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
 
                 backgroundColor: "white",
                 width: "80%",
-                height: "65%",
+                height: "50%",
                 borderRadius: 10,
                 marginTop: 20,
                 padding: 10,
@@ -296,12 +382,7 @@ export const MultiGameJoin = ({ route, navigation }) => {
                     const intervalId = setInterval(() => {
                       if (time > 0) {
                         time--;
-                        // time = time;
-                      }
-                      // else if (time === 1) {
-                      //   deleteDoc(doc(db, "games", item.id));
-                      // }
-                      else {
+                      } else {
                         clearInterval(intervalId);
                       }
                     }, 1000);
@@ -375,7 +456,6 @@ export const MultiGameJoin = ({ route, navigation }) => {
                                   fontWeight: "600",
                                 }}
                               >
-                                {/* {time} */}
                                 <CountDown seconds={time} />
                               </Text>
                             )}
@@ -416,8 +496,8 @@ export const MultiGameJoin = ({ route, navigation }) => {
           </View>
         </View>
       </TouchableWithoutFeedback>
+      {/* </KeyboardAvoidingView> */}
     </LinearGradient>
-    // </SafeAreaView>
   );
 };
 
@@ -436,7 +516,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "column",
     // width: "100%",
-    height: "50%",
+    height: "65%",
   },
 
   linearGradient: {
@@ -451,7 +531,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   textInput: {
-    height: 40,
+    height: 50,
     width: screenWidth - 150,
     borderColor: "white",
     color: "black",
