@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   Alert,
   TouchableWithoutFeedback,
   Keyboard,
+  FlatList,
 } from "react-native";
 import { db } from "../config/firebase";
 import {
@@ -24,30 +25,64 @@ import {
   where,
   onSnapshot,
   serverTimestamp,
+  deleteDoc,
+  getDocs,
+  orderBy,
 } from "firebase/firestore";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
-
+import CountDown from "../components/CountDown";
 import { useAuth } from "../hooks/useAuth";
 import { ThemedButton } from "react-native-really-awesome-button";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { LinearGradient } from "expo-linear-gradient";
+import themesContext from "../config/themesContext";
 
 const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
 
 export const MultiGameJoin = ({ route, navigation }) => {
+  const theme = useContext(themesContext);
+
   const [gameId, setGameId] = useState("");
   const [newGame, setNewGame] = useState(false);
-  const [playerTwo, setPlayerTwo] = useState();
-  const [gameData, setGameData] = useState({});
-  const [onlyOnePlayer, setOnlyOnePlayer] = useState(true);
   const [userOneDeck, setUserOneDeck] = useState();
-  const [numberOfRounds, setNumberOfRounds] = useState();
+  const [currentGames, setCurrentGames] = useState([]);
 
   const { user } = useAuth();
   const getChosenDeck = route.params.finalDeckChoice;
   const { showActionSheetWithOptions } = useActionSheet();
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, "games"),
+      where("playerTwo", "==", null),
+      orderBy("gameCreatedDate", "asc")
+    );
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const games = [];
+      querySnapshot.forEach((doc) => {
+        games.push({ ...doc?.data(), id: doc?.id });
+      });
+
+      setCurrentGames(games);
+    });
+
+    return unsubscribe;
+  }, [user?.email]);
+
+  const deleteExpiredGame = async (id) => {
+    const q = query(collection(db, "games"), where("playerTwo", "==", null));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const games = [];
+      querySnapshot.forEach((doc) => {
+        games.push({ ...doc?.data(), id: doc?.id });
+      });
+      // setCurrentGames(games);
+    });
+
+    return unsubscribe;
+  };
 
   const onPressInput = () => {
     Keyboard.dismiss();
@@ -95,6 +130,7 @@ export const MultiGameJoin = ({ route, navigation }) => {
       multiNotInDeckTwo: false,
       numRounds: numround,
       gameCreatedDate: serverTimestamp(),
+      gameCountDown: 3,
     })
       .then(() => {
         setGameId(docRef.id);
@@ -146,7 +182,7 @@ export const MultiGameJoin = ({ route, navigation }) => {
   return (
     // <SafeAreaView style={styles.container}>
     <LinearGradient
-      colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
+      colors={theme.backgroundArray}
       style={styles.linearGradient}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -171,14 +207,186 @@ export const MultiGameJoin = ({ route, navigation }) => {
             >
               <TouchableOpacity
                 onPress={() => handleJoinGame(gameId, userOneDeck)}
-                style={styles.button}
+                style={[{ backgroundColor: theme.buttonColor }, styles.button]}
               >
-                <Text style={styles.buttonText}>Join Game</Text>
+                <Text style={[styles.buttonText]}>Join Game</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={onPress} style={styles.button}>
+              <TouchableOpacity
+                onPress={onPress}
+                style={[{ backgroundColor: theme.buttonColor }, styles.button]}
+              >
                 <Text style={styles.buttonText}>Create Game</Text>
               </TouchableOpacity>
+            </View>
+
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+
+                backgroundColor: "white",
+                width: "80%",
+                height: "65%",
+                borderRadius: 10,
+                marginTop: 20,
+                padding: 10,
+              }}
+            >
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 10,
+                  marginTop: 20,
+                }}
+              >
+                <Text style={{ fontSize: 15, fontWeight: "700" }}>
+                  Current Games
+                </Text>
+
+                <Text style={{ fontSize: 15, fontWeight: "700" }}>
+                  Till Close
+                </Text>
+              </View>
+
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+
+                  width: currentGames.length > 0 ? "100%" : screenWidth - 100,
+                  height: "100%",
+                }}
+              >
+                <FlatList
+                  data={currentGames}
+                  ItemSeparatorComponent={() => (
+                    <View
+                      style={{
+                        height: 1,
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+
+                        backgroundColor: "#CED0CE",
+                      }}
+                    />
+                  )}
+                  renderItem={({ item }) => {
+                    const timeCreated = item?.gameCreatedDate;
+                    const changeToDate = timeCreated?.toDate();
+                    const getTime = changeToDate?.getTime();
+
+                    let now = new Date();
+
+                    let timeRemaining = Math.max(
+                      0,
+                      2 * 60 - Math.floor((now.getTime() - getTime) / 1000)
+                    );
+
+                    let time = timeRemaining;
+
+                    const intervalId = setInterval(() => {
+                      if (time > 0) {
+                        time--;
+                        // time = time;
+                      }
+                      // else if (time === 1) {
+                      //   deleteDoc(doc(db, "games", item.id));
+                      // }
+                      else {
+                        clearInterval(intervalId);
+                      }
+                    }, 1000);
+
+                    const splitEmail = user?.email.split("@")[0];
+
+                    return (
+                      <View
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          justifyContent: "center",
+                          width: "100%",
+                          // height: 50,
+                          alignItems: "center",
+                          padding: 10,
+                          // backgroundColor: "red",
+                          marginVertical: 5,
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() =>
+                            handleJoinGame(item.id, item.currentDeck)
+                          }
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            width: "100%",
+                            height: "100%",
+                            alignItems: "center",
+                            backgroundColor: time === 0 ? "red" : "transparent",
+                            padding: 10,
+                            borderRadius: 10,
+                            // marginBottom: 10,
+                          }}
+                          disabled={
+                            time === 0 || splitEmail === item.id ? true : false
+                          }
+                        >
+                          <Text
+                            style={{
+                              color: time === 0 ? "white" : "black",
+                              fontSize: 15,
+                              fontWeight: "600",
+                            }}
+                          >
+                            {item.id}
+                          </Text>
+                          <Text
+                            style={{
+                              color: "black",
+                              fontSize: 15,
+                              fontWeight: "600",
+                            }}
+                          >
+                            {time === 0 ? (
+                              <Text
+                                style={{
+                                  color: "white",
+                                  fontSize: 15,
+                                  fontWeight: "600",
+                                }}
+                              >
+                                Closed
+                              </Text>
+                            ) : (
+                              <Text
+                                style={{
+                                  fontSize: 15,
+                                  fontWeight: "600",
+                                }}
+                              >
+                                {/* {time} */}
+                                <CountDown seconds={time} />
+                              </Text>
+                            )}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  }}
+                  keyExtractor={(item) => item.id}
+                />
+              </View>
             </View>
           </View>
 
@@ -191,7 +399,9 @@ export const MultiGameJoin = ({ route, navigation }) => {
               width={70}
               height={80}
               borderRadius={360}
-              backgroundColor="#818384"
+              backgroundColor={theme.buttonColor}
+
+              // backgroundColor="#818384"
             >
               <View
                 style={{
@@ -217,16 +427,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     display: "flex",
     flexDirection: "column",
-    height: "70%",
+    height: "100%",
   },
 
   Gamecontainer: {
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     display: "flex",
     flexDirection: "column",
     // width: "100%",
-    height: "70%",
+    height: "50%",
   },
 
   linearGradient: {
@@ -242,16 +452,16 @@ const styles = StyleSheet.create({
   },
   textInput: {
     height: 40,
-    width: screenWidth - 200,
+    width: screenWidth - 150,
     borderColor: "white",
     color: "black",
     backgroundColor: "white",
-    borderWidth: 1,
+    borderWidth: 5,
     marginBottom: 10,
     padding: 10,
   },
   button: {
-    backgroundColor: "#818384",
+    // backgroundColor: "#818384",
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
@@ -296,7 +506,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "white",
     fontWeight: "bold",
-    fontFamily: "Helvetica",
+    // fontFamily: "Helvetica",
   },
 
   timerContainer: {
@@ -321,7 +531,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-evenly",
     position: "absolute",
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: "rgba(255, 255, 255, 0.4)",
 
     borderRadius: 40,
     width: "98%",

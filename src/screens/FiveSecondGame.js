@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   Dimensions,
   Image,
+  Platform,
   Animated as RNAnimated,
   FlatList,
 } from "react-native";
@@ -15,6 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "react-native-really-awesome-button";
 import { IMAGES } from "../../assets";
+import themesContext from "../config/themesContext";
 
 import handleAlldecks from "../components/decks/IconDecks";
 
@@ -45,8 +47,17 @@ const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
 
 export function FiveSecondGame({ route, navigation }) {
-  const { gameDecks, monsterDeck, foodDeck, flagDeck, characterDeck } =
-    handleAlldecks();
+  const theme = useContext(themesContext);
+
+  const {
+    gameDecks,
+    monsterDeck,
+    foodDeck,
+    flagDeck,
+    characterDeck,
+    nhlDeck,
+    animalDeck,
+  } = handleAlldecks();
   const getChosenDeck = route.params.finalDeckChoice;
 
   const getUSerChosenDeck = () => {
@@ -64,6 +75,12 @@ export function FiveSecondGame({ route, navigation }) {
     }
     if (getChosenDeck === "characterDeck") {
       return characterDeck;
+    }
+    if (getChosenDeck === "nhlDeck") {
+      return nhlDeck;
+    }
+    if (getChosenDeck === "animalDeck") {
+      return animalDeck;
     }
   };
 
@@ -97,8 +114,9 @@ export function FiveSecondGame({ route, navigation }) {
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState();
   const [loading, setLoading] = useState(false);
+  const [frame, setFrame] = useState(0);
 
-  const [timeRemaining, setTimeRemaining] = useState(8);
+  const [timeRemaining, setTimeRemaining] = useState(9);
   const [gameOver, setGameOver] = useState(false);
   const [notInDeck, setNotInDeck] = useState(false);
   const [roundOver, setRoundOver] = useState(true);
@@ -154,34 +172,36 @@ export function FiveSecondGame({ route, navigation }) {
   const updateCoins = async (score) => {
     let coins = 0;
 
-    if (score === 0) {
-      coins = 0;
-    } else if (score >= 1 && score < 5) {
-      coins = 5;
-    } else if (score >= 5 && score < 10) {
-      coins = 10;
-    } else if (score >= 10 && score < 15) {
-      coins = 15;
-    } else if (score >= 15 && score < 20) {
-      coins = 20;
-    } else if (score >= 20 && score < 25) {
-      coins = 25;
-    } else if (score >= 25 && score < 30) {
-      coins = 30;
-    } else if (score >= 30 && score < 35) {
-      coins = 35;
-    } else if (score >= 35 && score <= 40) {
-      coins = 40;
-    } else {
-      coins = 50;
-    }
+    // if (score === 0) {
+    //   coins = 0;
+    // } else if (score >= 1 && score < 5) {
+    //   coins = 5;
+    // } else if (score >= 5 && score < 10) {
+    //   coins = 10;
+    // } else if (score >= 10 && score < 15) {
+    //   coins = 15;
+    // } else if (score >= 15 && score < 20) {
+    //   coins = 20;
+    // } else if (score >= 20 && score < 25) {
+    //   coins = 25;
+    // } else if (score >= 25 && score < 30) {
+    //   coins = 30;
+    // } else if (score >= 30 && score < 35) {
+    //   coins = 35;
+    // } else if (score >= 35 && score <= 40) {
+    //   coins = 40;
+    // } else {
+    //   coins = 50;
+    // }
+
+    // coins = score;
 
     const docRef = doc(db, "users", user?.email);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
       const coinsData = docSnap.data().coins;
-      const newCoins = coinsData + coins;
+      const newCoins = coinsData + score;
       updateDoc(docRef, {
         coins: newCoins,
       });
@@ -219,7 +239,7 @@ export function FiveSecondGame({ route, navigation }) {
     setScore(0);
     setCurrentIndex(0);
     setGameOver(false);
-    setTimeRemaining(10);
+    setTimeRemaining(9);
     setShowGameOverMessage(false);
     setGameDeck(shuffleArrayPreGame(shuffledArray));
     setUserDeck(getRandomElement(shuffledArray));
@@ -253,19 +273,19 @@ export function FiveSecondGame({ route, navigation }) {
 
   function addTime() {
     if (score <= 10) {
-      setTimeRemaining(timeRemaining - timeRemaining + 8);
+      setTimeRemaining(timeRemaining - timeRemaining + 9);
     } else if (score <= 20) {
-      setTimeRemaining(timeRemaining - timeRemaining + 7);
+      setTimeRemaining(timeRemaining - timeRemaining + 8);
     } else if (score <= 40) {
-      setTimeRemaining(timeRemaining - timeRemaining + 6);
+      setTimeRemaining(timeRemaining - timeRemaining + 7);
     } else if (score <= 60) {
-      setTimeRemaining(timeRemaining - timeRemaining + 5.5);
+      setTimeRemaining(timeRemaining - timeRemaining + 6.5);
     } else if (score <= 80) {
-      setTimeRemaining(timeRemaining - timeRemaining + 5);
+      setTimeRemaining(timeRemaining - timeRemaining + 5.5);
     } else if (score <= 100) {
-      setTimeRemaining(timeRemaining - timeRemaining + 4.5);
+      setTimeRemaining(timeRemaining - timeRemaining + 5);
     } else {
-      setTimeRemaining(timeRemaining - timeRemaining + 4);
+      setTimeRemaining(timeRemaining - timeRemaining + 4.5);
     }
   }
 
@@ -332,36 +352,37 @@ export function FiveSecondGame({ route, navigation }) {
   };
 
   const getCoinsEarned = () => {
-    let coins = 0;
+    // let coins = 0;
 
-    if (score === 0) {
-      coins = 0;
-    } else if (score >= 1 && score < 5) {
-      coins = 5;
-    } else if (score >= 5 && score < 10) {
-      coins = 10;
-    } else if (score >= 10 && score < 15) {
-      coins = 15;
-    } else if (score >= 15 && score < 20) {
-      coins = 20;
-    } else if (score >= 20 && score < 25) {
-      coins = 25;
-    } else if (score >= 25 && score < 30) {
-      coins = 30;
-    } else if (score >= 30 && score < 35) {
-      coins = 35;
-    } else if (score >= 35 && score <= 40) {
-      coins = 40;
-    } else {
-      coins = 50;
-    }
+    // if (score === 0) {
+    //   coins = 0;
+    // } else if (score >= 1 && score < 5) {
+    //   coins = 5;
+    // } else if (score >= 5 && score < 10) {
+    //   coins = 10;
+    // } else if (score >= 10 && score < 15) {
+    //   coins = 15;
+    // } else if (score >= 15 && score < 20) {
+    //   coins = 20;
+    // } else if (score >= 20 && score < 25) {
+    //   coins = 25;
+    // } else if (score >= 25 && score < 30) {
+    //   coins = 30;
+    // } else if (score >= 30 && score < 35) {
+    //   coins = 35;
+    // } else if (score >= 35 && score <= 40) {
+    //   coins = 40;
+    // } else {
+    //   coins = 50;
+    // }
 
-    return coins;
+    return score;
   };
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
+        colors={theme.backgroundArray}
+        // colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
         style={styles.linearGradient}
       >
         <View style={styles.highScoreContainer}>
@@ -430,8 +451,16 @@ export function FiveSecondGame({ route, navigation }) {
                         source={emoji.emoji}
                         style={[
                           {
-                            width: 45,
-                            height: 45,
+                            // width: 45,
+                            // height: 45,
+                            width:
+                              getChosenDeck === "foodDeck" || "flagDeck"
+                                ? 49
+                                : 45,
+                            height:
+                              getChosenDeck === "foodDeck" || "flagDeck"
+                                ? 49
+                                : 45,
                             transform: [{ rotate: `${emoji.rotation}deg` }],
                             opacity: gameOver
                               ? emoji.id === matchingID
@@ -461,7 +490,7 @@ export function FiveSecondGame({ route, navigation }) {
                       style={{
                         backgroundColor: notInDeck
                           ? "rgba(212, 83, 8, 0.6)"
-                          : "rgba(255, 255, 255, 0.3)",
+                          : "rgba(255, 255, 255, 0.4)",
                         margin: 10,
                         borderRadius: 100,
                         alignItems: "center",
@@ -481,8 +510,20 @@ export function FiveSecondGame({ route, navigation }) {
                           entering={FadeIn.duration(900).delay(index * 90)}
                           source={item.emoji}
                           style={{
-                            width: 50,
-                            height: 50,
+                            width:
+                              getChosenDeck === "foodDeck" ||
+                              "flagDeck" ||
+                              "characterDeck"
+                                ? 57
+                                : 55,
+                            height:
+                              getChosenDeck === "foodDeck" ||
+                              "flagDeck" ||
+                              "characterDeck"
+                                ? 57
+                                : 55,
+                            // width: 50,
+                            // height: 50,
                             opacity: gameOver
                               ? item.id === matchingID
                                 ? 1
@@ -509,7 +550,9 @@ export function FiveSecondGame({ route, navigation }) {
                 width={70}
                 height={80}
                 borderRadius={360}
-                backgroundColor="#818384"
+                backgroundColor={theme.buttonColor}
+
+                // backgroundColor="#818384"
               >
                 <View
                   style={{
@@ -538,7 +581,9 @@ export function FiveSecondGame({ route, navigation }) {
                 width={100}
                 height={110}
                 borderRadius={360}
-                backgroundColor="#818384"
+                backgroundColor={theme.buttonColor}
+
+                // backgroundColor="#818384"
               >
                 <View
                   style={{
@@ -559,7 +604,9 @@ export function FiveSecondGame({ route, navigation }) {
                 width={99}
                 height={110}
                 borderRadius={360}
-                backgroundColor="#818384"
+                backgroundColor={theme.buttonColor}
+
+                // backgroundColor="#818384"
               >
                 <View
                   style={{
@@ -586,14 +633,41 @@ export function FiveSecondGame({ route, navigation }) {
               >
                 Score: {score}
               </Text>
-              <Text
+
+              <View
                 style={{
-                  fontSize: 40,
-                  color: "white",
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginTop: 10,
                 }}
               >
-                Coins Earned: {getCoinsEarned()}
-              </Text>
+                <Image
+                  style={{
+                    width: 30,
+                    height: 30,
+                  }}
+                  source={IMAGES.coinGif}
+                  onLoad={() => {
+                    setTimeout(() => setFrame(1), 0);
+                  }}
+                  onFrameChange={(frame) => {
+                    setTimeout(() => setFrame(frame + 1), 0);
+                  }}
+                  frameIndex={frame % 10}
+                />
+
+                <Text
+                  style={{
+                    fontSize: 40,
+                    color: "white",
+                    marginLeft: 10,
+                  }}
+                >
+                  +{getCoinsEarned()}
+                </Text>
+              </View>
             </View>
 
             {/* <Text style={{ fontSize: 50, marginTop: 190, color: "white" }}> */}
@@ -721,7 +795,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "white",
     fontWeight: "bold",
-    fontFamily: "Helvetica",
+    // fontFamily: "Helvetica",
   },
 
   timerContainer: {
@@ -737,6 +811,10 @@ const styles = StyleSheet.create({
     top: screenHeight / 4.5,
     width: "100%",
     height: "40%",
+
+    ...(Platform.OS === "android" && {
+      top: screenHeight / 5.1,
+    }),
   },
   gameDeckContainer: {
     display: "flex",
@@ -744,7 +822,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-evenly",
     position: "absolute",
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: "rgba(255, 255, 255, 0.4)",
     borderRadius: 40,
     width: "98%",
     height: "20%",
@@ -766,7 +844,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    top: screenHeight / 1.6,
+    top: screenHeight / 1.67,
+    // top: screenHeight / 3,
+    ...(Platform.OS === "android" && {
+      top: screenHeight / 1.75,
+    }),
   },
   gameOverText: {
     display: "flex",
@@ -800,6 +882,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     // top: 720,
     top: screenHeight / 1.13,
+
+    ...(Platform.OS === "android" && {
+      top: screenHeight / 1.18,
+    }),
 
     // marginTop: screenHeight / 3,
   },

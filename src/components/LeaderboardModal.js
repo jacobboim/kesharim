@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   StyleSheet,
@@ -13,7 +13,12 @@ import {
 import CustomSwitch from "./CustomSwitch";
 import { useAuth } from "../hooks/useAuth";
 import Checkbox from "expo-checkbox";
+import themesContext from "../config/themesContext";
+
 const screenHeight = Dimensions.get("screen").height;
+const screenWidth = Dimensions.get("screen").width;
+
+const fixedScreenWidth = parseInt(screenWidth.toFixed());
 
 function LeaderboardModal({
   leaderboardVisible,
@@ -23,6 +28,8 @@ function LeaderboardModal({
   oneMinGameTodayStats,
   fiveSecGameTodayStats,
 }) {
+  const theme = useContext(themesContext);
+
   const [gameMode, setGameMode] = useState("oneMin");
   const [hideModal, setHideModal] = useState(false);
 
@@ -64,13 +71,36 @@ function LeaderboardModal({
                 alignItems: "center",
               }}
             >
-              <Text style={{ fontWeight: "700", fontSize: 12 }}>Today's</Text>
-              <Text style={{ fontWeight: "700", fontSize: 12 }}>Stats</Text>
+              <Text
+                style={{
+                  fontWeight: "700",
+                  fontSize: 12,
+                }}
+              >
+                Today's
+              </Text>
+              <Text
+                style={{
+                  fontWeight: "700",
+                  fontSize: 12,
+                }}
+              >
+                Stats
+              </Text>
             </View>
 
             <Checkbox
-              style={{ position: "absolute", right: 12, top: 30 }}
+              style={{
+                position: "absolute",
+                right: 12,
+                top: 30,
+
+                ...(fixedScreenWidth === 411 && {
+                  top: 36,
+                }),
+              }}
               value={todaysStats}
+              color={theme.buttonColor}
               onValueChange={() => {
                 setTodaysStats(!todaysStats);
               }}
@@ -86,13 +116,13 @@ function LeaderboardModal({
               onSelectSwitch={(val) =>
                 setGameMode(val === 1 ? "oneMin" : "fiveSec")
               }
-              selectionColor={"#818384"}
+              selectionColor={theme.buttonColor}
             />
           </View>
 
           <View
             style={{
-              display: "flex ",
+              display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
               flexDirection: "row",
@@ -191,7 +221,7 @@ function LeaderboardModal({
                         alignItems: "center",
                         flexDirection: "row",
                         backgroundColor:
-                          item[0] === user?.email ? "#818384" : "white",
+                          item[0] === user?.email ? theme.buttonColor : "white",
                         borderRadius: 20,
                         padding: item[0] === user?.email ? 10 : 0,
                       }}
@@ -290,7 +320,7 @@ function LeaderboardModal({
                         alignItems: "center",
                         flexDirection: "row",
                         backgroundColor:
-                          item[0] === user?.email ? "#818384" : "white",
+                          item[0] === user?.email ? theme.buttonColor : "white",
                         borderRadius: 20,
                         padding: item[0] === user?.email ? 10 : 0,
                       }}
@@ -333,7 +363,7 @@ function LeaderboardModal({
               styles.button,
               styles.buttonClose,
               {
-                backgroundColor: hideModal ? "darkgray" : "#818384",
+                backgroundColor: hideModal ? "darkgray" : theme.buttonColor,
                 width: 90,
               },
             ]}

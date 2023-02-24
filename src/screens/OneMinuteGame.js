@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Dimensions,
+  Image,
+  Platform,
 } from "react-native";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
 import { LinearGradient } from "expo-linear-gradient";
@@ -13,6 +15,7 @@ import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "react-native-really-awesome-button";
 import handleAlldecks from "../components/decks/IconDecks";
 import { IMAGES } from "../../assets";
+import themesContext from "../config/themesContext";
 
 import {
   collection,
@@ -43,8 +46,17 @@ const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
 
 export const OneMinuteGame = ({ route, navigation }) => {
-  const { gameDecks, monsterDeck, foodDeck, flagDeck, characterDeck } =
-    handleAlldecks();
+  const theme = useContext(themesContext);
+
+  const {
+    gameDecks,
+    monsterDeck,
+    foodDeck,
+    flagDeck,
+    characterDeck,
+    nhlDeck,
+    animalDeck,
+  } = handleAlldecks();
   const getChosenDeck = route.params.finalDeckChoice;
   // console.log(getChosenDeck, "getChosenDeck");
 
@@ -63,6 +75,12 @@ export const OneMinuteGame = ({ route, navigation }) => {
     }
     if (getChosenDeck === "characterDeck") {
       return characterDeck;
+    }
+    if (getChosenDeck === "nhlDeck") {
+      return nhlDeck;
+    }
+    if (getChosenDeck === "animalDeck") {
+      return animalDeck;
     }
   };
 
@@ -104,6 +122,7 @@ export const OneMinuteGame = ({ route, navigation }) => {
   const [todaysHighScoreTime, setTodaysHighScoreTime] = useState();
   const [showGameOverMessage, setShowGameOverMessage] = useState(false);
   const [matchingID, setMatchingID] = useState();
+  const [frame, setFrame] = useState(0);
 
   const { user } = useAuth();
   const refs = useRef([]);
@@ -156,9 +175,9 @@ export const OneMinuteGame = ({ route, navigation }) => {
 
     onSnapshot(q, (querySnapshot) => {
       querySnapshot.forEach((doc) => {
-        setHighScore(doc.data().highScore);
-        setTodaysHighscore(doc.data().oneMinGameTodayHighScore);
-        setTodaysHighScoreTime(doc.data().todaysHighScoreTime);
+        setHighScore(doc.data()?.highScore);
+        setTodaysHighscore(doc.data()?.oneMinGameTodayHighScore);
+        setTodaysHighScoreTime(doc.data()?.todaysHighScoreTime);
       });
     });
   }, [user?.email]);
@@ -166,27 +185,29 @@ export const OneMinuteGame = ({ route, navigation }) => {
   const updateCoins = async (score) => {
     let coins = 0;
 
-    if (score === 0) {
-      coins = 0;
-    } else if (score >= 1 && score < 5) {
-      coins = 5;
-    } else if (score >= 5 && score < 10) {
-      coins = 10;
-    } else if (score >= 10 && score < 15) {
-      coins = 15;
-    } else if (score >= 15 && score < 20) {
-      coins = 20;
-    } else if (score >= 20 && score < 25) {
-      coins = 25;
-    } else if (score >= 25 && score < 30) {
-      coins = 30;
-    } else if (score >= 30 && score < 35) {
-      coins = 35;
-    } else if (score >= 35 && score <= 40) {
-      coins = 40;
-    } else {
-      coins = 50;
-    }
+    coins = score;
+
+    // if (score === 0) {
+    //   coins = 0;
+    // } else if (score >= 1 && score < 5) {
+    //   coins = 5;
+    // } else if (score >= 5 && score < 10) {
+    //   coins = 10;
+    // } else if (score >= 10 && score < 15) {
+    //   coins = 15;
+    // } else if (score >= 15 && score < 20) {
+    //   coins = 20;
+    // } else if (score >= 20 && score < 25) {
+    //   coins = 25;
+    // } else if (score >= 25 && score < 30) {
+    //   coins = 30;
+    // } else if (score >= 30 && score < 35) {
+    //   coins = 35;
+    // } else if (score >= 35 && score <= 40) {
+    //   coins = 40;
+    // } else {
+    //   coins = 50;
+    // }
 
     const docRef = doc(db, "users", user?.email);
     const docSnap = await getDoc(docRef);
@@ -231,7 +252,7 @@ export const OneMinuteGame = ({ route, navigation }) => {
     setScore(0);
     setCurrentIndex(0);
     setGameOver(false);
-    setTimeRemaining(60);
+    setTimeRemaining(600);
     setShowGameOverMessage(false);
     setGameDeck(shuffleArrayPreGame(shuffledArray));
     setUserDeck(getRandomElement(shuffledArray));
@@ -311,37 +332,37 @@ export const OneMinuteGame = ({ route, navigation }) => {
   };
 
   const getCoinsEarned = () => {
-    let coins = 0;
+    // let coins = 0;
 
-    if (score === 0) {
-      coins = 0;
-    } else if (score >= 1 && score < 5) {
-      coins = 5;
-    } else if (score >= 5 && score < 10) {
-      coins = 10;
-    } else if (score >= 10 && score < 15) {
-      coins = 15;
-    } else if (score >= 15 && score < 20) {
-      coins = 20;
-    } else if (score >= 20 && score < 25) {
-      coins = 25;
-    } else if (score >= 25 && score < 30) {
-      coins = 30;
-    } else if (score >= 30 && score < 35) {
-      coins = 35;
-    } else if (score >= 35 && score <= 40) {
-      coins = 40;
-    } else {
-      coins = 50;
-    }
+    // if (score === 0) {
+    //   coins = 0;
+    // } else if (score >= 1 && score < 5) {
+    //   coins = 5;
+    // } else if (score >= 5 && score < 10) {
+    //   coins = 10;
+    // } else if (score >= 10 && score < 15) {
+    //   coins = 15;
+    // } else if (score >= 15 && score < 20) {
+    //   coins = 20;
+    // } else if (score >= 20 && score < 25) {
+    //   coins = 25;
+    // } else if (score >= 25 && score < 30) {
+    //   coins = 30;
+    // } else if (score >= 30 && score < 35) {
+    //   coins = 35;
+    // } else if (score >= 35 && score <= 40) {
+    //   coins = 40;
+    // } else {
+    //   coins = 50;
+    // }
 
-    return coins;
+    return score;
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
+        colors={theme.backgroundArray}
         style={styles.linearGradient}
       >
         <View style={styles.highScoreContainer}>
@@ -486,7 +507,8 @@ export const OneMinuteGame = ({ route, navigation }) => {
                         style={{
                           backgroundColor: notInDeck
                             ? "rgba(212, 83, 8, 0.6)"
-                            : "rgba(255, 255, 255, 0.3)",
+                            : "rgba(255, 255, 255, 0.4)",
+
                           margin: 10,
                           borderRadius: 100,
                           alignItems: "center",
@@ -507,7 +529,7 @@ export const OneMinuteGame = ({ route, navigation }) => {
                           <Animated.Image
                             entering={FadeIn.duration(900).delay(index * 90)}
                             source={item.emoji}
-                            // source={IMAGES.kermit}
+                            // source={IMAGES.}
                             style={{
                               width:
                                 getChosenDeck === "foodDeck" ||
@@ -549,7 +571,8 @@ export const OneMinuteGame = ({ route, navigation }) => {
                 width={70}
                 height={80}
                 borderRadius={360}
-                backgroundColor="#818384"
+                // backgroundColor="#818384"
+                backgroundColor={theme.buttonColor}
               >
                 <View
                   style={{
@@ -578,7 +601,8 @@ export const OneMinuteGame = ({ route, navigation }) => {
                 width={100}
                 height={110}
                 borderRadius={360}
-                backgroundColor="#818384"
+                // backgroundColor="#818384"
+                backgroundColor={theme.buttonColor}
               >
                 <View
                   style={{
@@ -599,7 +623,8 @@ export const OneMinuteGame = ({ route, navigation }) => {
                 width={99}
                 height={110}
                 borderRadius={360}
-                backgroundColor="#818384"
+                // backgroundColor="#818384"
+                backgroundColor={theme.buttonColor}
               >
                 <View
                   style={{
@@ -626,14 +651,41 @@ export const OneMinuteGame = ({ route, navigation }) => {
               >
                 Score: {score}
               </Text>
-              <Text
+
+              <View
                 style={{
-                  fontSize: 40,
-                  color: "white",
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginTop: 10,
                 }}
               >
-                Coins Earned: {getCoinsEarned()}
-              </Text>
+                <Image
+                  style={{
+                    width: 30,
+                    height: 30,
+                  }}
+                  source={IMAGES.coinGif}
+                  onLoad={() => {
+                    setTimeout(() => setFrame(1), 0);
+                  }}
+                  onFrameChange={(frame) => {
+                    setTimeout(() => setFrame(frame + 1), 0);
+                  }}
+                  frameIndex={frame % 10}
+                />
+
+                <Text
+                  style={{
+                    fontSize: 40,
+                    color: "white",
+                    marginLeft: 10,
+                  }}
+                >
+                  +{getCoinsEarned()}
+                </Text>
+              </View>
             </View>
 
             {/* <Text style={{ fontSize: 50, marginTop: 190, color: "white" }}> */}
@@ -698,7 +750,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "white",
     fontWeight: "bold",
-    fontFamily: "Helvetica",
+    // fontFamily: "Helvetica",
   },
 
   timerContainer: {
@@ -719,6 +771,10 @@ const styles = StyleSheet.create({
     // borderRadius: 40,
     width: "100%",
     height: "40%",
+
+    ...(Platform.OS === "android" && {
+      top: screenHeight / 5.1,
+    }),
   },
   gameDeckContainer: {
     display: "flex",
@@ -728,7 +784,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     // top: screenHeight / 2.5,
     // backgroundColor: "yellow",
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: "rgba(255, 255, 255, 0.4)",
 
     // backgroundColor: "rgba(209, 242, 246, 0.9)",
 
@@ -752,6 +808,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     top: screenHeight / 3,
+
+    ...(Platform.OS === "android" && {
+      top: screenHeight / 3.1,
+    }),
   },
 
   gameOverText: {
@@ -784,10 +844,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
-    // top: 720,
     top: screenHeight / 1.13,
 
-    // marginTop: screenHeight / 3,
+    ...(Platform.OS === "android" && {
+      top: screenHeight / 1.18,
+    }),
   },
   linearGradient: {
     position: "absolute",

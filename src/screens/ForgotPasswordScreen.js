@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { StyleSheet, Text } from "react-native";
 import { Formik } from "formik";
 import { sendPasswordResetEmail } from "firebase/auth";
@@ -7,9 +7,11 @@ import { passwordResetSchema } from "../utils";
 import { Colors, auth } from "../config";
 import { View, TextInput, Button, FormErrorMessage } from "../components";
 import { LinearGradient } from "expo-linear-gradient";
+import themesContext from "../config/themesContext";
 
 export const ForgotPasswordScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState("");
+  const theme = useContext(themesContext);
 
   const handleSendPasswordResetEmail = (values) => {
     const { email } = values;
@@ -25,7 +27,7 @@ export const ForgotPasswordScreen = ({ navigation }) => {
   return (
     <View isSafe style={styles.container}>
       <LinearGradient
-        colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
+        colors={theme.backgroundArray}
         style={styles.linearGradient}
       >
         <View style={styles.innerContainer}>
@@ -63,7 +65,10 @@ export const ForgotPasswordScreen = ({ navigation }) => {
                 <FormErrorMessage error={errorState} visible={true} />
               ) : null}
               {/* Password Reset Send Email  button */}
-              <Button style={styles.button} onPress={handleSubmit}>
+              <Button
+                style={[{ backgroundColor: theme.buttonColor }, styles.button]}
+                onPress={handleSubmit}
+              >
                 <Text style={styles.buttonText}>Send Reset Email</Text>
               </Button>
             </>
@@ -103,7 +108,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 8,
-    backgroundColor: "#818384",
+    // backgroundColor: "#818384",
     padding: 10,
     borderRadius: 8,
   },

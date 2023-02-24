@@ -33,6 +33,9 @@
         "appleId": "jacob.boim30@gmail.com",
         "ascAppId": "1663425972",
         "appleTeamId": "F3K69YG4FU"
+      },
+      "android": {
+        "serviceAccountKeyPath": "../../jacobboim/Downloads/pc-api-6123087951618324659-905-a376b70ef6b3.json"
       }
     }
   }

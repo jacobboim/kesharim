@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   StyleSheet,
@@ -14,6 +14,7 @@ import CustomSwitch from "./CustomSwitch";
 import { useAuth } from "../hooks/useAuth";
 import Checkbox from "expo-checkbox";
 import { IMAGES } from "../../assets";
+import themesContext from "../config/themesContext";
 
 import { db } from "../config/firebase";
 
@@ -37,6 +38,8 @@ function DecksModal({
   gameDecksUnlocked,
   coins,
 }) {
+  const theme = useContext(themesContext);
+
   const [gameMode, setGameMode] = useState("oneMin");
   const [hideModal, setHideModal] = useState(false);
   const [currentCoins, setCurrentCoins] = useState(0);
@@ -49,8 +52,8 @@ function DecksModal({
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists() && docSnap.data()) {
-      const coinsData = docSnap.data().coins;
-      const purchasedData = docSnap.data().gameDecksUnlocked;
+      const coinsData = docSnap.data()?.coins;
+      const purchasedData = docSnap.data()?.gameDecksUnlocked;
 
       if (coinsData >= amount) {
         const newCoins = coinsData - amount;
@@ -74,9 +77,9 @@ function DecksModal({
         "Purchase Deck",
         "Are you sure you want to purchase this deck for " +
           amount +
-          " coins you'll have left " +
+          " coins you'll have " +
           (coins - amount) +
-          " coins?",
+          " left?",
         [
           { text: "Yes", onPress: () => handlePurchase(amount, deckName) },
           {
@@ -121,7 +124,7 @@ function DecksModal({
           <Text style={styles.modalText}>Decks</Text>
           <View
             style={{
-              display: "flex ",
+              display: "flex",
               justifyContent: "flex-start",
               alignItems: "center",
               flexDirection: "column",
@@ -143,11 +146,13 @@ function DecksModal({
                 flexGrow: 0,
               }}
               renderItem={({ item }) => {
-                const alredyUnlocked = gameDecksUnlocked.includes(item.name)
+                const alredyUnlocked = gameDecksUnlocked?.includes(item.name)
                   ? false
                   : true;
-                const opacity = gameDecksUnlocked.includes(item.name) ? 1 : 0.5;
-                const disabled = gameDecksUnlocked.includes(item.name)
+                const opacity = gameDecksUnlocked?.includes(item.name)
+                  ? 1
+                  : 0.5;
+                const disabled = gameDecksUnlocked?.includes(item.name)
                   ? false
                   : true;
 
@@ -167,6 +172,10 @@ function DecksModal({
                     <View
                       style={{
                         marginBottom: 15,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        width: "100%",
                       }}
                     >
                       <View
@@ -183,7 +192,7 @@ function DecksModal({
                             item.name === homeScreenDeckCHoice ? 5 : 0,
                           borderColor:
                             item.name === homeScreenDeckCHoice
-                              ? "blue"
+                              ? theme.borderColor
                               : "transparent",
                           borderRadius: 15,
                           opacity: opacity,
@@ -203,7 +212,7 @@ function DecksModal({
                           fontSize: 15,
                           color: "black",
                           textAlign: "center",
-                          fontWeight: "500",
+                          fontWeight: "600",
                         }}
                       >
                         {item.displayName}
@@ -217,7 +226,7 @@ function DecksModal({
                             justifyContent: "center",
                             alignItems: "center",
                             width: "50%",
-                            backgroundColor: "#818384",
+                            backgroundColor: theme.buttonColor,
                             padding: 10,
                             borderRadius: 10,
                           }}
@@ -259,6 +268,7 @@ function DecksModal({
                               color: "white",
                               textAlign: "center",
                               fontWeight: "500",
+                              marginLeft: 2,
                             }}
                           >
                             {item.price}
@@ -278,7 +288,7 @@ function DecksModal({
               styles.button,
               styles.buttonClose,
               {
-                backgroundColor: hideModal ? "darkgray" : "#818384",
+                backgroundColor: hideModal ? "darkgray" : theme.buttonColor,
                 width: 90,
               },
             ]}

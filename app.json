@@ -3,7 +3,7 @@
     "scheme": "kesharim",
     "name": "Kesharim",
     "slug": "Kesharim",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -20,14 +20,27 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jacobboim.Kesharim",
-      "buildNumber": "7"
+      "buildNumber": "8"
     },
     "android": {
+      "package": "com.jacobboim.Kesharim",
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       }
     },
+
+    "androidStatusBar": {
+      "hidden": false,
+      "barStyle": "light-content",
+      "backgroundColor": "#000000"
+    },
+
+    "androidNavigationBar": {
+      "visible": "leanback"
+    },
+
     "plugins": [
       [
         "expo-build-properties",
@@ -35,6 +48,14 @@
           "ios": {
             "useFrameworks": "static"
           }
+        }
+      ],
+      [
+        "expo-navigation-bar",
+        {
+          "position": "relative",
+          "visibility": "hidden",
+          "behavior": "inset-swipe"
         }
       ]
     ],

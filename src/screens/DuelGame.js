@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   StyleSheet,
@@ -10,6 +10,7 @@ import {
   Pressable,
   Button,
   Image,
+  Platform,
   FlatList,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -18,6 +19,7 @@ import { ThemedButton } from "react-native-really-awesome-button";
 import { IMAGES } from "../../assets";
 import { ProgressBar } from "react-native-paper";
 import handleAlldecks from "../components/decks/IconDecks";
+import themesContext from "../config/themesContext";
 
 import Animated, {
   BounceIn,
@@ -32,10 +34,19 @@ const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
 
 export default function DuelGame({ route, navigation }) {
+  const theme = useContext(themesContext);
+
   const getChosenDeck = route.params.finalDeckChoice;
   // console.log(getChosenDeck, "getChosenDeck");
-  const { gameDecks, monsterDeck, foodDeck, flagDeck, characterDeck } =
-    handleAlldecks();
+  const {
+    gameDecks,
+    monsterDeck,
+    foodDeck,
+    flagDeck,
+    characterDeck,
+    nhlDeck,
+    animalDeck,
+  } = handleAlldecks();
 
   const getUSerChosenDeck = () => {
     if (getChosenDeck === "gameDecks") {
@@ -52,6 +63,12 @@ export default function DuelGame({ route, navigation }) {
     }
     if (getChosenDeck === "characterDeck") {
       return characterDeck;
+    }
+    if (getChosenDeck === "nhlDeck") {
+      return nhlDeck;
+    }
+    if (getChosenDeck === "animalDeck") {
+      return animalDeck;
     }
   };
 
@@ -235,7 +252,7 @@ export default function DuelGame({ route, navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
+        colors={theme.backgroundArray}
         style={styles.linearGradient}
       >
         <View
@@ -282,7 +299,7 @@ export default function DuelGame({ route, navigation }) {
                       style={{
                         backgroundColor: notInDeckTwo
                           ? "rgba(212, 83, 8, 0.6)"
-                          : "rgba(255, 255, 255, 0.3)",
+                          : "rgba(255, 255, 255, 0.4)",
                         margin: 10,
                         borderRadius: 100,
                         alignItems: "center",
@@ -354,7 +371,7 @@ export default function DuelGame({ route, navigation }) {
                       style={{
                         backgroundColor: notInDeckOne
                           ? "rgba(212, 83, 8, 0.6)"
-                          : "rgba(255, 255, 255, 0.3)",
+                          : "rgba(255, 255, 255, 0.4)",
                         margin: 10,
                         borderRadius: 100,
                         alignItems: "center",
@@ -452,7 +469,9 @@ export default function DuelGame({ route, navigation }) {
                 width={100}
                 height={110}
                 borderRadius={360}
-                backgroundColor="#818384"
+                backgroundColor={theme.buttonColor}
+
+                // backgroundColor="#818384"
               >
                 <View
                   style={{
@@ -473,7 +492,9 @@ export default function DuelGame({ route, navigation }) {
                 width={99}
                 height={110}
                 borderRadius={360}
-                backgroundColor="#818384"
+                backgroundColor={theme.buttonColor}
+
+                // backgroundColor="#818384"
               >
                 <View
                   style={{
@@ -547,7 +568,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "white",
     fontWeight: "bold",
-    fontFamily: "Helvetica",
+    // fontFamily: "Helvetica",
   },
 
   timerContainer: {
@@ -566,7 +587,7 @@ const styles = StyleSheet.create({
     top: screenHeight / 2.14,
 
     // backgroundColor: "rgba(255, 255, 255, 0.65)",
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: "rgba(255, 255, 255, 0.4)",
 
     borderRadius: 40,
     width: "98%",
@@ -607,6 +628,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     // top: 740,
     top: screenHeight / 1.15,
+
+    ...(Platform.OS === "android" && {
+      top: screenHeight / 1.19,
+    }),
   },
 
   progressContainer: {
@@ -619,6 +644,10 @@ const styles = StyleSheet.create({
     top: screenHeight / 1.07,
     height: 50,
     width: "100%",
+
+    ...(Platform.OS === "android" && {
+      top: screenHeight / 1.11,
+    }),
   },
 
   progressTwoContainer: {

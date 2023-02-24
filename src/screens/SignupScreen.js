@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Text, StyleSheet } from "react-native";
 import { Formik } from "formik";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -9,6 +9,7 @@ import { View, TextInput, Button, FormErrorMessage } from "../components";
 import { Images, Colors, auth } from "../config";
 import { useTogglePasswordVisibility } from "../hooks";
 import { signupValidationSchema } from "../utils";
+import themesContext from "../config/themesContext";
 
 import { db } from "../config/firebase";
 import {
@@ -21,6 +22,7 @@ import {
 
 export const SignupScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState("");
+  const theme = useContext(themesContext);
 
   function addUser(newUser) {
     const docRef = doc(db, "users", newUser);
@@ -64,7 +66,7 @@ export const SignupScreen = ({ navigation }) => {
   return (
     <View isSafe style={styles.container}>
       <LinearGradient
-        colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
+        colors={theme.backgroundArray}
         style={styles.linearGradient}
       >
         <KeyboardAwareScrollView enableOnAndroid={true}>
@@ -167,7 +169,13 @@ export const SignupScreen = ({ navigation }) => {
                   <FormErrorMessage error={errorState} visible={true} />
                 ) : null}
                 {/* Signup button */}
-                <Button style={styles.button} onPress={handleSubmit}>
+                <Button
+                  style={[
+                    { backgroundColor: theme.buttonColor },
+                    styles.button,
+                  ]}
+                  onPress={handleSubmit}
+                >
                   <Text style={styles.buttonText}>Signup</Text>
                 </Button>
               </>
@@ -207,7 +215,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 8,
-    backgroundColor: "#818384",
     padding: 10,
     borderRadius: 8,
   },

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   StyleSheet,
@@ -34,6 +34,9 @@ import handleAlldecks from "../components/decks/IconDecks";
 import { OneMinuteGame } from "./OneMinuteGame";
 import { MultiGameJoin } from "./MultiGameJoin";
 
+import { EventRegister } from "react-native-event-listeners";
+import themesContext from "../config/themesContext";
+
 import * as Linking from "expo-linking";
 
 import {
@@ -60,11 +63,73 @@ import {
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { async } from "@firebase/util";
+import ThemeModal from "../components/ThemeModal";
 
 const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
+const fixedScreenWidth = parseInt(screenWidth.toFixed());
+
+const themeData = [
+  {
+    id: "1",
+    title: "DEFAULT",
+    color: "#4C5D69",
+    buttonColor: "#818384",
+
+    icon: "ios-color-palette",
+    backgroundArray: ["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"],
+  },
+  {
+    id: "2",
+    title: "BLUE",
+    color: "#2F4C6B",
+    buttonColor: "#3B4F77",
+
+    icon: "ios-color-palette",
+    backgroundArray: ["#4E6D8A", "#435D71", "#3B4F77", "#2F3F5E", "#202C3E"],
+  },
+
+  {
+    id: "4",
+    title: "BLUE-GREY",
+    color: "#0D1825",
+    buttonColor: "#3E5D75",
+
+    icon: "ios-color-palette",
+    backgroundArray: ["#223A4D", "#1F2E3E", "#1B242F", "#171D25", "#13171B"],
+  },
+  {
+    id: "5",
+    title: "CHARCOAL",
+    buttonColor: "#535353",
+
+    color: "#282828",
+    icon: "ios-color-palette",
+    backgroundArray: ["#2F2F2F", "#272727", "#1F1F1F", "#171717", "#0F0F0F"],
+  },
+  {
+    id: "6",
+    title: "PURPLE-GREEN",
+    color: "#4A4C63",
+    icon: "ios-color-palette",
+    buttonColor: "#7B76B6",
+
+    backgroundArray: ["#617291", "#5C6F8E", "#5A5E89", "#53577F", "#4E4F7A"],
+  },
+  {
+    id: "3",
+    title: "PURPLE",
+    color: "#1B2B3E",
+    buttonColor: "#A663CC",
+
+    icon: "ios-color-palette",
+    backgroundArray: ["#223140", "#1E2C3D", "#1A2636", "#161F2E", "#0F1825"],
+  },
+];
 
 export const HomeScreen = ({ navigation }) => {
+  const theme = useContext(themesContext);
+
   const { user } = useAuth();
   const { deckOptions } = handleAlldecks();
   const spread = deckOptions();
@@ -85,6 +150,7 @@ export const HomeScreen = ({ navigation }) => {
   );
   const [leaderboardVisible, setLeaderboardVisible] = useState(false);
   const [decksModalVisible, setDecksModalVisible] = useState(false);
+  const [themeModalVisible, setThemeModalVisible] = useState(false);
   const [gameFinalScore, setGameFinalScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const [frame, setFrame] = useState(0);
@@ -133,8 +199,8 @@ export const HomeScreen = ({ navigation }) => {
 
     const getCurrentDeckSnapShot = onSnapshot(q, (querySnapshot) => {
       querySnapshot.forEach((doc) => {
-        setCoins(doc.data().coins);
-        setGameDecksUnlocked(doc.data().gameDecksUnlocked);
+        setCoins(doc.data()?.coins);
+        setGameDecksUnlocked(doc.data()?.gameDecksUnlocked);
       });
     });
     return () => {
@@ -209,7 +275,7 @@ export const HomeScreen = ({ navigation }) => {
     querySnapshot.forEach((doc) => {
       topTen.push(doc.data().highScore);
       scoreAndUsernameObj[doc.data().username] =
-        doc.data().oneMinGameTodayHighScore;
+        doc.data()?.oneMinGameTodayHighScore;
     });
 
     const entries = Object.entries(scoreAndUsernameObj);
@@ -340,6 +406,32 @@ export const HomeScreen = ({ navigation }) => {
     );
   };
 
+  const openSettings = () => {
+    const options = [
+      "PURPLE",
+      "BLUE",
+      "PURPLE-GREEN",
+      "CHARCOAL",
+      "BLUE-GREY",
+      "DEFAULT",
+      "Cancel",
+    ];
+    // const destructiveButtonIndex = 0;
+    const cancelButtonIndex = 6;
+
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        title: "Select The Color Theme",
+      },
+      (selectedIndex) => {
+        if (selectedIndex === 6) return;
+        EventRegister.emit("changeTheme", options[selectedIndex]);
+      }
+    );
+  };
+
   const twoOptionAlertHandler = () => {
     Alert.alert(
       "Sign Out",
@@ -368,6 +460,12 @@ export const HomeScreen = ({ navigation }) => {
     }, 150);
   };
 
+  const showThemeModal = () => {
+    setTimeout(() => {
+      setThemeModalVisible(!themeModalVisible);
+    }, 150);
+  };
+
   const goToOneMin = () => {
     setTimeout(() => {
       navigation.navigate("OneMinuteGame", {
@@ -390,6 +488,11 @@ export const HomeScreen = ({ navigation }) => {
     }, 150);
   };
 
+  const goToSettings = () => {
+    setTimeout(() => {
+      openSettings();
+    }, 150);
+  };
   const goToMulti = () => {
     setTimeout(() => {
       navigation.navigate("MultiGameJoin", {
@@ -403,7 +506,7 @@ export const HomeScreen = ({ navigation }) => {
       key: "1",
       name: "gameDecks",
       image: IMAGES.snapchat,
-      backgroundColor: "#546E7A",
+      backgroundColor: theme.buttonColor,
       displayName: "Media",
       price: 100,
     },
@@ -411,7 +514,7 @@ export const HomeScreen = ({ navigation }) => {
       key: "2",
       name: "monsterDeck",
       image: IMAGES.cuteMonster,
-      backgroundColor: "#546E7A",
+      backgroundColor: theme.buttonColor,
       displayName: "Monster",
       price: 100,
     },
@@ -419,7 +522,7 @@ export const HomeScreen = ({ navigation }) => {
       key: "3",
       name: "foodDeck",
       image: IMAGES.donut,
-      backgroundColor: "#546E7A",
+      backgroundColor: theme.buttonColor,
       displayName: "Food",
       price: 200,
     },
@@ -427,7 +530,7 @@ export const HomeScreen = ({ navigation }) => {
       key: "4",
       name: "flagDeck",
       image: IMAGES.usa,
-      backgroundColor: "#546E7A",
+      backgroundColor: theme.buttonColor,
       displayName: "Flag",
       price: 300,
     },
@@ -435,17 +538,27 @@ export const HomeScreen = ({ navigation }) => {
       key: "5",
       name: "characterDeck",
       image: IMAGES.ironMan,
-      backgroundColor: "#546E7A",
+      backgroundColor: theme.buttonColor,
       displayName: "Character",
       price: 400,
     },
 
-    // {
-    //   key: "5",
-    //   name: "gameDecks5",
-    //   image: IMAGES.twitter,
-    //   backgroundColor: "#263238",
-    // },
+    {
+      key: "6",
+      name: "nhlDeck",
+      image: IMAGES.nhl,
+      backgroundColor: theme.buttonColor,
+      price: 500,
+      displayName: "NHL",
+    },
+    {
+      key: "7",
+      name: "animalDeck",
+      image: IMAGES.lion,
+      backgroundColor: theme.buttonColor,
+      price: 600,
+      displayName: "Animal",
+    },
 
     // {
     //   key: "6",
@@ -483,7 +596,8 @@ export const HomeScreen = ({ navigation }) => {
 
   return (
     <LinearGradient
-      colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
+      // colors={["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"]}
+      colors={theme.backgroundArray}
       style={styles.linearGradient}
     >
       <View
@@ -491,7 +605,8 @@ export const HomeScreen = ({ navigation }) => {
           position: "absolute",
           top: screenHeight * 0.05,
           left: 20,
-          backgroundColor: "#818384",
+          // backgroundColor: "#818384",
+          backgroundColor: theme.buttonColor,
           borderRadius: 50,
         }}
       >
@@ -531,7 +646,9 @@ export const HomeScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.container}>
-        <Text style={styles.gameName}>Kesharim</Text>
+        <Text style={[{ color: theme.titleColor }, styles.gameName]}>
+          Kesharim
+        </Text>
 
         <View style={styles.gameOptionsContatier}>
           <View
@@ -550,7 +667,8 @@ export const HomeScreen = ({ navigation }) => {
               width={106}
               height={110}
               borderRadius={150}
-              backgroundColor="#818384"
+              // backgroundColor="#818384"
+              backgroundColor={theme.buttonColor}
             >
               <View
                 style={{
@@ -583,7 +701,8 @@ export const HomeScreen = ({ navigation }) => {
               width={106}
               height={110}
               borderRadius={150}
-              backgroundColor="#818384"
+              // backgroundColor="#818384"
+              backgroundColor={theme.buttonColor}
             >
               <View
                 style={{
@@ -632,7 +751,8 @@ export const HomeScreen = ({ navigation }) => {
               width={106}
               height={110}
               borderRadius={150}
-              backgroundColor="#818384"
+              // backgroundColor="#818384"
+              backgroundColor={theme.buttonColor}
             >
               <View
                 style={{
@@ -660,7 +780,8 @@ export const HomeScreen = ({ navigation }) => {
               width={106}
               height={110}
               borderRadius={150}
-              backgroundColor="#818384"
+              // backgroundColor="#818384"
+              backgroundColor={theme.buttonColor}
             >
               <View
                 style={{
@@ -705,7 +826,8 @@ export const HomeScreen = ({ navigation }) => {
             width={80}
             height={85}
             borderRadius={360}
-            backgroundColor="#818384"
+            // backgroundColor="#818384"
+            backgroundColor={theme.buttonColor}
           >
             <View
               style={{
@@ -725,7 +847,8 @@ export const HomeScreen = ({ navigation }) => {
             width={80}
             height={85}
             borderRadius={360}
-            backgroundColor="#818384"
+            // backgroundColor="#818384"
+            backgroundColor={theme.buttonColor}
           >
             <View
               style={{
@@ -735,6 +858,28 @@ export const HomeScreen = ({ navigation }) => {
               }}
             >
               <Entypo name="emoji-happy" size={40} color="white" />
+            </View>
+          </ThemedButton>
+
+          <ThemedButton
+            name="bruce"
+            type="primary"
+            // onPressOut={goToSettings}
+            onPressOut={showThemeModal}
+            width={80}
+            height={85}
+            borderRadius={360}
+            // backgroundColor="#818384"
+            backgroundColor={theme.buttonColor}
+          >
+            <View
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Ionicons name="ios-settings-outline" size={40} color="white" />
             </View>
           </ThemedButton>
         </View>
@@ -748,8 +893,11 @@ export const HomeScreen = ({ navigation }) => {
             position: "absolute",
             left: 125,
             top: screenHeight / 1.14,
-
             width: "100%",
+
+            ...(Platform.OS === "android" && {
+              top: screenHeight / 1.19,
+            }),
           }}
         >
           <ThemedButton
@@ -761,7 +909,8 @@ export const HomeScreen = ({ navigation }) => {
             width={70}
             height={75}
             borderRadius={360}
-            backgroundColor="#818384"
+            // backgroundColor="#818384"
+            backgroundColor={theme.buttonColor}
           >
             <View
               style={{
@@ -794,6 +943,12 @@ export const HomeScreen = ({ navigation }) => {
         gameDecksUnlocked={gameDecksUnlocked}
         coins={coins}
       />
+      <ThemeModal
+        themeModalVisible={themeModalVisible}
+        setThemeModalVisible={setThemeModalVisible}
+        themeData={themeData}
+        // setTheme={setTheme}
+      />
     </LinearGradient>
   );
 };
@@ -812,7 +967,7 @@ const styles = StyleSheet.create({
     fontSize: 50,
     fontWeight: "bold",
     marginBottom: 50,
-    color: "white",
+    // color: "white",
   },
   gameOptionsContatier: {
     width: "100%",
