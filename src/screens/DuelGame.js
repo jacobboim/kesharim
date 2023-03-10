@@ -40,6 +40,7 @@ export default function DuelGame({ route, navigation }) {
     characterDeck,
     nhlDeck,
     animalDeck,
+    emojiDeck,
   } = handleAlldecks();
 
   const getUSerChosenDeck = () => {
@@ -63,6 +64,9 @@ export default function DuelGame({ route, navigation }) {
     }
     if (getChosenDeck === "animalDeck") {
       return animalDeck;
+    }
+    if (getChosenDeck === "emojiDeck") {
+      return emojiDeck;
     }
   };
 
@@ -586,6 +590,11 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     width: "98%",
     height: "40%",
+
+    ...(screenHeight === 667 && {
+      height: "35%",
+      top: screenHeight / 2.02,
+    }),
   },
   userDeckContainer: {
     display: "flex",
@@ -605,6 +614,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     // top: 500,
     top: screenHeight / 1.67,
+
+    ...(screenHeight === 667 && {
+      top: screenHeight / 1.64,
+    }),
   },
   userTwoDeckContainer: {
     display: "flex",
@@ -612,6 +625,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     top: screenHeight / 5.12,
+
+    ...(screenHeight === 667 && {
+      top: screenHeight / 5.52,
+    }),
   },
 
   scoreContainer: {
@@ -622,6 +639,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     // top: 740,
     top: screenHeight / 1.15,
+
+    ...(screenHeight === 667 && {
+      top: screenHeight / 1.12,
+    }),
 
     ...(Platform.OS === "android" && {
       top: screenHeight / 1.19,
@@ -638,6 +659,10 @@ const styles = StyleSheet.create({
     top: screenHeight / 1.07,
     height: 50,
     width: "100%",
+
+    ...(screenHeight === 667 && {
+      top: screenHeight / 1.05,
+    }),
 
     ...(Platform.OS === "android" && {
       top: screenHeight / 1.11,
@@ -664,6 +689,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "absolute",
     top: 80,
+
+    ...(screenHeight === 667 && {
+      top: 70,
+    }),
   },
   linearGradient: {
     position: "absolute",

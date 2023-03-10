@@ -66,7 +66,7 @@ export const ForgotPasswordScreen = ({ navigation }) => {
               ) : null}
               {/* Password Reset Send Email  button */}
               <Button
-                style={[{ backgroundColor: theme.buttonColor }, styles.button]}
+                style={[{ backgroundColor: theme.loginButton }, styles.button]}
                 onPress={handleSubmit}
               >
                 <Text style={styles.buttonText}>Send Reset Email</Text>

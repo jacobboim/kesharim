@@ -14,18 +14,6 @@ import { EventRegister } from "react-native-event-listeners";
 const App = () => {
   const [theme, setTheme] = useState("DEFAULT");
 
-  // useEffect(() => {
-  //   let eventListener = EventRegister.addEventListener(
-  //     "changeTheme",
-  //     (data) => {
-  //       setTheme(data);
-  //     }
-  //   );
-  //   return () => {
-  //     EventRegister.removeEventListener(eventListener);
-  //   };
-  // });
-
   useEffect(() => {
     // load saved color scheme on app load
     AsyncStorage.getItem("theme").then((savedTheme) => {
@@ -33,6 +21,9 @@ const App = () => {
         setTheme(savedTheme);
       }
     });
+
+    // delte saved color scheme
+    // AsyncStorage.removeItem("theme");
 
     let eventListener = EventRegister.addEventListener(
       "changeTheme",
@@ -49,8 +40,8 @@ const App = () => {
 
   const getTheme = () => {
     switch (theme) {
-      case "BLUE":
-        return themes.blue;
+      case "GRAY":
+        return themes.gray;
       case "PURPLE":
         return themes.purple;
       case "PURPLE-GREEN":

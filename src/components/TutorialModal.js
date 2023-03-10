@@ -37,102 +37,32 @@ function TutorialModal({ visible, setTutorialVisible }) {
 
   return (
     <Modal animationType="slide" transparent={false} visible={visible}>
-      <View style={{ flex: 1, marginTop: 70 }}>
-        <ScrollView
-          showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={true}
-          contentContainerStyle={{
-            flexGrow: 1,
-            justifyContent: "center",
-            // minHeight: "100%",
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <Text
-            style={{
-              color: "black",
-              fontSize: 30,
-              fontWeight: "bold",
-              marginBottom: 50,
-            }}
-          >
-            How To Play
-          </Text>
-
-          <View
-            style={{
-              width: "92%",
-              marginBottom: 20,
-            }}
-          >
-            <View
-              style={{
-                width: "90%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Text
-                style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}
-              >
-                Choose a game mode
-              </Text>
-            </View>
-
-            <Text style={{ fontSize: 15, marginBottom: 15 }}>
-              There are 4 game modes to choose from.
-            </Text>
-            <Text style={{ fontSize: 15, marginBottom: 15 }}>
-              1 Min - 1 minute to find as many matches as possible
-            </Text>
-            <Text style={{ fontSize: 15, marginBottom: 15 }}>
-              Speed - each match has less time than the previous
-            </Text>
-            <Text style={{ fontSize: 15, marginBottom: 15 }}>
-              Duel - play against a friend
-            </Text>
-            <Text style={{ fontSize: 15, marginBottom: 15 }}>
-              Multi - play against a friend anywhere in the world
-            </Text>
-          </View>
-
-          <View
-            style={{
-              width: "92%",
-              marginBottom: 10,
-            }}
-          >
-            <Text style={{ fontSize: 15 }}>
-              You make a match by tapping on the matching icon
-            </Text>
-          </View>
-
-          <Image
-            source={IMAGES.howTo}
-            style={{
-              width: "90%",
-              height: 600,
-              resizeMode: "contain",
-              marginBottom: 50,
-            }}
-          />
-
-          <View
-            style={{
-              width: "90%",
-              marginBottom: 50,
+      <LinearGradient
+        colors={theme.backgroundArray}
+        style={styles.linearGradient}
+      >
+        <View style={{ flex: 1, marginTop: 70 }}>
+          <ScrollView
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={true}
+            contentContainerStyle={{
+              flexGrow: 1,
+              justifyContent: "center",
+              // minHeight: "100%",
+              width: "100%",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
             }}
           >
             <Text
-              style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}
+              style={{
+                color: "white",
+                fontSize: 30,
+                fontWeight: "bold",
+                marginBottom: 50,
+              }}
             >
-              Multi Mode
+              How To Play
             </Text>
 
             <View
@@ -141,32 +71,56 @@ function TutorialModal({ visible, setTutorialVisible }) {
                 marginBottom: 20,
               }}
             >
-              <Text style={{ fontSize: 15, marginBottom: 15 }}>
-                Enter a game ID to join a friend's game. Then press the "Join
-                Game" button.
-              </Text>
+              <View
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: 20,
+                    fontWeight: "bold",
+                    marginBottom: 10,
+                  }}
+                >
+                  Choose a game mode
+                </Text>
+              </View>
 
-              <Text style={{ fontSize: 15, marginBottom: 15 }}>
-                Or just click on one of the games in the Current Games list to
-                join.
+              <Text style={{ color: "white", fontSize: 15, marginBottom: 15 }}>
+                There are 4 game modes to choose from.
               </Text>
-
-              <Text style={{ fontSize: 15, marginBottom: 15 }}>
-                If you want to create a game, press the "Create Game" button. Be
-                sure to check the game type and number of rounds you want to
-                play.
+              <Text style={{ color: "white", fontSize: 15, marginBottom: 15 }}>
+                1 Min - 1 minute to find as many matches as possible
               </Text>
+              <Text style={{ color: "white", fontSize: 15, marginBottom: 15 }}>
+                Speed - each match has less time than the previous
+              </Text>
+              <Text style={{ color: "white", fontSize: 15, marginBottom: 15 }}>
+                Duel - play against a friend
+              </Text>
+              <Text style={{ color: "white", fontSize: 15, marginBottom: 15 }}>
+                Multi - play against a friend anywhere in the world
+              </Text>
+            </View>
 
-              <Text style={{ fontSize: 15, marginBottom: 15 }}>
-                If you make the game
-                <Text style={{ fontWeight: "bold" }}> private </Text>
-                you will need to share the game ID to a friend to join , since
-                the game will not be listed in the Current Games list.
+            <View
+              style={{
+                width: "92%",
+                marginBottom: 10,
+              }}
+            >
+              <Text style={{ color: "white", fontSize: 15 }}>
+                You make a match by tapping on the matching icon
               </Text>
             </View>
 
             <Image
-              source={IMAGES.multiPlayer}
+              source={IMAGES.howTo}
               style={{
                 width: "90%",
                 height: 600,
@@ -174,43 +128,77 @@ function TutorialModal({ visible, setTutorialVisible }) {
                 marginBottom: 50,
               }}
             />
-          </View>
 
-          <View
-            style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexDirection: "column",
-              //   backgroundColor: "red",
-            }}
-          >
             <View
               style={{
-                width: "100%",
+                width: "90%",
+                marginBottom: 50,
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-evenly",
-                flexDirection: "row",
-                marginBottom: 15,
-                // backgroundColor: "blue",
+                justifyContent: "center",
               }}
             >
-              <Text style={{ fontSize: 15, marginBottom: 15, marginRight: 35 }}>
-                To show the leaderboard press:
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 20,
+                  fontWeight: "bold",
+                  marginBottom: 10,
+                }}
+              >
+                Multi Mode
               </Text>
 
-              <ThemedButton
-                name="bruce"
-                type="primary"
-                width={60}
-                height={65}
-                borderRadius={360}
-                backgroundColor={theme.buttonColor}
+              <View
+                style={{
+                  width: "92%",
+                  marginBottom: 20,
+                }}
               >
-                <MaterialIcons name="leaderboard" size={25} color="white" />
-              </ThemedButton>
+                <Text
+                  style={{ color: "white", fontSize: 15, marginBottom: 15 }}
+                >
+                  Enter a game ID to join a friend's game. Then press the "Join
+                  Game" button.
+                </Text>
+
+                <Text
+                  style={{ color: "white", fontSize: 15, marginBottom: 15 }}
+                >
+                  Or just click on one of the games in the Current Games list to
+                  join.
+                </Text>
+
+                <Text
+                  style={{ color: "white", fontSize: 15, marginBottom: 15 }}
+                >
+                  If you want to create a game, press the "Create Game" button.
+                  Be sure to check the game type and number of rounds you want
+                  to play.
+                </Text>
+
+                <Text
+                  style={{ color: "white", fontSize: 15, marginBottom: 15 }}
+                >
+                  If you make the game
+                  <Text style={{ color: "white", fontWeight: "bold" }}>
+                    {" "}
+                    private{" "}
+                  </Text>
+                  you will need to share the game ID to a friend to join , since
+                  the game will not be listed in the Current Games list.
+                </Text>
+              </View>
+
+              <Image
+                source={IMAGES.multiPlayer}
+                style={{
+                  width: "90%",
+                  height: 600,
+                  resizeMode: "contain",
+                  marginBottom: 50,
+                }}
+              />
             </View>
 
             <View
@@ -218,74 +206,140 @@ function TutorialModal({ visible, setTutorialVisible }) {
                 width: "100%",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-evenly",
-                flexDirection: "row",
-                marginBottom: 15,
-
-                // backgroundColor: "green",
+                justifyContent: "center",
+                flexDirection: "column",
+                //   backgroundColor: "red",
               }}
             >
-              <Text style={{ fontSize: 15, marginBottom: 15, marginRight: 75 }}>
-                To Pick/Buy a deck press:
-              </Text>
-
-              <ThemedButton
-                name="bruce"
-                type="primary"
-                width={60}
-                height={65}
-                borderRadius={360}
-                backgroundColor={theme.buttonColor}
+              <View
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-evenly",
+                  flexDirection: "row",
+                  marginBottom: 15,
+                  // backgroundColor: "blue",
+                }}
               >
-                <Entypo name="emoji-happy" size={25} color="white" />
-              </ThemedButton>
-            </View>
-
-            <View
-              style={{
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-evenly",
-                flexDirection: "row",
-                // backgroundColor: "yellow",
-              }}
-            >
-              <Text style={{ fontSize: 15, marginBottom: 15, marginRight: 15 }}>
-                To change the color scheme press:
-              </Text>
-
-              <ThemedButton
-                name="bruce"
-                type="primary"
-                width={60}
-                height={65}
-                borderRadius={360}
-                backgroundColor={theme.buttonColor}
-              >
-                <View
+                <Text
                   style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    color: "white",
+                    fontSize: 15,
+                    marginBottom: 15,
+                    marginRight: 35,
                   }}
                 >
-                  <Foundation name="paint-bucket" size={25} color="white" />
-                </View>
-              </ThemedButton>
-            </View>
-          </View>
+                  To show the leaderboard press:
+                </Text>
 
-          <View
-            style={{
-              width: "90%",
-              marginBottom: 30,
-            }}
-          >
-            <Button title="Close" onPress={() => setTutorialVisible(false)} />
-          </View>
-        </ScrollView>
-      </View>
+                <ThemedButton
+                  name="bruce"
+                  type="primary"
+                  width={60}
+                  height={65}
+                  borderRadius={360}
+                  backgroundColor={theme.buttonColor}
+                >
+                  <MaterialIcons name="leaderboard" size={25} color="white" />
+                </ThemedButton>
+              </View>
+
+              <View
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-evenly",
+                  flexDirection: "row",
+                  marginBottom: 15,
+
+                  // backgroundColor: "green",
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: 15,
+                    marginBottom: 15,
+                    marginRight: 75,
+                  }}
+                >
+                  To Pick/Buy a deck press:
+                </Text>
+
+                <ThemedButton
+                  name="bruce"
+                  type="primary"
+                  width={60}
+                  height={65}
+                  borderRadius={360}
+                  backgroundColor={theme.buttonColor}
+                >
+                  <Entypo name="emoji-happy" size={25} color="white" />
+                </ThemedButton>
+              </View>
+
+              <View
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-evenly",
+                  flexDirection: "row",
+                  marginBottom: 15,
+                  // backgroundColor: "yellow",
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontSize: 15,
+                    marginBottom: 15,
+                    marginRight: 15,
+                  }}
+                >
+                  To change the color scheme press:
+                </Text>
+
+                <ThemedButton
+                  name="bruce"
+                  type="primary"
+                  width={60}
+                  height={65}
+                  borderRadius={360}
+                  backgroundColor={theme.buttonColor}
+                >
+                  <View
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Foundation name="paint-bucket" size={25} color="white" />
+                  </View>
+                </ThemedButton>
+              </View>
+            </View>
+
+            <View
+              style={{
+                width: "40%",
+                marginBottom: 40,
+                borderRadius: 50,
+                backgroundColor: theme.buttonColor,
+              }}
+            >
+              <Button
+                color={Platform.OS === "android" ? "" : "white"}
+                title="Close"
+                onPress={() => setTutorialVisible(false)}
+              />
+            </View>
+          </ScrollView>
+        </View>
+      </LinearGradient>
     </Modal>
   );
 }

@@ -56,6 +56,7 @@ export const OneMinuteGame = ({ route, navigation }) => {
     characterDeck,
     nhlDeck,
     animalDeck,
+    emojiDeck,
   } = handleAlldecks();
   const getChosenDeck = route.params.finalDeckChoice;
   // console.log(getChosenDeck, "getChosenDeck");
@@ -81,6 +82,9 @@ export const OneMinuteGame = ({ route, navigation }) => {
     }
     if (getChosenDeck === "animalDeck") {
       return animalDeck;
+    }
+    if (getChosenDeck === "emojiDeck") {
+      return emojiDeck;
     }
   };
 
@@ -149,26 +153,6 @@ export const OneMinuteGame = ({ route, navigation }) => {
     }
   }, [todaysHighScoreTime]);
 
-  // const getOneMinGameData = async () => {
-  //   const userQuerys = collection(db, "users");
-  //   const q = query(userQuerys, where("username", "==", `${user?.email}`));
-
-  //   const querySnapshot = await getDocs(q);
-  //   querySnapshot.forEach((doc) => {
-  //     setHighScore(doc.data().highScore);
-  //     setTodaysHighscore(doc.data().oneMinGameTodayHighScore);
-  //     setTodaysHighScoreTime(doc.data().todaysHighScoreTime);
-  //   });
-  // };
-
-  // useEffect(() => {
-  //   getOneMinGameData();
-
-  //   return () => {
-  //     getOneMinGameData();
-  //   };
-  // }, [user?.email, setHighScore]);
-
   useEffect(() => {
     const userQuerys = collection(db, "users");
     const q = query(userQuerys, where("username", "==", `${user?.email}`));
@@ -186,28 +170,6 @@ export const OneMinuteGame = ({ route, navigation }) => {
     let coins = 0;
 
     coins = score;
-
-    // if (score === 0) {
-    //   coins = 0;
-    // } else if (score >= 1 && score < 5) {
-    //   coins = 5;
-    // } else if (score >= 5 && score < 10) {
-    //   coins = 10;
-    // } else if (score >= 10 && score < 15) {
-    //   coins = 15;
-    // } else if (score >= 15 && score < 20) {
-    //   coins = 20;
-    // } else if (score >= 20 && score < 25) {
-    //   coins = 25;
-    // } else if (score >= 25 && score < 30) {
-    //   coins = 30;
-    // } else if (score >= 30 && score < 35) {
-    //   coins = 35;
-    // } else if (score >= 35 && score <= 40) {
-    //   coins = 40;
-    // } else {
-    //   coins = 50;
-    // }
 
     const docRef = doc(db, "users", user?.email);
     const docSnap = await getDoc(docRef);
@@ -252,7 +214,7 @@ export const OneMinuteGame = ({ route, navigation }) => {
     setScore(0);
     setCurrentIndex(0);
     setGameOver(false);
-    setTimeRemaining(600);
+    setTimeRemaining(60);
     setShowGameOverMessage(false);
     setGameDeck(shuffleArrayPreGame(shuffledArray));
     setUserDeck(getRandomElement(shuffledArray));
@@ -332,32 +294,17 @@ export const OneMinuteGame = ({ route, navigation }) => {
   };
 
   const getCoinsEarned = () => {
-    // let coins = 0;
-
-    // if (score === 0) {
-    //   coins = 0;
-    // } else if (score >= 1 && score < 5) {
-    //   coins = 5;
-    // } else if (score >= 5 && score < 10) {
-    //   coins = 10;
-    // } else if (score >= 10 && score < 15) {
-    //   coins = 15;
-    // } else if (score >= 15 && score < 20) {
-    //   coins = 20;
-    // } else if (score >= 20 && score < 25) {
-    //   coins = 25;
-    // } else if (score >= 25 && score < 30) {
-    //   coins = 30;
-    // } else if (score >= 30 && score < 35) {
-    //   coins = 35;
-    // } else if (score >= 35 && score <= 40) {
-    //   coins = 40;
-    // } else {
-    //   coins = 50;
-    // }
-
     return score;
   };
+
+  const arrayOfImages = [
+    IMAGES.basket,
+    IMAGES.basketball,
+    IMAGES.envelope,
+    IMAGES.camera,
+    IMAGES.heartsuit,
+    IMAGES.bell,
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -529,7 +476,7 @@ export const OneMinuteGame = ({ route, navigation }) => {
                           <Animated.Image
                             entering={FadeIn.duration(900).delay(index * 90)}
                             source={item.emoji}
-                            // source={IMAGES.}
+                            // source={arrayOfImages[index]}
                             style={{
                               width:
                                 getChosenDeck === "foodDeck" ||
@@ -772,6 +719,10 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "40%",
 
+    ...(screenHeight === 667 && {
+      top: screenHeight / 4.9,
+    }),
+
     ...(Platform.OS === "android" && {
       top: screenHeight / 5.1,
     }),
@@ -782,11 +733,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-evenly",
     position: "absolute",
-    // top: screenHeight / 2.5,
-    // backgroundColor: "yellow",
-    backgroundColor: "rgba(255, 255, 255, 0.4)",
 
-    // backgroundColor: "rgba(209, 242, 246, 0.9)",
+    backgroundColor: "rgba(255, 255, 255, 0.4)",
 
     borderRadius: 40,
     width: "98%",
@@ -808,6 +756,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     top: screenHeight / 3,
+
+    ...(screenHeight === 667 && {
+      top: screenHeight / 4.2,
+    }),
 
     ...(Platform.OS === "android" && {
       top: screenHeight / 3.1,
@@ -845,6 +797,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "absolute",
     top: screenHeight / 1.13,
+
+    ...(screenHeight === 667 && {
+      top: screenHeight / 1.11,
+    }),
 
     ...(Platform.OS === "android" && {
       top: screenHeight / 1.18,

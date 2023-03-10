@@ -94,7 +94,7 @@ export const LoginScreen = ({ navigation }) => {
                   {/* Login button */}
                   <Button
                     style={[
-                      { backgroundColor: theme.buttonColor },
+                      { backgroundColor: theme.loginButton },
                       styles.button,
                     ]}
                     onPress={handleSubmit}

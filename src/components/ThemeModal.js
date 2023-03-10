@@ -247,6 +247,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: screenHeight / 2 - 350,
+
+    ...(screenHeight === 667 && {
+      marginTop: screenHeight / 2 - 300,
+    }),
   },
   modalView: {
     margin: 90,
@@ -258,6 +262,10 @@ const styles = StyleSheet.create({
     paddingRight: 25,
     paddingTop: 20,
     alignItems: "center",
+
+    ...(screenHeight === 667 && {
+      height: "98%",
+    }),
   },
   button: {
     borderRadius: 20,

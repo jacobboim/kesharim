@@ -36,6 +36,30 @@ function DecksModal({
   const [currentCoins, setCurrentCoins] = useState(0);
   const [frame, setFrame] = useState(0);
 
+  // console.log(dataForFlatListDecks, "dataForFlatListDecks");
+  // console.log(gameDecksUnlocked, "gameDecksUnlocked");
+
+  //order dataForFlatListDecks by gameDecksUnlocked but keep the order of the dataForFlatListDecks by the key in decsending order
+
+  dataForFlatListDecks.sort((a, b) => {
+    const keyOrder = parseInt(a.key) - parseInt(b.key);
+    const nameA = gameDecksUnlocked.indexOf(a.name);
+    const nameB = gameDecksUnlocked.indexOf(b.name);
+    if (nameA !== -1 && nameB !== -1) {
+      // If both names are in sortOrder, compare their indices
+      return nameA - nameB;
+    } else if (nameA !== -1) {
+      // If a.name is in sortOrder, move it to the front
+      return -1;
+    } else if (nameB !== -1) {
+      // If b.name is in sortOrder, move it to the front
+      return 1;
+    } else {
+      // If neither name is in sortOrder, compare by keyOrder
+      return keyOrder;
+    }
+  });
+
   const { user } = useAuth();
 
   const handlePurchase = async (amount, deckName) => {
@@ -179,7 +203,7 @@ function DecksModal({
                           backgroundColor: item.backgroundColor,
                           padding: 10,
                           // borderWidth:
-                          //   item.name === homeScreenDeckCHoice ? 4 : 4,
+                          //   item.name === homeScreenDeckCHoice ? 5 : 4,
                           borderWidth: 5,
 
                           borderColor:
@@ -336,6 +360,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: screenHeight / 2 - 350,
+    ...(screenHeight === 667 && {
+      marginTop: screenHeight / 2 - 300,
+    }),
   },
   modalView: {
     margin: 90,
@@ -347,6 +374,10 @@ const styles = StyleSheet.create({
     paddingRight: 25,
     paddingTop: 20,
     alignItems: "center",
+
+    ...(screenHeight === 667 && {
+      height: "99%",
+    }),
   },
   button: {
     borderRadius: 20,

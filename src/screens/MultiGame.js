@@ -45,6 +45,7 @@ const {
   characterDeck,
   nhlDeck,
   animalDeck,
+  emojiDeck,
 } = handleAlldecks();
 const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
@@ -206,6 +207,9 @@ export function MultiGame({ route, navigation }) {
     }
     if (getChosenDeck === "animalDeck") {
       return animalDeck;
+    }
+    if (getChosenDeck === "emojiDeck") {
+      return emojiDeck;
     }
   };
   const shuffleArrayPreGame = (array) => {
@@ -1142,6 +1146,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     // top: 500,
     top: screenHeight / 1.67,
+
+    ...(screenHeight === 667 && {
+      top: screenHeight / 1.69,
+    }),
   },
   userTwoDeckContainer: {
     display: "flex",
@@ -1160,6 +1168,10 @@ const styles = StyleSheet.create({
     // top: 740,
     top: screenHeight / 1.15,
 
+    ...(screenHeight === 667 && {
+      top: screenHeight / 1.12,
+    }),
+
     ...(Platform.OS === "android" && {
       top: screenHeight / 1.19,
     }),
@@ -1175,6 +1187,10 @@ const styles = StyleSheet.create({
     top: screenHeight / 1.07,
     height: 50,
     width: "100%",
+
+    ...(screenHeight === 667 && {
+      top: screenHeight / 1.05,
+    }),
 
     ...(Platform.OS === "android" && {
       top: screenHeight / 1.11,
@@ -1201,6 +1217,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "absolute",
     top: 80,
+
+    ...(screenHeight === 667 && {
+      top: 65,
+    }),
   },
   linearGradient: {
     position: "absolute",
@@ -1220,6 +1240,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "absolute",
     top: 600,
+
+    ...(screenHeight === 667 && {
+      top: 540,
+    }),
   },
   playTwoWinContainer: {
     display: "flex",

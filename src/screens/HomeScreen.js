@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -7,8 +7,6 @@ import {
   Image,
   ActivityIndicator,
   Dimensions,
-  Modal,
-  Button,
 } from "react-native";
 import { signOut } from "firebase/auth";
 import { LinearGradient } from "expo-linear-gradient";
@@ -21,13 +19,7 @@ import { useAuth } from "../hooks/useAuth";
 import { auth } from "../config";
 import { db } from "../config/firebase";
 import { IMAGES } from "../../assets";
-import Animated, {
-  BounceIn,
-  FadeIn,
-  FlipInEasyX,
-  FlipOutEasyX,
-} from "react-native-reanimated";
-import handleAlldecks from "../components/decks/IconDecks";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { EventRegister } from "react-native-event-listeners";
@@ -36,16 +28,12 @@ import themesContext from "../config/themesContext";
 import {
   collection,
   onSnapshot,
-  doc,
   query,
   where,
   limit,
   getDocs,
-  getDoc,
   orderBy,
-  updateDoc,
   Timestamp,
-  serverTimestamp,
 } from "firebase/firestore";
 
 import {
@@ -66,16 +54,17 @@ const themeData = [
   {
     id: "1",
     title: "DEFAULT",
-    color: "#4C5D69",
-    buttonColor: "#818384",
+    // color: "#2E1C6B",
+    color: "#0D1825",
 
+    buttonColor: "#3B4F77",
     backgroundArray: ["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"],
   },
   {
     id: "2",
-    title: "BLUE",
-    color: "#2E1C6B",
-    buttonColor: "#3B4F77",
+    title: "GRAY",
+    color: "#4C5D69",
+    buttonColor: "#818384",
 
     backgroundArray: ["#4E6D8A", "#435D71", "#3B4F77", "#2F3F5E", "#202C3E"],
   },
@@ -110,35 +99,53 @@ const themeData = [
     id: "3",
     title: "PURPLE",
     color: "#1B2B3E",
-    buttonColor: "#A663CC",
+    // buttonColor: "#A663CC",
+    buttonColor: "#4E4F7A",
 
     backgroundArray: ["#223140", "#1E2C3D", "#1A2636", "#161F2E", "#0F1825"],
   },
 ];
 
-// const TutorialModal = ({ visible, setTutorialVisible }) => (
-//   <Modal animationType="slide" transparent={false} visible={visible}>
-//     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-//       <Text>This is your tutorial screen</Text>
-//       <Button title="Close" onPress={() => setTutorialVisible(false)} />
-//     </View>
-//   </Modal>
-// );
+const dots = Array.from({ length: 100 }, (_, i) => {
+  let dot = {
+    key: i.toString(),
+    size: Math.random() * 4 + 1, // random size between 1 and 5
+    x: Math.random() * screenWidth,
+    y: Math.random() * screenHeight,
+    vx: Math.random() * 2 - 1, // random velocity between -1 and 1
+    vy: Math.random() * 2 - 1,
+  };
+
+  return dot;
+});
+
+const Dot = ({ size, x, y }) => (
+  <View
+    style={[
+      styles.dot,
+      {
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        left: x,
+        top: y,
+      },
+    ]}
+  />
+);
 
 export const HomeScreen = ({ navigation }) => {
   const theme = useContext(themesContext);
   const [tutorialVisible, setTutorialVisible] = useState(false);
+  const [dotPositions, setDotPositions] = useState(dots);
 
   const { user } = useAuth();
-  const { deckOptions } = handleAlldecks();
-  const spread = deckOptions();
-  const Randomssss = spread.RandomizeDecks;
-  const { chosenDeck } = spread;
-  // console.log(chosenDeck + " chosenDeck");
 
   const [leaderBoardArrayOneMinGame, setLeaderBoardArrayOneMinGame] = useState(
     []
   );
+
+  const [userID, setUserID] = useState();
 
   const [oneMinGameTodayStats, setOneMinGameTodayStats] = useState([]);
   const [fiveSecGameTodayStats, setFiveSecGameTodayStats] = useState([]);
@@ -157,6 +164,27 @@ export const HomeScreen = ({ navigation }) => {
   const [gameDecksUnlocked, setGameDecksUnlocked] = useState([]);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      setDotPositions((prevPositions) =>
+        prevPositions.map((dot) => {
+          let newDot = { ...dot };
+          newDot.x += newDot.vx;
+          newDot.y += newDot.vy;
+          if (newDot.x < -newDot.size || newDot.x > screenWidth) {
+            newDot.vx *= -1;
+          }
+          if (newDot.y < -newDot.size || newDot.y > screenHeight) {
+            newDot.vy *= -1;
+          }
+          return newDot;
+        })
+      );
+    }, 40);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     const userQuerys = collection(db, "users");
 
     const q = query(userQuerys, where("username", "==", `${user?.email}`));
@@ -166,6 +194,7 @@ export const HomeScreen = ({ navigation }) => {
         sethomeScreenDeckCHoice(doc.data().currentDeck);
       });
     });
+
     return () => {
       getCurrentDeckSnapShot();
     };
@@ -186,6 +215,18 @@ export const HomeScreen = ({ navigation }) => {
     setTutorialVisible(true);
   };
 
+  // const getGameDecksUnlockedAsync = async () => {
+  //   const userQuerys = collection(db, "users");
+
+  //   const q = query(userQuerys, where("username", "==", `${user?.email}`));
+
+  //   const querySnapshot = await getDocs(q);
+
+  //   querySnapshot.forEach((doc) => {
+  //     setGameDecksUnlocked(doc.data()?.gameDecksUnlocked);
+  //   });
+  // };
+
   useEffect(() => {
     const userQuerys = collection(db, "users");
 
@@ -197,6 +238,8 @@ export const HomeScreen = ({ navigation }) => {
         setGameDecksUnlocked(doc.data()?.gameDecksUnlocked);
       });
     });
+
+    console.log("getting coing data");
     return () => {
       getCurrentDeckSnapShot();
     };
@@ -214,26 +257,19 @@ export const HomeScreen = ({ navigation }) => {
       limit(15)
     );
 
-    // onSnapshot(q, (querySnapshot) => {
     const topTen = [];
     const scoreAndUsernameObj = {};
     const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach((doc) => {
       topTen.push(doc.data().highScore);
-      scoreAndUsernameObj[doc.data().username] = doc.data().highScore;
+      scoreAndUsernameObj[doc.data().userID] = doc.data().highScore;
     });
-
-    // querySnapshot.forEach((doc) => {
-    //   topTen.push(doc.data().highScore);
-    //   scoreAndUsernameObj[doc.data().username] = doc.data().highScore;
-    // });
 
     const entries = Object.entries(scoreAndUsernameObj);
     entries.sort((a, b) => b[1] - a[1]);
     const sortedScoreAndUsernameObj = Object.fromEntries(entries);
     setLeaderBoardArrayOneMinGame(Object.entries(sortedScoreAndUsernameObj));
-    // });
   };
 
   const getTopTenWithUsernameOneMinGameToday = async () => {
@@ -252,23 +288,16 @@ export const HomeScreen = ({ navigation }) => {
       orderBy("todaysHighScoreTime", "desc"),
       where("todaysHighScoreTime", ">=", startOfToday),
       where("todaysHighScoreTime", "<=", endOfToday),
-      limit(10)
+      limit(15)
     );
 
-    // onSnapshot(q, (querySnapshot) => {
     const topTen = [];
     const scoreAndUsernameObj = {};
     const querySnapshot = await getDocs(q);
 
-    // querySnapshot.forEach((doc) => {
-    //   topTen.push(doc.data().highScore);
-    //   scoreAndUsernameObj[doc.data().username] =
-    //     doc.data().oneMinGameTodayHighScore;
-    // });
-
     querySnapshot.forEach((doc) => {
       topTen.push(doc.data().highScore);
-      scoreAndUsernameObj[doc.data().username] =
+      scoreAndUsernameObj[doc.data().userID] =
         doc.data()?.oneMinGameTodayHighScore;
     });
 
@@ -276,7 +305,6 @@ export const HomeScreen = ({ navigation }) => {
     entries.sort((a, b) => b[1] - a[1]);
     const sortedScoreAndUsernameObj = Object.fromEntries(entries);
     setOneMinGameTodayStats(Object.entries(sortedScoreAndUsernameObj));
-    // });
   };
 
   const getTopTenWithUsernameFiveSecGameToday = async () => {
@@ -295,23 +323,16 @@ export const HomeScreen = ({ navigation }) => {
       orderBy("todaysHighFiveSecTime", "desc"),
       where("todaysHighFiveSecTime", ">=", startOfToday),
       where("todaysHighFiveSecTime", "<=", endOfToday),
-      limit(10)
+      limit(15)
     );
 
-    // onSnapshot(q, (querySnapshot) => {
     const topTen = [];
     const scoreAndUsernameObj = {};
     const querySnapshot = await getDocs(q);
 
-    // querySnapshot.forEach((doc) => {
-    //   topTen.push(doc.data().highScore);
-    //   scoreAndUsernameObj[doc.data().username] =
-    //     doc.data().fiveMinGameTodayHighScore;
-    // });
-
     querySnapshot.forEach((doc) => {
       topTen.push(doc.data().highScore);
-      scoreAndUsernameObj[doc.data().username] =
+      scoreAndUsernameObj[doc.data().userID] =
         doc.data().fiveMinGameTodayHighScore;
     });
 
@@ -322,6 +343,18 @@ export const HomeScreen = ({ navigation }) => {
     // });
   };
 
+  const getUserID = async () => {
+    const userQuerys = collection(db, "users");
+
+    const q = query(userQuerys, where("username", "==", `${user?.email}`));
+
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc) => {
+      setUserID(doc.data().userID);
+    });
+  };
+
   const getTopTenWithUsernameSpeedGame = async () => {
     const q = query(
       collection(db, "users"),
@@ -330,30 +363,23 @@ export const HomeScreen = ({ navigation }) => {
       limit(15)
     );
 
-    // onSnapshot(q, (querySnapshot) => {
     const topTen = [];
     const scoreAndUsernameObj = {};
     const querySnapshot = await getDocs(q);
 
-    // querySnapshot.forEach((doc) => {
-    //   topTen.push(doc.data().highScore);
-    //   scoreAndUsernameObj[doc.data().username] =
-    //     doc.data().FiveSecondGameScore;
-    // });
-
     querySnapshot.forEach((doc) => {
       topTen.push(doc.data().highScore);
-      scoreAndUsernameObj[doc.data().username] = doc.data().FiveSecondGameScore;
+      scoreAndUsernameObj[doc.data().userID] = doc.data().FiveSecondGameScore;
     });
 
     const entries = Object.entries(scoreAndUsernameObj);
     entries.sort((a, b) => b[1] - a[1]);
     const sortedScoreAndUsernameObj = Object.fromEntries(entries);
     setLeaderBoardArraySpeedGame(Object.entries(sortedScoreAndUsernameObj));
-    // });
   };
 
   useEffect(() => {
+    getUserID();
     getTopTenWithUsernameSpeedGame();
     getTopTenWithUsernameOneMinGame();
     getTopTenWithUsernameOneMinGameToday();
@@ -362,12 +388,13 @@ export const HomeScreen = ({ navigation }) => {
     setLoading(false);
 
     return () => {
+      getUserID();
       getTopTenWithUsernameSpeedGame();
       getTopTenWithUsernameOneMinGame();
       getTopTenWithUsernameOneMinGameToday();
       getTopTenWithUsernameFiveSecGameToday();
     };
-  }, [user?.email, leaderboardVisible]);
+  }, [leaderboardVisible]);
 
   const handleLogout = () => {
     signOut(auth).catch((error) => console.log("Error logging out: ", error));
@@ -389,7 +416,6 @@ export const HomeScreen = ({ navigation }) => {
       (selectedIndex) => {
         if (selectedIndex === 3) return;
         const changeToNumber = Number(options[selectedIndex]);
-        // setGameFinalScore(options[selectedIndex]);
         setGameFinalScore(changeToNumber);
         navigation.navigate("DuelGame", {
           // gameFinalScore: options[selectedIndex],
@@ -403,7 +429,7 @@ export const HomeScreen = ({ navigation }) => {
   const openSettings = () => {
     const options = [
       "PURPLE",
-      "BLUE",
+      "GRAY",
       "PURPLE-GREEN",
       "CHARCOAL",
       "BLUE-GREY",
@@ -539,11 +565,11 @@ export const HomeScreen = ({ navigation }) => {
 
     {
       key: "6",
-      name: "nhlDeck",
-      image: IMAGES.nhl,
+      name: "emojiDeck",
+      image: IMAGES.grinning,
       backgroundColor: theme.buttonColor,
       price: 500,
-      displayName: "NHL",
+      displayName: "Emoji",
     },
     {
       key: "7",
@@ -594,6 +620,10 @@ export const HomeScreen = ({ navigation }) => {
       colors={theme.backgroundArray}
       style={styles.linearGradient}
     >
+      {dotPositions.map((dot) => (
+        <Dot key={dot.key} size={dot.size} x={dot.x} y={dot.y} />
+      ))}
+
       <View
         style={{
           position: "absolute",
@@ -948,10 +978,6 @@ export const HomeScreen = ({ navigation }) => {
           </ThemedButton>
         </View>
       </View>
-      <TutorialModal
-        visible={tutorialVisible}
-        setTutorialVisible={setTutorialVisible}
-      />
 
       <LeaderboardModal
         leaderboardVisible={leaderboardVisible}
@@ -961,6 +987,7 @@ export const HomeScreen = ({ navigation }) => {
         leaderBoardArraySpeedGame={leaderBoardArraySpeedGame}
         oneMinGameTodayStats={oneMinGameTodayStats}
         fiveSecGameTodayStats={fiveSecGameTodayStats}
+        userID={userID}
       />
       <DecksModal
         decksModalVisible={decksModalVisible}
@@ -1001,9 +1028,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 50,
     // color: "white",
+    ...(screenHeight === 667 && {
+      marginBottom: 20,
+    }),
   },
   gameOptionsContatier: {
     width: "100%",
+    ...(screenHeight === 667 && {
+      height: "40%",
+    }),
   },
   pressableContaier: {
     display: "flex",
@@ -1067,5 +1100,9 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     fontSize: 20,
     textAlign: "center",
+  },
+  dot: {
+    position: "absolute",
+    backgroundColor: "white",
   },
 });

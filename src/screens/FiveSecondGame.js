@@ -57,6 +57,7 @@ export function FiveSecondGame({ route, navigation }) {
     characterDeck,
     nhlDeck,
     animalDeck,
+    emojiDeck,
   } = handleAlldecks();
   const getChosenDeck = route.params.finalDeckChoice;
 
@@ -81,6 +82,9 @@ export function FiveSecondGame({ route, navigation }) {
     }
     if (getChosenDeck === "animalDeck") {
       return animalDeck;
+    }
+    if (getChosenDeck === "emojiDeck") {
+      return emojiDeck;
     }
   };
 
@@ -812,6 +816,10 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "40%",
 
+    ...(screenHeight === 667 && {
+      top: screenHeight / 4.9,
+    }),
+
     ...(Platform.OS === "android" && {
       top: screenHeight / 5.1,
     }),
@@ -845,7 +853,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "absolute",
     top: screenHeight / 1.67,
-    // top: screenHeight / 3,
+
+    ...(screenHeight === 667 && {
+      top: screenHeight / 1.81,
+    }),
+
     ...(Platform.OS === "android" && {
       top: screenHeight / 1.75,
     }),
@@ -882,6 +894,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     // top: 720,
     top: screenHeight / 1.13,
+
+    ...(screenHeight === 667 && {
+      top: screenHeight / 1.11,
+    }),
 
     ...(Platform.OS === "android" && {
       top: screenHeight / 1.18,

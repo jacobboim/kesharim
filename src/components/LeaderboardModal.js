@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -6,7 +6,6 @@ import {
   FlatList,
   Pressable,
   Alert,
-  TouchableWithoutFeedback,
   Dimensions,
   Modal,
 } from "react-native";
@@ -27,6 +26,7 @@ function LeaderboardModal({
   leaderBoardArraySpeedGame,
   oneMinGameTodayStats,
   fiveSecGameTodayStats,
+  userID,
 }) {
   const theme = useContext(themesContext);
 
@@ -210,20 +210,35 @@ function LeaderboardModal({
                   >
                     <View
                       style={{
-                        marginRight: item[0] === user?.email ? 0 : 10,
-                        marginLeft: item[0] === user?.email ? 0 : 10,
-                        marginTop: item[0] === user?.email ? 8 : 8,
-                        marginBottom: item[0] === user?.email ? 7 : 7,
+                        marginRight: item[0] === userID ? 0 : 10,
+                        marginLeft: item[0] === userID ? 0 : 10,
+                        marginTop: item[0] === userID ? 8 : 8,
+                        marginBottom: item[0] === userID ? 7 : 7,
                         // width: "90%",
-                        width: item[0] === user?.email ? "93.5%" : "87%",
+                        width: item[0] === userID ? "93.5%" : "87%",
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         flexDirection: "row",
                         backgroundColor:
-                          item[0] === user?.email ? theme.buttonColor : "white",
+                          item[0] === userID ? theme.buttonColor : "white",
                         borderRadius: 20,
-                        padding: item[0] === user?.email ? 10 : 0,
+                        padding: item[0] === userID ? 10 : 0,
+
+                        // marginRight: item[0] === user?.email ? 0 : 10,
+                        // marginLeft: item[0] === user?.email ? 0 : 10,
+                        // marginTop: item[0] === user?.email ? 8 : 8,
+                        // marginBottom: item[0] === user?.email ? 7 : 7,
+                        // // width: "90%",
+                        // width: item[0] === user?.email ? "93.5%" : "87%",
+                        // display: "flex",
+                        // justifyContent: "space-between",
+                        // alignItems: "center",
+                        // flexDirection: "row",
+                        // backgroundColor:
+                        //   item[0] === user?.email ? theme.buttonColor : "white",
+                        // borderRadius: 20,
+                        // padding: item[0] === user?.email ? 10 : 0,
                       }}
                     >
                       <Text
@@ -239,7 +254,7 @@ function LeaderboardModal({
                         <Text
                           style={{
                             fontSize: index < 3 ? 15 : 15,
-                            color: item[0] === user?.email ? "white" : "black",
+                            color: item[0] === userID ? "white" : "black",
                           }}
                         >
                           {index < 3 ? badge : `${index + 1}.`} {truncatedEmail}
@@ -248,7 +263,7 @@ function LeaderboardModal({
 
                       <Text
                         style={{
-                          color: item[0] === user?.email ? "white" : "black",
+                          color: item[0] === userID ? "white" : "black",
                         }}
                       >
                         {item[1]}
@@ -309,20 +324,35 @@ function LeaderboardModal({
                   >
                     <View
                       style={{
-                        marginRight: item[0] === user?.email ? 0 : 10,
-                        marginLeft: item[0] === user?.email ? 0 : 10,
-                        marginTop: item[0] === user?.email ? 8 : 8,
-                        marginBottom: item[0] === user?.email ? 7 : 7,
+                        marginRight: item[0] === userID ? 0 : 10,
+                        marginLeft: item[0] === userID ? 0 : 10,
+                        marginTop: item[0] === userID ? 8 : 8,
+                        marginBottom: item[0] === userID ? 7 : 7,
                         // width: "90%",
-                        width: item[0] === user?.email ? "93.5%" : "87%",
+                        width: item[0] === userID ? "93.5%" : "87%",
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
                         flexDirection: "row",
                         backgroundColor:
-                          item[0] === user?.email ? theme.buttonColor : "white",
+                          item[0] === userID ? theme.buttonColor : "white",
                         borderRadius: 20,
-                        padding: item[0] === user?.email ? 10 : 0,
+                        padding: item[0] === userID ? 10 : 0,
+
+                        // marginRight: item[0] === user?.email ? 0 : 10,
+                        // marginLeft: item[0] === user?.email ? 0 : 10,
+                        // marginTop: item[0] === user?.email ? 8 : 8,
+                        // marginBottom: item[0] === user?.email ? 7 : 7,
+                        // // width: "90%",
+                        // width: item[0] === user?.email ? "93.5%" : "87%",
+                        // display: "flex",
+                        // justifyContent: "space-between",
+                        // alignItems: "center",
+                        // flexDirection: "row",
+                        // backgroundColor:
+                        //   item[0] === user?.email ? theme.buttonColor : "white",
+                        // borderRadius: 20,
+                        // padding: item[0] === user?.email ? 10 : 0,
                       }}
                     >
                       <Text
@@ -338,7 +368,7 @@ function LeaderboardModal({
                         <Text
                           style={{
                             fontSize: index < 3 ? 15 : 15,
-                            color: item[0] === user?.email ? "white" : "black",
+                            color: item[0] === userID ? "white" : "black",
                           }}
                         >
                           {index < 3 ? badge : `${index + 1}.`} {truncatedEmail}
@@ -347,7 +377,7 @@ function LeaderboardModal({
 
                       <Text
                         style={{
-                          color: item[0] === user?.email ? "white" : "black",
+                          color: item[0] === userID ? "white" : "black",
                         }}
                       >
                         {item[1]}
@@ -421,6 +451,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     // marginTop: 22,
     marginTop: screenHeight / 2 - 350,
+
+    ...(screenHeight === 667 && {
+      marginTop: screenHeight / 2 - 300,
+    }),
   },
   modalView: {
     margin: 90,
@@ -432,6 +466,10 @@ const styles = StyleSheet.create({
     paddingRight: 25,
     paddingTop: 20,
     alignItems: "center",
+
+    ...(screenHeight === 667 && {
+      height: "99%",
+    }),
   },
   button: {
     borderRadius: 20,
@@ -446,6 +484,10 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     position: "absolute",
     bottom: 0,
+
+    ...(screenHeight === 667 && {
+      marginBottom: 4,
+    }),
   },
   textStyle: {
     color: "white",

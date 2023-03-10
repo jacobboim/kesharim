@@ -1,23 +1,14 @@
 const themes = {
   default: {
-    theme: "default",
-    titleColor: "white",
-    backgroundArray: ["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"],
-    buttonColor: "#818384",
-    buttonTextColor: "white",
-
-    primaryColor: "#607D8B",
-    secondaryColor: "#546E7A",
-    accentColor: "#455A64",
-    borderColor: "#4C5D69",
-  },
-  blue: {
     //blue theme
-    theme: "blue",
+    theme: "default",
     titleColor: "white",
 
     backgroundArray: ["#4E6D8A", "#435D71", "#3B4F77", "#2F3F5E", "#202C3E"],
     buttonColor: "#3B4F77",
+
+    loginButton: "#4E6D8A",
+
     buttonTextColor: "white",
 
     primaryColor: "#3B4F77",
@@ -25,12 +16,29 @@ const themes = {
     accentColor: "#4E6D8A",
     borderColor: "#0D1825",
   },
+  gray: {
+    theme: "gray",
+    titleColor: "white",
+    backgroundArray: ["#607D8B", "#546E7A", "#455A64", "#37474F", "#263238"],
+    buttonColor: "#818384",
+    loginButton: "#818384",
+
+    buttonTextColor: "white",
+
+    primaryColor: "#607D8B",
+    secondaryColor: "#546E7A",
+    accentColor: "#455A64",
+    borderColor: "#4C5D69",
+  },
+
   purple: {
     //purple theme good pattern
     theme: "purple",
     titleColor: "white",
     backgroundArray: ["#223140", "#1E2C3D", "#1A2636", "#161F2E", "#0F1825"],
     buttonColor: "#A663CC",
+    loginButton: "#A663CC",
+
     buttonTextColor: "white",
 
     primaryColor: "#A663CC",
@@ -44,6 +52,8 @@ const themes = {
     titleColor: "white",
     backgroundArray: ["#223A4D", "#1F2E3E", "#1B242F", "#171D25", "#13171B"],
     buttonColor: "#3E5D75",
+    loginButton: "#3E5D75",
+
     buttonTextColor: "white",
     primaryColor: "#3E5D75",
     secondaryColor: "#2C4257",
@@ -56,6 +66,8 @@ const themes = {
     titleColor: "white",
     backgroundArray: ["#2F2F2F", "#272727", "#1F1F1F", "#171717", "#0F0F0F"],
     buttonColor: "#535353",
+    loginButton: "#535353",
+
     buttonTextColor: "white",
 
     primaryColor: "#535353",
@@ -69,6 +81,8 @@ const themes = {
     titleColor: "white",
     backgroundArray: ["#617291", "#5C6F8E", "#5A5E89", "#53577F", "#4E4F7A"],
     buttonColor: "#7B76B6",
+    loginButton: "#7B76B6",
+
     buttonTextColor: "white",
 
     primaryColor: "#7B76B6",

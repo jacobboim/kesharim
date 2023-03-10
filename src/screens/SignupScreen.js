@@ -22,6 +22,7 @@ import {
 
 export const SignupScreen = ({ navigation }) => {
   const [errorState, setErrorState] = useState("");
+  const [userID, setUserID] = useState("");
   const theme = useContext(themesContext);
 
   function addUser(newUser) {
@@ -29,6 +30,7 @@ export const SignupScreen = ({ navigation }) => {
 
     setDoc(docRef, {
       username: newUser,
+      userID: userID,
       highScore: 0,
       currentDeck: "gameDecks",
       FiveSecondGameScore: 0,
@@ -60,7 +62,7 @@ export const SignupScreen = ({ navigation }) => {
         const user = userCredential.user;
         addUser(user.email);
       })
-      .catch((error) => setErrorState(error.message));
+      .catch((error) => setErrorState("Email already in use"));
   };
 
   return (
@@ -79,7 +81,7 @@ export const SignupScreen = ({ navigation }) => {
           <Formik
             initialValues={{
               email: "",
-              // username: "",
+              username: "",
               password: "",
               confirmPassword: "",
             }}
@@ -112,22 +114,25 @@ export const SignupScreen = ({ navigation }) => {
                   error={errors.email}
                   visible={touched.email}
                 />
-                {/* <TextInput
+                <TextInput
                   name="username"
-                  leftIconName="username"
+                  leftIconName="account-circle"
                   placeholder="Enter username"
                   autoCapitalize="none"
-                  // keyboardType="email-address"
                   textContentType="username"
                   autoFocus={true}
                   value={values.username}
-                  onChangeText={handleChange("username")}
+                  // onChangeText={handleChange("username")}
+                  onChangeText={(text) => {
+                    handleChange("username")(text);
+                    setUserID(text);
+                  }}
                   onBlur={handleBlur("username")}
-                /> */}
-                {/* <FormErrorMessage
+                />
+                <FormErrorMessage
                   error={errors.username}
                   visible={touched.username}
-                /> */}
+                />
                 <TextInput
                   name="password"
                   leftIconName="key-variant"
@@ -171,7 +176,7 @@ export const SignupScreen = ({ navigation }) => {
                 {/* Signup button */}
                 <Button
                   style={[
-                    { backgroundColor: theme.buttonColor },
+                    { backgroundColor: theme.loginButton },
                     styles.button,
                   ]}
                   onPress={handleSubmit}
