@@ -67,8 +67,11 @@ function TutorialModal({ visible, setTutorialVisible }) {
 
             <View
               style={{
-                width: "92%",
+                width: "90%",
                 marginBottom: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               <View
@@ -91,32 +94,37 @@ function TutorialModal({ visible, setTutorialVisible }) {
                 </Text>
               </View>
 
-              <Text style={{ color: "white", fontSize: 15, marginBottom: 15 }}>
-                There are 4 game modes to choose from.
-              </Text>
-              <Text style={{ color: "white", fontSize: 15, marginBottom: 15 }}>
-                1 Min - 1 minute to find as many matches as possible
-              </Text>
-              <Text style={{ color: "white", fontSize: 15, marginBottom: 15 }}>
-                Speed - each match has less time than the previous
-              </Text>
-              <Text style={{ color: "white", fontSize: 15, marginBottom: 15 }}>
-                Duel - play against a friend
-              </Text>
-              <Text style={{ color: "white", fontSize: 15, marginBottom: 15 }}>
-                Multi - play against a friend anywhere in the world
-              </Text>
-            </View>
+              <View>
+                <Text
+                  style={{ color: "white", fontSize: 15, marginBottom: 15 }}
+                >
+                  There are 4 game modes to choose from.
+                </Text>
+                <Text
+                  style={{ color: "white", fontSize: 15, marginBottom: 15 }}
+                >
+                  1 Min - 1 minute to find as many matches as possible
+                </Text>
+                <Text
+                  style={{ color: "white", fontSize: 15, marginBottom: 15 }}
+                >
+                  Speed - each match has less time than the previous
+                </Text>
+                <Text
+                  style={{ color: "white", fontSize: 15, marginBottom: 15 }}
+                >
+                  Duel - play against a friend
+                </Text>
+                <Text
+                  style={{ color: "white", fontSize: 15, marginBottom: 15 }}
+                >
+                  Multi - play against a friend anywhere in the world
+                </Text>
 
-            <View
-              style={{
-                width: "92%",
-                marginBottom: 10,
-              }}
-            >
-              <Text style={{ color: "white", fontSize: 15 }}>
-                You make a match by tapping on the matching icon
-              </Text>
+                <Text style={{ color: "white", fontSize: 15, marginTop: 15 }}>
+                  You make a match by tapping on the matching icon
+                </Text>
+              </View>
             </View>
 
             <Image

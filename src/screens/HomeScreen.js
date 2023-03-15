@@ -19,11 +19,12 @@ import { useAuth } from "../hooks/useAuth";
 import { auth } from "../config";
 import { db } from "../config/firebase";
 import { IMAGES } from "../../assets";
-
+import { LoadingIndicator } from "../components";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import { EventRegister } from "react-native-event-listeners";
 import themesContext from "../config/themesContext";
+
+import NetInfo from "@react-native-community/netinfo";
 
 import {
   collection,
@@ -135,6 +136,23 @@ const Dot = ({ size, x, y }) => (
 );
 
 export const HomeScreen = ({ navigation }) => {
+  const [netInfo, setNetInfo] = useState("");
+  const [netInfoType, setNetInfoType] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setNetInfo(state.isConnected);
+      setNetInfoType(state.type);
+
+      console.log("Connection type: ", state.type);
+      console.log("Is connected: ", state.isConnected);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   const theme = useContext(themesContext);
   const [tutorialVisible, setTutorialVisible] = useState(false);
   const [dotPositions, setDotPositions] = useState(dots);
@@ -161,7 +179,10 @@ export const HomeScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [frame, setFrame] = useState(0);
   const [coins, setCoins] = useState(0);
-  const [gameDecksUnlocked, setGameDecksUnlocked] = useState([]);
+  const [gameDecksUnlocked, setGameDecksUnlocked] = useState([
+    "gameDecks",
+    "monsterDeck",
+  ]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -214,18 +235,6 @@ export const HomeScreen = ({ navigation }) => {
   const handleShowTutorialAgain = () => {
     setTutorialVisible(true);
   };
-
-  // const getGameDecksUnlockedAsync = async () => {
-  //   const userQuerys = collection(db, "users");
-
-  //   const q = query(userQuerys, where("username", "==", `${user?.email}`));
-
-  //   const querySnapshot = await getDocs(q);
-
-  //   querySnapshot.forEach((doc) => {
-  //     setGameDecksUnlocked(doc.data()?.gameDecksUnlocked);
-  //   });
-  // };
 
   useEffect(() => {
     const userQuerys = collection(db, "users");
@@ -521,13 +530,22 @@ export const HomeScreen = ({ navigation }) => {
     }, 150);
   };
 
+  const goToOneMinOffline = () => {
+    setTimeout(() => {
+      navigation.navigate("OneMinuteGameOffline", {
+        finalDeckChoice: homeScreenDeckCHoice,
+      });
+    }, 150);
+  };
+
+  //deck data for modal
   const data = [
     {
       key: "1",
       name: "gameDecks",
       image: IMAGES.snapchat,
       backgroundColor: theme.buttonColor,
-      displayName: "Media",
+      displayName: "Logo",
       price: 100,
     },
     {
@@ -702,163 +720,320 @@ export const HomeScreen = ({ navigation }) => {
 
       <View style={styles.container}>
         <Text style={[{ color: theme.titleColor }, styles.gameName]}>
-          Kesharim
+          Kesharimss
         </Text>
+        {/* <Text>
+          {netInfo ? "Internet is connected" : "No internet connection"}
+        </Text> */}
 
-        <View style={styles.gameOptionsContatier}>
-          <View
-            style={{
-              display: "flex",
-              justifyContent: "space-evenly",
-              alignItems: "center",
-              flexDirection: "row",
-              width: "95%",
-            }}
-          >
-            <ThemedButton
-              name="bruce"
-              type="primary"
-              onPressOut={goToOneMin}
-              width={106}
-              height={110}
-              borderRadius={150}
-              // backgroundColor="#818384"
-              backgroundColor={theme.buttonColor}
-            >
-              <View
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <MaterialCommunityIcons
-                  name="timer-outline"
-                  size={60}
-                  color="white"
-                />
-                <Text
+        {/* game mode buttons */}
+
+        {/* {coins === 0 ? ( */}
+        {netInfo === false ? (
+          <>
+            <View>
+              {/* no internet connection game mode buttons */}
+              <View style={styles.gameOptionsContatier}>
+                <View
                   style={{
-                    fontSize: 18,
-                    color: "white",
-                    fontWeight: "bold",
+                    display: "flex",
+                    justifyContent: "space-evenly",
+                    alignItems: "center",
+                    flexDirection: "row",
+                    width: "95%",
                   }}
                 >
-                  1 MIN
-                </Text>
-              </View>
-            </ThemedButton>
+                  <ThemedButton
+                    name="bruce"
+                    type="primary"
+                    onPressOut={goToOneMinOffline}
+                    width={106}
+                    height={110}
+                    borderRadius={150}
+                    // backgroundColor="#818384"
+                    backgroundColor={theme.buttonColor}
+                  >
+                    <View
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name="timer-outline"
+                        size={60}
+                        color="white"
+                      />
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          color: "white",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        1 MIN
+                      </Text>
+                    </View>
+                  </ThemedButton>
 
-            <ThemedButton
-              name="bruce"
-              type="primary"
-              onPressOut={goToSpeed}
-              width={106}
-              height={110}
-              borderRadius={150}
-              // backgroundColor="#818384"
-              backgroundColor={theme.buttonColor}
-            >
-              <View
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <MaterialCommunityIcons
-                  name="lightning-bolt"
-                  size={60}
-                  color="white"
-                />
-                <Text
-                  style={{ fontSize: 18, color: "white", fontWeight: "bold" }}
+                  <ThemedButton
+                    name="bruce"
+                    type="primary"
+                    onPressOut={goToSpeed}
+                    width={106}
+                    height={110}
+                    borderRadius={150}
+                    // backgroundColor="#818384"
+                    backgroundColor={theme.buttonColor}
+                  >
+                    <View
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name="lightning-bolt"
+                        size={60}
+                        color="white"
+                      />
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          color: "white",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {/* Speed */}
+                        SPEED
+                      </Text>
+                    </View>
+                  </ThemedButton>
+                </View>
+
+                <View
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-evenly",
+                    alignItems: "center",
+                    flexDirection: "row",
+                    width: "95%",
+                    // marginLeft: 50,
+                    marginTop: 30,
+                  }}
                 >
-                  {/* Speed */}
-                  SPEED
-                </Text>
+                  <ThemedButton
+                    name="bruce"
+                    type="primary"
+                    onPressOut={goToDuel}
+                    width={106}
+                    height={110}
+                    borderRadius={150}
+                    // backgroundColor="#818384"
+                    backgroundColor={theme.buttonColor}
+                  >
+                    <View
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <View style={{ position: "absolute", top: -40 }}>
+                        {/* <Ionicons name="people-sharp" size={60} color="white" /> */}
+                        <MaterialCommunityIcons
+                          name="sword-cross"
+                          size={55}
+                          color="white"
+                        />
+                      </View>
+                      <View style={{ position: "absolute", top: 15 }}>
+                        <Text
+                          style={{
+                            fontSize: 18,
+                            color: "white",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          DUEL
+                        </Text>
+                      </View>
+                    </View>
+                  </ThemedButton>
+                </View>
               </View>
-            </ThemedButton>
-          </View>
 
-          <View
-            style={{
-              display: "flex",
-              justifyContent: "space-evenly",
-              alignItems: "center",
-              flexDirection: "row",
-              width: "95%",
-              // marginLeft: 50,
-              marginTop: 30,
-            }}
-          >
-            <ThemedButton
-              name="bruce"
-              type="primary"
-              onPressOut={goToDuel}
-              width={106}
-              height={110}
-              borderRadius={150}
-              // backgroundColor="#818384"
-              backgroundColor={theme.buttonColor}
+              {/* <ActivityIndicator size="large" color="#818384" /> */}
+            </View>
+          </>
+        ) : (
+          // internet connection game mode buttons
+          <View style={styles.gameOptionsContatier}>
+            <View
+              style={{
+                display: "flex",
+                justifyContent: "space-evenly",
+                alignItems: "center",
+                flexDirection: "row",
+                width: "95%",
+              }}
             >
-              <View
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
+              <ThemedButton
+                name="bruce"
+                type="primary"
+                onPressOut={goToOneMin}
+                width={106}
+                height={110}
+                borderRadius={150}
+                // backgroundColor="#818384"
+                backgroundColor={theme.buttonColor}
               >
-                <View style={{ position: "absolute", top: -40 }}>
-                  {/* <Ionicons name="people-sharp" size={60} color="white" /> */}
+                <View
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
                   <MaterialCommunityIcons
-                    name="sword-cross"
-                    size={55}
+                    name="timer-outline"
+                    size={60}
                     color="white"
                   />
-                </View>
-                <View style={{ position: "absolute", top: 15 }}>
                   <Text
-                    style={{ fontSize: 18, color: "white", fontWeight: "bold" }}
+                    style={{
+                      fontSize: 18,
+                      color: "white",
+                      fontWeight: "bold",
+                    }}
                   >
-                    DUEL
+                    1 MIN
                   </Text>
                 </View>
-              </View>
-            </ThemedButton>
+              </ThemedButton>
 
-            <ThemedButton
-              name="bruce"
-              type="primary"
-              onPressOut={goToMulti}
-              width={106}
-              height={110}
-              borderRadius={150}
-              // backgroundColor="#818384"
-              backgroundColor={theme.buttonColor}
-            >
-              <View
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
+              <ThemedButton
+                name="bruce"
+                type="primary"
+                onPressOut={goToSpeed}
+                width={106}
+                height={110}
+                borderRadius={150}
+                // backgroundColor="#818384"
+                backgroundColor={theme.buttonColor}
               >
-                <View style={{ position: "absolute", top: -42 }}>
-                  <Ionicons name="people-sharp" size={60} color="white" />
-                </View>
-                <View style={{ position: "absolute", top: 15 }}>
+                <View
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name="lightning-bolt"
+                    size={60}
+                    color="white"
+                  />
                   <Text
                     style={{ fontSize: 18, color: "white", fontWeight: "bold" }}
                   >
-                    MULTI
+                    {/* Speed */}
+                    SPEED
                   </Text>
                 </View>
-              </View>
-            </ThemedButton>
-          </View>
-        </View>
+              </ThemedButton>
+            </View>
 
+            <View
+              style={{
+                display: "flex",
+                justifyContent: "space-evenly",
+                alignItems: "center",
+                flexDirection: "row",
+                width: "95%",
+                // marginLeft: 50,
+                marginTop: 30,
+              }}
+            >
+              <ThemedButton
+                name="bruce"
+                type="primary"
+                onPressOut={goToDuel}
+                width={106}
+                height={110}
+                borderRadius={150}
+                // backgroundColor="#818384"
+                backgroundColor={theme.buttonColor}
+              >
+                <View
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <View style={{ position: "absolute", top: -40 }}>
+                    {/* <Ionicons name="people-sharp" size={60} color="white" /> */}
+                    <MaterialCommunityIcons
+                      name="sword-cross"
+                      size={55}
+                      color="white"
+                    />
+                  </View>
+                  <View style={{ position: "absolute", top: 15 }}>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        color: "white",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      DUEL
+                    </Text>
+                  </View>
+                </View>
+              </ThemedButton>
+
+              <ThemedButton
+                name="bruce"
+                type="primary"
+                onPressOut={goToMulti}
+                width={106}
+                height={110}
+                borderRadius={150}
+                // backgroundColor="#818384"
+                backgroundColor={theme.buttonColor}
+              >
+                <View
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <View style={{ position: "absolute", top: -42 }}>
+                    <Ionicons name="people-sharp" size={60} color="white" />
+                  </View>
+                  <View style={{ position: "absolute", top: 15 }}>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        color: "white",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      MULTI
+                    </Text>
+                  </View>
+                </View>
+              </ThemedButton>
+            </View>
+          </View>
+        )}
+
+        {/* leadbaord and decks modal buttons */}
         <View
           style={{
             display: "flex",
@@ -875,12 +1050,10 @@ export const HomeScreen = ({ navigation }) => {
           <ThemedButton
             name="bruce"
             type="primary"
-            // onPressOut={() => setLeaderboardVisible(!leaderboardVisible)}
             onPressOut={showLeaderboard}
             width={80}
             height={85}
             borderRadius={360}
-            // backgroundColor="#818384"
             backgroundColor={theme.buttonColor}
           >
             <View
@@ -938,6 +1111,7 @@ export const HomeScreen = ({ navigation }) => {
           </ThemedButton>
         </View>
 
+        {/* sign out */}
         <View
           style={{
             display: "flex",
@@ -1002,7 +1176,6 @@ export const HomeScreen = ({ navigation }) => {
         themeModalVisible={themeModalVisible}
         setThemeModalVisible={setThemeModalVisible}
         themeData={themeData}
-        // setTheme={setTheme}
       />
 
       <TutorialModal

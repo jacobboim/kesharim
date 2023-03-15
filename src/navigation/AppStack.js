@@ -8,8 +8,8 @@ import {
   MultiGameJoin,
   MultiGame,
 } from "../screens";
-// import OneMinuteGame from "../screens/OneMinuteGame";
-// import FiveSecondGame from "../screens/FiveSecondGame";
+
+import { OneMinuteGame as OneMinuteGameOffline } from "../screens/OfflineGameModes/OneMinuteGame";
 import DuelGame from "../screens/DuelGame";
 
 const Stack = createNativeStackNavigator();
@@ -45,6 +45,12 @@ export const AppStack = () => {
       <Stack.Screen
         name="MultiGame"
         component={MultiGame}
+        options={{ headerShown: false }}
+      />
+
+      <Stack.Screen
+        name="OneMinuteGameOffline"
+        component={OneMinuteGameOffline}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

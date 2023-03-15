@@ -14,23 +14,9 @@ import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
 import { LinearGradient } from "expo-linear-gradient";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "react-native-really-awesome-button";
-import handleAlldecks from "../components/decks/IconDecks";
-import { IMAGES } from "../../assets";
-import themesContext from "../config/themesContext";
-
-import {
-  collection,
-  onSnapshot,
-  updateDoc,
-  doc,
-  query,
-  serverTimestamp,
-  where,
-  getDoc,
-} from "firebase/firestore";
-
-import { useAuth } from "../hooks/useAuth";
-import { db } from "../config/firebase";
+import handleAlldecks from "../../components/decks/IconDecks";
+import { IMAGES } from "../../../assets";
+import themesContext from "../../config/themesContext";
 
 import Animated, {
   FlipInEasyX,
@@ -56,7 +42,6 @@ export const OneMinuteGame = ({ route, navigation }) => {
     emojiDeck,
   } = handleAlldecks();
   const getChosenDeck = route.params.finalDeckChoice;
-  // console.log(getChosenDeck, "getChosenDeck");
 
   const getUSerChosenDeck = () => {
     if (getChosenDeck === "gameDecks") {
@@ -125,64 +110,8 @@ export const OneMinuteGame = ({ route, navigation }) => {
   const [matchingID, setMatchingID] = useState();
   const [frame, setFrame] = useState(0);
 
-  const { user } = useAuth();
-  const refs = useRef([]);
-
-  function checkIfNewDay(todaysHighScoreTime) {
-    let currentDate = new Date();
-
-    let serverDate = new Date(todaysHighScoreTime.toDate());
-    const docRef = doc(db, "users", user?.email);
-
-    if (currentDate.getDate() !== serverDate.getDate()) {
-      oneMinGameTodayHighScore = 0;
-      todaysHighScoreTime = currentDate;
-      updateDoc(docRef, {
-        oneMinGameTodayHighScore: oneMinGameTodayHighScore,
-        todaysHighScoreTime: currentDate,
-      });
-    }
-  }
-
-  useEffect(() => {
-    if (todaysHighScoreTime) {
-      checkIfNewDay(todaysHighScoreTime);
-    }
-  }, [todaysHighScoreTime]);
-
-  useEffect(() => {
-    const userQuerys = collection(db, "users");
-    const q = query(userQuerys, where("username", "==", `${user?.email}`));
-
-    onSnapshot(q, (querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        setHighScore(doc.data()?.highScore);
-        setTodaysHighscore(doc.data()?.oneMinGameTodayHighScore);
-        setTodaysHighScoreTime(doc.data()?.todaysHighScoreTime);
-      });
-    });
-  }, [user?.email]);
-
-  const updateCoins = async (score) => {
-    let coins = 0;
-
-    coins = score;
-
-    const docRef = doc(db, "users", user?.email);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      const coinsData = docSnap.data().coins;
-      const newCoins = coinsData + coins;
-      updateDoc(docRef, {
-        coins: newCoins,
-      });
-    }
-  };
-
   useEffect(() => {
     if (gameOver) {
-      updateCoins(score);
       setTimeout(() => {
         setShowGameOverMessage(true);
       }, 1050);
@@ -217,40 +146,11 @@ export const OneMinuteGame = ({ route, navigation }) => {
     setUserDeck(getRandomElement(shuffledArray));
   };
 
-  function handleButtonPress() {
-    const docRef = doc(db, "users", user?.email);
-
-    setScore(score + 1);
-    if (score + 1 > highScore) {
-      updateDoc(docRef, {
-        highScore: score + 1,
-        serverTimestamp: serverTimestamp(),
-      });
-    }
-  }
-
-  function todaysHighScore() {
-    const docRef = doc(db, "users", user?.email);
-
-    // checkIfNewDay(todaysHighScoreTime);
-    if (score + 1 > todaysHighscore) {
-      updateDoc(docRef, {
-        oneMinGameTodayHighScore: score + 1,
-        todaysHighScoreTime: serverTimestamp(),
-      });
-    }
-  }
-
   const handleClick = (clickedEmoji) => {
     if (gameDeck[currentIndex].some((emoji) => emoji.id === clickedEmoji)) {
       setUserDeck([...gameDeck[currentIndex]]);
-      // setScore(score + 1);
-
-      handleButtonPress();
-      todaysHighScore();
-
+      setScore(score + 1);
       setRoundOver(false);
-
       setTimeout(() => setRoundOver(true), 500);
 
       if (currentIndex === gameDeck.length - 1) {
@@ -490,19 +390,6 @@ export const OneMinuteGame = ({ route, navigation }) => {
                             source={item.emoji}
                             // source={arrayOfImages[index]}
                             style={{
-                              // width:
-                              //   getChosenDeck === "foodDeck" ||
-                              //   "flagDeck" ||
-                              //   "characterDeck"
-                              //     ? 57
-                              //     : 55,
-
-                              // height:
-                              //   getChosenDeck === "foodDeck" ||
-                              //   "flagDeck" ||
-                              //   "characterDeck"
-                              //     ? 57
-                              //     : 55,
                               width: getDeckType(getChosenDeck),
                               height: getDeckType(getChosenDeck),
 
@@ -649,8 +536,6 @@ export const OneMinuteGame = ({ route, navigation }) => {
                 </Text>
               </View>
             </View>
-
-            {/* <Text style={{ fontSize: 50, marginTop: 190, color: "white" }}> */}
 
             <Text style={styles.gameOverText}>Game Over</Text>
           </Animated.View>

@@ -12,7 +12,6 @@ export const IMAGES = {
   chrome: require("./images/chrome.png"),
   amazon: require("./images/amazon.png"),
   drive: require("./images/drive.png"),
-  dropbox: require("./images/dropbox.png"),
   facebook: require("./images/facebook.png"),
   github: require("./images/github.png"),
   evernote: require("./images/evernote.png"),
@@ -30,7 +29,6 @@ export const IMAGES = {
   wordpress: require("./images/wordpress.png"),
   youtube: require("./images/youtube.png"),
   airbnb: require("./images/airbnb.png"),
-  vimeo: require("./images/vimeo.png"),
   whatsapp: require("./images/whatsapp.png"),
   twitter: require("./images/twitter.png"),
   stackoverflow: require("./images/stackoverflow.png"),
@@ -38,6 +36,17 @@ export const IMAGES = {
   luchos: require("./images/luchos.png"),
   menorah: require("./images/menorah.png"),
   lulav: require("./images/lulav.png"),
+  spotify: require("./images/spotify.png"),
+
+  microsoft: require("./images/microsoft.png"),
+  discord: require("./images/discord.png"),
+  zelle: require("./images/zelle.png"),
+  bitcoin: require("./images/bitcoin.png"),
+  appleLogo: require("./images/appleLogo.png"),
+  google: require("./images/google.png"),
+  netflix: require("./images/netflix.png"),
+  shopify: require("./images/shopify.png"),
+  venmo: require("./images/venmo.png"),
 
   //Monster Deck
   beis: require("./images/beis.png"),

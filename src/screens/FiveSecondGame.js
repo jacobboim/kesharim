@@ -9,6 +9,7 @@ import {
   Image,
   Platform,
   Animated as RNAnimated,
+  Vibration,
   FlatList,
 } from "react-native";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
@@ -110,8 +111,6 @@ export function FiveSecondGame({ route, navigation }) {
 
   const randomUserDeck = getRandomElement(shuffledArray);
   const [currentIndex, setCurrentIndex] = useState(0);
-  // const [gameDeck, setGameDeck] = useState(randomizeDeck);
-  // const [userDeck, setUserDeck] = useState(randomizeUserDeck);
 
   const [userDeck, setUserDeck] = useState(randomUserDeck);
   const [gameDeck, setGameDeck] = useState(shuffledArray);
@@ -247,8 +246,6 @@ export function FiveSecondGame({ route, navigation }) {
     setShowGameOverMessage(false);
     setGameDeck(shuffleArrayPreGame(shuffledArray));
     setUserDeck(getRandomElement(shuffledArray));
-    // setGameDeck(randomizeDeck);
-    // setUserDeck(randomizeUserDeck);
   };
 
   function handleButtonPress() {
@@ -332,6 +329,8 @@ export function FiveSecondGame({ route, navigation }) {
       }
     } else {
       setNotInDeck(true);
+      Vibration.vibrate(50);
+
       setTimeout(() => setNotInDeck(false), 1200);
     }
   };
