@@ -136,16 +136,17 @@ const Dot = ({ size, x, y }) => (
 );
 
 export const HomeScreen = ({ navigation }) => {
-  const [netInfo, setNetInfo] = useState("");
+  const [netInfo, setNetInfo] = useState(false);
   const [netInfoType, setNetInfoType] = useState("");
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       setNetInfo(state.isConnected);
       setNetInfoType(state.type);
-
+      console.log("is internet reachable? ", state.isInternetReachable);
       console.log("Connection type: ", state.type);
       console.log("Is connected: ", state.isConnected);
+      console.log("signal strength: ", state.details?.strength);
     });
 
     return () => {
@@ -162,6 +163,10 @@ export const HomeScreen = ({ navigation }) => {
   const [leaderBoardArrayOneMinGame, setLeaderBoardArrayOneMinGame] = useState(
     []
   );
+  const [leaderBoardArrayOneMinGameUser, setLeaderBoardArrayOneMinGameUser] =
+    useState([]);
+
+  const [fiveSecGameGameUser, setFiveSecGameUser] = useState([]);
 
   const [userID, setUserID] = useState();
 
@@ -205,6 +210,26 @@ export const HomeScreen = ({ navigation }) => {
     return () => clearInterval(interval);
   }, []);
 
+  const storehomeScreenDeckCHoiceForNoInternet = async (value) => {
+    try {
+      await AsyncStorage.setItem("currentDeck", value);
+    } catch (e) {
+      // saving error
+    }
+  };
+
+  const gethomeScreenDeckCHoiceForNoInternet = async () => {
+    try {
+      const value = await AsyncStorage.getItem("currentDeck");
+      if (value !== null) {
+        // value previously stored
+        sethomeScreenDeckCHoice(value);
+      }
+    } catch (e) {
+      // error reading value
+    }
+  };
+
   useEffect(() => {
     const userQuerys = collection(db, "users");
 
@@ -213,6 +238,7 @@ export const HomeScreen = ({ navigation }) => {
     const getCurrentDeckSnapShot = onSnapshot(q, (querySnapshot) => {
       querySnapshot.forEach((doc) => {
         sethomeScreenDeckCHoice(doc.data().currentDeck);
+        storehomeScreenDeckCHoiceForNoInternet(doc.data().currentDeck);
       });
     });
 
@@ -220,6 +246,8 @@ export const HomeScreen = ({ navigation }) => {
       getCurrentDeckSnapShot();
     };
   }, [homeScreenDeckCHoice, user?.email]);
+
+  //if there is no internet connection, get the current deck from async storage
 
   useEffect(() => {
     const checkTutorialVisibility = async () => {
@@ -279,6 +307,64 @@ export const HomeScreen = ({ navigation }) => {
     entries.sort((a, b) => b[1] - a[1]);
     const sortedScoreAndUsernameObj = Object.fromEntries(entries);
     setLeaderBoardArrayOneMinGame(Object.entries(sortedScoreAndUsernameObj));
+  };
+
+  const getTopTenWithUsernameOneMinGameUser = async () => {
+    const q = query(collection(db, "users"), orderBy("highScore", "desc"));
+
+    const userQuerys = collection(db, "users");
+
+    const getUserID = query(
+      userQuerys,
+      where("username", "==", `${user?.email}`)
+    );
+    const querySnapshotUserID = await getDocs(getUserID);
+
+    let currentUserID;
+
+    querySnapshotUserID.forEach((doc) => {
+      currentUserID = doc.data().userID;
+    });
+
+    const topTen = [];
+    const scoreAndUsernameObj = {};
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc) => {
+      topTen.push(doc.data().highScore);
+      scoreAndUsernameObj[doc.data().userID] = doc.data().highScore;
+    });
+
+    const entries = Object.entries(scoreAndUsernameObj);
+    entries.sort((a, b) => b[1] - a[0]);
+    const sortedScoreAndUsernameObj = Object.fromEntries(entries);
+
+    // Find the index of the current user's username
+    const currentUserIndex = Object.keys(sortedScoreAndUsernameObj).indexOf(
+      currentUserID
+    );
+
+    // If the current user's username is not in the first 15 items, set the leaderboard array to their data with their index
+    if (currentUserIndex > 14) {
+      const currentUserData = [
+        currentUserID,
+        sortedScoreAndUsernameObj[currentUserID],
+      ];
+      const currentUserWithIndex = {
+        index: currentUserIndex + 1,
+        currentUserData,
+      };
+      setLeaderBoardArrayOneMinGameUser([
+        currentUserWithIndex,
+        // ...Object.entries(sortedScoreAndUsernameObj).slice(0, 14),
+      ]);
+    }
+    // else {
+    //   // Otherwise, set the leaderboard array as usual
+    //   setLeaderBoardArrayOneMinGameUser(
+    //     Object.entries(sortedScoreAndUsernameObj)
+    //   );
+    // }
   };
 
   const getTopTenWithUsernameOneMinGameToday = async () => {
@@ -387,12 +473,67 @@ export const HomeScreen = ({ navigation }) => {
     setLeaderBoardArraySpeedGame(Object.entries(sortedScoreAndUsernameObj));
   };
 
+  const getTopTenWithUsernameSpeedGameUser = async () => {
+    const q = query(
+      collection(db, "users"),
+      orderBy("FiveSecondGameScore", "desc")
+    );
+
+    const userQuerys = collection(db, "users");
+
+    const getUserID = query(
+      userQuerys,
+      where("username", "==", `${user?.email}`)
+    );
+    const querySnapshotUserID = await getDocs(getUserID);
+
+    let currentUserID;
+
+    querySnapshotUserID.forEach((doc) => {
+      currentUserID = doc.data().userID;
+    });
+
+    const topTen = [];
+    const scoreAndUsernameObj = {};
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc) => {
+      topTen.push(doc.data().highScore);
+      scoreAndUsernameObj[doc.data().userID] = doc.data().FiveSecondGameScore;
+    });
+
+    const entries = Object.entries(scoreAndUsernameObj);
+    entries.sort((a, b) => b[1] - a[0]);
+    const sortedScoreAndUsernameObj = Object.fromEntries(entries);
+
+    // Find the index of the current user's username
+    const currentUserIndex = Object.keys(sortedScoreAndUsernameObj).indexOf(
+      currentUserID
+    );
+
+    // If the current user's username is not in the first 15 items, set the leaderboard array to their data with their index
+    if (currentUserIndex > 14) {
+      const currentUserData = [
+        currentUserID,
+        sortedScoreAndUsernameObj[currentUserID],
+      ];
+      const currentUserWithIndex = {
+        index: currentUserIndex + 1,
+        currentUserData,
+      };
+      setFiveSecGameUser([currentUserWithIndex]);
+    }
+  };
+
   useEffect(() => {
     getUserID();
     getTopTenWithUsernameSpeedGame();
     getTopTenWithUsernameOneMinGame();
     getTopTenWithUsernameOneMinGameToday();
     getTopTenWithUsernameFiveSecGameToday();
+
+    getTopTenWithUsernameOneMinGameUser();
+    getTopTenWithUsernameSpeedGameUser();
 
     setLoading(false);
 
@@ -402,8 +543,13 @@ export const HomeScreen = ({ navigation }) => {
       getTopTenWithUsernameOneMinGame();
       getTopTenWithUsernameOneMinGameToday();
       getTopTenWithUsernameFiveSecGameToday();
+
+      getTopTenWithUsernameOneMinGameUser();
+      getTopTenWithUsernameSpeedGameUser();
     };
   }, [leaderboardVisible]);
+
+  // console.log("leaderboardArrayOneMinGameUser: ", fiveSecGameGameUser);
 
   const handleLogout = () => {
     signOut(auth).catch((error) => console.log("Error logging out: ", error));
@@ -647,44 +793,66 @@ export const HomeScreen = ({ navigation }) => {
           position: "absolute",
           top: screenHeight * 0.062,
           left: 20,
-          // backgroundColor: "#818384",
-          backgroundColor: theme.buttonColor,
+          // backgroundColor: theme.buttonColor,
+          backgroundColor: netInfo === false ? "red" : theme.buttonColor,
           borderRadius: 50,
         }}
       >
-        <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-            alignItems: "center",
-            width: getCoinsNumberLength(coins.toString()),
-          }}
-        >
-          <Image
+        {netInfo === false ? (
+          <View
             style={{
-              width: 25,
-              height: 25,
-            }}
-            source={IMAGES.coinGif}
-            onLoad={() => {
-              setTimeout(() => setFrame(1), 0);
-            }}
-            onFrameChange={(frame) => {
-              setTimeout(() => setFrame(frame + 1), 0);
-            }}
-            frameIndex={frame % 10}
-          />
-          <Text
-            style={{
-              color: "#fff",
-              fontSize: 17,
-              fontWeight: "bold",
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-evenly",
+              alignItems: "center",
+              padding: 3,
             }}
           >
-            {coins ? coins : 0}
-          </Text>
-        </View>
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: 17,
+                fontWeight: "bold",
+              }}
+            >
+              Offline
+            </Text>
+          </View>
+        ) : (
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-evenly",
+              alignItems: "center",
+              width: getCoinsNumberLength(coins.toString()),
+            }}
+          >
+            <Image
+              style={{
+                width: 25,
+                height: 25,
+              }}
+              source={IMAGES.coinGif}
+              onLoad={() => {
+                setTimeout(() => setFrame(1), 0);
+              }}
+              onFrameChange={(frame) => {
+                setTimeout(() => setFrame(frame + 1), 0);
+              }}
+              frameIndex={frame % 10}
+            />
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: 17,
+                fontWeight: "bold",
+              }}
+            >
+              {coins ? coins : 0}
+            </Text>
+          </View>
+        )}
       </View>
 
       <View
@@ -720,7 +888,7 @@ export const HomeScreen = ({ navigation }) => {
 
       <View style={styles.container}>
         <Text style={[{ color: theme.titleColor }, styles.gameName]}>
-          Kesharimss
+          Kesharim
         </Text>
         {/* <Text>
           {netInfo ? "Internet is connected" : "No internet connection"}
@@ -728,7 +896,6 @@ export const HomeScreen = ({ navigation }) => {
 
         {/* game mode buttons */}
 
-        {/* {coins === 0 ? ( */}
         {netInfo === false ? (
           <>
             <View>
@@ -1047,25 +1214,29 @@ export const HomeScreen = ({ navigation }) => {
             width: "80%",
           }}
         >
-          <ThemedButton
-            name="bruce"
-            type="primary"
-            onPressOut={showLeaderboard}
-            width={80}
-            height={85}
-            borderRadius={360}
-            backgroundColor={theme.buttonColor}
-          >
-            <View
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
+          {netInfo === false ? (
+            <></>
+          ) : (
+            <ThemedButton
+              name="bruce"
+              type="primary"
+              onPressOut={showLeaderboard}
+              width={80}
+              height={85}
+              borderRadius={360}
+              backgroundColor={theme.buttonColor}
             >
-              <MaterialIcons name="leaderboard" size={40} color="white" />
-            </View>
-          </ThemedButton>
+              <View
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <MaterialIcons name="leaderboard" size={40} color="white" />
+              </View>
+            </ThemedButton>
+          )}
 
           <ThemedButton
             name="bruce"
@@ -1162,6 +1333,8 @@ export const HomeScreen = ({ navigation }) => {
         oneMinGameTodayStats={oneMinGameTodayStats}
         fiveSecGameTodayStats={fiveSecGameTodayStats}
         userID={userID}
+        leaderBoardArrayOneMinGameUser={leaderBoardArrayOneMinGameUser}
+        fiveSecGameGameUser={fiveSecGameGameUser}
       />
       <DecksModal
         decksModalVisible={decksModalVisible}
@@ -1171,6 +1344,7 @@ export const HomeScreen = ({ navigation }) => {
         homeScreenDeckCHoice={homeScreenDeckCHoice}
         gameDecksUnlocked={gameDecksUnlocked}
         coins={coins}
+        netInfo={netInfo}
       />
       <ThemeModal
         themeModalVisible={themeModalVisible}

@@ -224,10 +224,10 @@ export const OneMinuteGame = ({ route, navigation }) => {
         colors={theme.backgroundArray}
         style={styles.linearGradient}
       >
-        <View style={styles.highScoreContainer}>
+        {/* <View style={styles.highScoreContainer}>
           <Text style={styles.highScoreText}>High Score</Text>
           <Text style={styles.highScoreText}>{highScore}</Text>
-        </View>
+        </View> */}
         <>
           {!showGameOverMessage && (
             <Animated.View

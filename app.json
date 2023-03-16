@@ -3,7 +3,7 @@
     "scheme": "kesharim",
     "name": "Kesharim",
     "slug": "Kesharim",
-    "version": "1.0.9",
+    "version": "1.0.10",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -20,11 +20,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jacobboim.Kesharim",
-      "buildNumber": "10"
+      "buildNumber": "11"
     },
     "android": {
       "package": "com.jacobboim.Kesharim",
-      "versionCode": 4,
+      "versionCode": 5,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

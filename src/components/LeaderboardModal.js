@@ -27,6 +27,8 @@ function LeaderboardModal({
   oneMinGameTodayStats,
   fiveSecGameTodayStats,
   userID,
+  leaderBoardArrayOneMinGameUser,
+  fiveSecGameGameUser,
 }) {
   const theme = useContext(themesContext);
 
@@ -160,233 +162,388 @@ function LeaderboardModal({
             }}
           ></View>
           {gameMode === "oneMin" ? (
-            <FlatList
-              data={
-                todaysStats ? oneMinGameTodayStats : leaderBoardArrayOneMinGame
-              }
-              numColumns={1}
-              scrollEnabled={true}
-              showsHorizontalScrollIndicator={false}
-              // ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-              keyExtractor={(item) => item[0]}
-              style={{
-                width: "100%",
-                flexGrow: 0,
-                height: "68%",
-              }}
-              renderItem={({ item, index }) => {
-                let color = "black";
-                let badge = "";
-                let marginRight = 20;
-
-                const badgeTextStyle = {
-                  color: "black",
-                  marginRight: 10,
-                  fontSize: 15,
-                  position: "relative",
-                  left: -5,
-                };
-
-                if (index === 0) {
-                  badge = "🥇";
-                } else if (index === 1) {
-                  badge = "🥈";
-                } else if (index === 2) {
-                  badge = "🥉";
+            <>
+              <FlatList
+                data={
+                  todaysStats
+                    ? oneMinGameTodayStats
+                    : leaderBoardArrayOneMinGame
                 }
+                numColumns={1}
+                scrollEnabled={true}
+                showsHorizontalScrollIndicator={false}
+                // ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+                keyExtractor={(item) => item[0]}
+                style={{
+                  width: "100%",
+                  flexGrow: 0,
+                  height: "68%",
+                }}
+                renderItem={({ item, index }) => {
+                  let color = "black";
+                  let badge = "";
+                  let marginRight = 20;
 
-                const email = item[0];
-                const [truncatedEmail] = email.split("@");
+                  const badgeTextStyle = {
+                    color: "black",
+                    marginRight: 10,
+                    fontSize: 15,
+                    position: "relative",
+                    left: -5,
+                  };
 
-                return (
-                  <View
-                    style={{
-                      backgroundColor: "white",
-                      width: "100%",
-                      display: "flex",
-                      justifyContent: "flex-start",
-                      alignItems: "flex-start",
-                    }}
-                  >
+                  if (index === 0) {
+                    badge = "🥇";
+                  } else if (index === 1) {
+                    badge = "🥈";
+                  } else if (index === 2) {
+                    badge = "🥉";
+                  }
+
+                  const email = item[0];
+                  const [truncatedEmail] = email.split("@");
+
+                  return (
                     <View
                       style={{
-                        marginRight: item[0] === userID ? 0 : 10,
-                        marginLeft: item[0] === userID ? 0 : 10,
-                        marginTop: item[0] === userID ? 8 : 8,
-                        marginBottom: item[0] === userID ? 7 : 7,
-                        // width: "90%",
-                        width: item[0] === userID ? "93.5%" : "87%",
+                        backgroundColor: "white",
+                        width: "100%",
                         display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        flexDirection: "row",
-                        backgroundColor:
-                          item[0] === userID ? theme.buttonColor : "white",
-                        borderRadius: 20,
-                        padding: item[0] === userID ? 10 : 0,
-
-                        // marginRight: item[0] === user?.email ? 0 : 10,
-                        // marginLeft: item[0] === user?.email ? 0 : 10,
-                        // marginTop: item[0] === user?.email ? 8 : 8,
-                        // marginBottom: item[0] === user?.email ? 7 : 7,
-                        // // width: "90%",
-                        // width: item[0] === user?.email ? "93.5%" : "87%",
-                        // display: "flex",
-                        // justifyContent: "space-between",
-                        // alignItems: "center",
-                        // flexDirection: "row",
-                        // backgroundColor:
-                        //   item[0] === user?.email ? theme.buttonColor : "white",
-                        // borderRadius: 20,
-                        // padding: item[0] === user?.email ? 10 : 0,
+                        justifyContent: "flex-start",
+                        alignItems: "flex-start",
                       }}
                     >
-                      <Text
-                        style={
-                          index < 3
-                            ? badgeTextStyle
-                            : {
-                                color,
-                                marginRight,
-                              }
-                        }
+                      <View
+                        style={{
+                          marginRight: item[0] === userID ? 0 : 10,
+                          marginLeft: item[0] === userID ? 0 : 10,
+                          marginTop: item[0] === userID ? 8 : 8,
+                          marginBottom: item[0] === userID ? 7 : 7,
+                          // width: "90%",
+                          width: item[0] === userID ? "93.5%" : "87%",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          flexDirection: "row",
+                          backgroundColor:
+                            item[0] === userID ? theme.buttonColor : "white",
+                          borderRadius: 20,
+                          padding: item[0] === userID ? 10 : 0,
+
+                          // marginRight: item[0] === user?.email ? 0 : 10,
+                          // marginLeft: item[0] === user?.email ? 0 : 10,
+                          // marginTop: item[0] === user?.email ? 8 : 8,
+                          // marginBottom: item[0] === user?.email ? 7 : 7,
+                          // // width: "90%",
+                          // width: item[0] === user?.email ? "93.5%" : "87%",
+                          // display: "flex",
+                          // justifyContent: "space-between",
+                          // alignItems: "center",
+                          // flexDirection: "row",
+                          // backgroundColor:
+                          //   item[0] === user?.email ? theme.buttonColor : "white",
+                          // borderRadius: 20,
+                          // padding: item[0] === user?.email ? 10 : 0,
+                        }}
                       >
                         <Text
+                          style={
+                            index < 3
+                              ? badgeTextStyle
+                              : {
+                                  color,
+                                  marginRight,
+                                }
+                          }
+                        >
+                          <Text
+                            style={{
+                              fontSize: index < 3 ? 15 : 15,
+                              color: item[0] === userID ? "white" : "black",
+                            }}
+                          >
+                            {index < 3 ? badge : `${index + 1}.`}{" "}
+                            {truncatedEmail}
+                          </Text>
+                        </Text>
+
+                        <Text
                           style={{
-                            fontSize: index < 3 ? 15 : 15,
                             color: item[0] === userID ? "white" : "black",
                           }}
                         >
-                          {index < 3 ? badge : `${index + 1}.`} {truncatedEmail}
+                          {item[1]}
                         </Text>
-                      </Text>
-
-                      <Text
+                      </View>
+                    </View>
+                  );
+                }}
+              />
+              <View
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "100%",
+                }}
+              >
+                <FlatList
+                  data={leaderBoardArrayOneMinGameUser}
+                  numColumns={1}
+                  scrollEnabled={true}
+                  showsHorizontalScrollIndicator={false}
+                  keyExtractor={(item) => item.index}
+                  style={{
+                    width: "100%",
+                    flexGrow: 0,
+                  }}
+                  renderItem={({ item, index }) => {
+                    return (
+                      <View
                         style={{
-                          color: item[0] === userID ? "white" : "black",
+                          // backgroundColor: "red",
+                          width: "97%",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          marginBottom: 50,
                         }}
                       >
-                        {item[1]}
-                      </Text>
-                    </View>
-                  </View>
-                );
-              }}
-            />
+                        <View
+                          style={{
+                            // marginRight: 10,
+                            marginLeft: 10,
+                            marginTop: 8,
+                            marginBottom: 7,
+                            width: "100%",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            flexDirection: "row",
+                            backgroundColor: theme.buttonColor,
+                            borderRadius: 20,
+                            padding: 10,
+                            position: "relative",
+                            right: 3,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: "white",
+                              fontSize: 15,
+                            }}
+                          >
+                            {item.index}. {item.currentUserData[0]}
+                          </Text>
+                          <Text
+                            style={{
+                              position: "relative",
+                              right: 9,
+                              color: "white",
+                              fontSize: 15,
+                            }}
+                          >
+                            {item.currentUserData[1]}
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  }}
+                />
+              </View>
+            </>
           ) : (
-            <FlatList
-              data={
-                todaysStats ? fiveSecGameTodayStats : leaderBoardArraySpeedGame
-              }
-              numColumns={1}
-              scrollEnabled={true}
-              showsHorizontalScrollIndicator={false}
-              // ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-              keyExtractor={(item) => item[0]}
-              style={{
-                width: "100%",
-                flexGrow: 0,
-                height: "68%",
-              }}
-              renderItem={({ item, index }) => {
-                let color = "black";
-                let badge = "";
-                let marginRight = 20;
-
-                const badgeTextStyle = {
-                  color: "black",
-                  marginRight: 10,
-                  fontSize: 15,
-                  position: "relative",
-                  left: -5,
-                };
-
-                if (index === 0) {
-                  badge = "🥇";
-                } else if (index === 1) {
-                  badge = "🥈";
-                } else if (index === 2) {
-                  badge = "🥉";
+            <>
+              <FlatList
+                data={
+                  todaysStats
+                    ? fiveSecGameTodayStats
+                    : leaderBoardArraySpeedGame
                 }
+                numColumns={1}
+                scrollEnabled={true}
+                showsHorizontalScrollIndicator={false}
+                // ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+                keyExtractor={(item) => item[0]}
+                style={{
+                  width: "100%",
+                  flexGrow: 0,
+                  height: "68%",
+                }}
+                renderItem={({ item, index }) => {
+                  let color = "black";
+                  let badge = "";
+                  let marginRight = 20;
 
-                const email = item[0];
-                const [truncatedEmail] = email.split("@");
+                  const badgeTextStyle = {
+                    color: "black",
+                    marginRight: 10,
+                    fontSize: 15,
+                    position: "relative",
+                    left: -5,
+                  };
 
-                return (
-                  <View
-                    style={{
-                      backgroundColor: "white",
-                      width: "100%",
-                      display: "flex",
-                      justifyContent: "flex-start",
-                      alignItems: "flex-start",
-                    }}
-                  >
+                  if (index === 0) {
+                    badge = "🥇";
+                  } else if (index === 1) {
+                    badge = "🥈";
+                  } else if (index === 2) {
+                    badge = "🥉";
+                  }
+
+                  const email = item[0];
+                  const [truncatedEmail] = email.split("@");
+
+                  return (
                     <View
                       style={{
-                        marginRight: item[0] === userID ? 0 : 10,
-                        marginLeft: item[0] === userID ? 0 : 10,
-                        marginTop: item[0] === userID ? 8 : 8,
-                        marginBottom: item[0] === userID ? 7 : 7,
-                        // width: "90%",
-                        width: item[0] === userID ? "93.5%" : "87%",
+                        backgroundColor: "white",
+                        width: "100%",
                         display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        flexDirection: "row",
-                        backgroundColor:
-                          item[0] === userID ? theme.buttonColor : "white",
-                        borderRadius: 20,
-                        padding: item[0] === userID ? 10 : 0,
-
-                        // marginRight: item[0] === user?.email ? 0 : 10,
-                        // marginLeft: item[0] === user?.email ? 0 : 10,
-                        // marginTop: item[0] === user?.email ? 8 : 8,
-                        // marginBottom: item[0] === user?.email ? 7 : 7,
-                        // // width: "90%",
-                        // width: item[0] === user?.email ? "93.5%" : "87%",
-                        // display: "flex",
-                        // justifyContent: "space-between",
-                        // alignItems: "center",
-                        // flexDirection: "row",
-                        // backgroundColor:
-                        //   item[0] === user?.email ? theme.buttonColor : "white",
-                        // borderRadius: 20,
-                        // padding: item[0] === user?.email ? 10 : 0,
+                        justifyContent: "flex-start",
+                        alignItems: "flex-start",
                       }}
                     >
-                      <Text
-                        style={
-                          index < 3
-                            ? badgeTextStyle
-                            : {
-                                color,
-                                marginRight,
-                              }
-                        }
+                      <View
+                        style={{
+                          marginRight: item[0] === userID ? 0 : 10,
+                          marginLeft: item[0] === userID ? 0 : 10,
+                          marginTop: item[0] === userID ? 8 : 8,
+                          marginBottom: item[0] === userID ? 7 : 7,
+                          // width: "90%",
+                          width: item[0] === userID ? "93.5%" : "87%",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          flexDirection: "row",
+                          backgroundColor:
+                            item[0] === userID ? theme.buttonColor : "white",
+                          borderRadius: 20,
+                          padding: item[0] === userID ? 10 : 0,
+
+                          // marginRight: item[0] === user?.email ? 0 : 10,
+                          // marginLeft: item[0] === user?.email ? 0 : 10,
+                          // marginTop: item[0] === user?.email ? 8 : 8,
+                          // marginBottom: item[0] === user?.email ? 7 : 7,
+                          // // width: "90%",
+                          // width: item[0] === user?.email ? "93.5%" : "87%",
+                          // display: "flex",
+                          // justifyContent: "space-between",
+                          // alignItems: "center",
+                          // flexDirection: "row",
+                          // backgroundColor:
+                          //   item[0] === user?.email ? theme.buttonColor : "white",
+                          // borderRadius: 20,
+                          // padding: item[0] === user?.email ? 10 : 0,
+                        }}
                       >
                         <Text
+                          style={
+                            index < 3
+                              ? badgeTextStyle
+                              : {
+                                  color,
+                                  marginRight,
+                                }
+                          }
+                        >
+                          <Text
+                            style={{
+                              fontSize: index < 3 ? 15 : 15,
+                              color: item[0] === userID ? "white" : "black",
+                            }}
+                          >
+                            {index < 3 ? badge : `${index + 1}.`}{" "}
+                            {truncatedEmail}
+                          </Text>
+                        </Text>
+
+                        <Text
                           style={{
-                            fontSize: index < 3 ? 15 : 15,
                             color: item[0] === userID ? "white" : "black",
                           }}
                         >
-                          {index < 3 ? badge : `${index + 1}.`} {truncatedEmail}
+                          {item[1]}
                         </Text>
-                      </Text>
+                      </View>
+                    </View>
+                  );
+                }}
+              />
 
-                      <Text
+              <View
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  width: "100%",
+                }}
+              >
+                <FlatList
+                  data={fiveSecGameGameUser}
+                  numColumns={1}
+                  scrollEnabled={true}
+                  showsHorizontalScrollIndicator={false}
+                  keyExtractor={(item) => item.index}
+                  style={{
+                    width: "100%",
+                    flexGrow: 0,
+                  }}
+                  renderItem={({ item, index }) => {
+                    return (
+                      <View
                         style={{
-                          color: item[0] === userID ? "white" : "black",
+                          // backgroundColor: "red",
+                          width: "97%",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          marginBottom: 50,
                         }}
                       >
-                        {item[1]}
-                      </Text>
-                    </View>
-                  </View>
-                );
-              }}
-            />
+                        <View
+                          style={{
+                            // marginRight: 10,
+                            marginLeft: 10,
+                            marginTop: 8,
+                            marginBottom: 7,
+                            width: "100%",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            flexDirection: "row",
+                            backgroundColor: theme.buttonColor,
+                            borderRadius: 20,
+                            padding: 10,
+                            position: "relative",
+                            right: 3,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: "white",
+                              fontSize: 15,
+                            }}
+                          >
+                            {item.index}. {item.currentUserData[0]}
+                          </Text>
+                          <Text
+                            style={{
+                              position: "relative",
+                              right: 9,
+                              color: "white",
+                              fontSize: 15,
+                            }}
+                          >
+                            {item.currentUserData[1]}
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  }}
+                />
+              </View>
+            </>
           )}
           <Pressable
             style={[
@@ -481,7 +638,7 @@ const styles = StyleSheet.create({
   },
   buttonClose: {
     marginTop: 15,
-    marginBottom: 15,
+    marginBottom: 10,
     position: "absolute",
     bottom: 0,
 

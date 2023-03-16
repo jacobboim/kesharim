@@ -13,6 +13,7 @@ import {
 import { useAuth } from "../hooks/useAuth";
 import { IMAGES } from "../../assets";
 import themesContext from "../config/themesContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { db } from "../config/firebase";
 
@@ -28,6 +29,7 @@ function DecksModal({
   homeScreenDeckCHoice,
   gameDecksUnlocked,
   coins,
+  netInfo,
 }) {
   const theme = useContext(themesContext);
 
@@ -36,10 +38,23 @@ function DecksModal({
   const [currentCoins, setCurrentCoins] = useState(0);
   const [frame, setFrame] = useState(0);
 
-  // console.log(dataForFlatListDecks, "dataForFlatListDecks");
-  // console.log(gameDecksUnlocked, "gameDecksUnlocked");
+  const gethomeScreenDeckCHoiceForNoInternet = async () => {
+    try {
+      const value = await AsyncStorage.getItem("currentDeck");
+      if (value !== null) {
+        // value previously stored
+        sethomeScreenDeckCHoice(value);
+      }
+    } catch (e) {
+      // error reading value
+    }
+  };
 
-  //order dataForFlatListDecks by gameDecksUnlocked but keep the order of the dataForFlatListDecks by the key in decsending order
+  useEffect(() => {
+    if (netInfo === false) {
+      gethomeScreenDeckCHoiceForNoInternet();
+    }
+  }, [netInfo]);
 
   dataForFlatListDecks.sort((a, b) => {
     const keyOrder = parseInt(a.key) - parseInt(b.key);
