@@ -9,6 +9,9 @@ import {
   MultiGame,
 } from "../screens";
 
+import { MultiGameJoinRealTime } from "../screens/MultiGameJoinRealTime";
+import { MultiGameRealTime } from "../screens/MultiGameRealTime";
+
 import { OneMinuteGame as OneMinuteGameOffline } from "../screens/OfflineGameModes/OneMinuteGame";
 import DuelGame from "../screens/DuelGame";
 
@@ -51,6 +54,16 @@ export const AppStack = () => {
       <Stack.Screen
         name="OneMinuteGameOffline"
         component={OneMinuteGameOffline}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MultiGameJoinRealTime"
+        component={MultiGameJoinRealTime}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MultiGameRealTime"
+        component={MultiGameRealTime}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

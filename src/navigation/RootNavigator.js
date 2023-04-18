@@ -7,8 +7,8 @@ import { AppStack } from "./AppStack";
 import { AuthenticatedUserContext } from "../providers";
 import { LoadingIndicator } from "../components";
 import { auth } from "../config";
-import * as Linking from "expo-linking";
-const prefix = Linking.createURL("/");
+// import * as Linking from "expo-linking";
+// const prefix = Linking.createURL("/");
 
 export const RootNavigator = () => {
   const { user, setUser } = useContext(AuthenticatedUserContext);
@@ -16,15 +16,14 @@ export const RootNavigator = () => {
 
   // const [linkData, setLinkData] = useState(null);
 
-  // const linking = {
-  //   prefixes: [prefix],
-  //   config: {
-  //     screens: {
-  //       MultiGameJoin: "MultiGameJoin",
-  //       OneMinuteGame: "OneMinuteGame",
-  //     },
-  //   },
-  // };
+  const linking = {
+    prefixes: ["kesharim://"],
+    config: {
+      screens: {
+        MultiGameJoinRealTime: "MultiGameJoinRealTime",
+      },
+    },
+  };
 
   // function handleDeepLink(event) {
   //   let data = Linking.parse(event.url);
@@ -68,8 +67,7 @@ export const RootNavigator = () => {
   }
 
   return (
-    // <NavigationContainer linking={linking}>
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       {user ? <AppStack /> : <AuthStack />}
     </NavigationContainer>
   );

@@ -143,10 +143,6 @@ export const HomeScreen = ({ navigation }) => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       setNetInfo(state.isConnected);
       setNetInfoType(state.type);
-      console.log("is internet reachable? ", state.isInternetReachable);
-      console.log("Connection type: ", state.type);
-      console.log("Is connected: ", state.isConnected);
-      console.log("signal strength: ", state.details?.strength);
     });
 
     return () => {
@@ -670,7 +666,8 @@ export const HomeScreen = ({ navigation }) => {
   };
   const goToMulti = () => {
     setTimeout(() => {
-      navigation.navigate("MultiGameJoin", {
+      // navigation.navigate("MultiGameJoin", {
+      navigation.navigate("MultiGameJoinRealTime", {
         finalDeckChoice: homeScreenDeckCHoice,
       });
     }, 150);
@@ -888,13 +885,8 @@ export const HomeScreen = ({ navigation }) => {
 
       <View style={styles.container}>
         <Text style={[{ color: theme.titleColor }, styles.gameName]}>
-          Kesharim
+          Spotted
         </Text>
-        {/* <Text>
-          {netInfo ? "Internet is connected" : "No internet connection"}
-        </Text> */}
-
-        {/* game mode buttons */}
 
         {netInfo === false ? (
           <>
@@ -1037,6 +1029,8 @@ export const HomeScreen = ({ navigation }) => {
           </>
         ) : (
           // internet connection game mode buttons
+
+          //2 x2
           <View style={styles.gameOptionsContatier}>
             <View
               style={{
@@ -1198,6 +1192,193 @@ export const HomeScreen = ({ navigation }) => {
               </ThemedButton>
             </View>
           </View>
+
+          //1 x 4
+          // <View
+          //   style={{
+          //     display: "flex",
+          //     alignItems: "center",
+          //     flexDirection: "column",
+          //     width: "95%",
+          //   }}
+          // >
+          //   <View
+          //     style={{
+          //       position: "absolute",
+          //       top: "-2%",
+          //       left: 5,
+          //       zIndex: 1,
+          //       backgroundColor: theme.accentColor,
+          //       borderRadius: 100,
+          //     }}
+          //   >
+          //     <MaterialCommunityIcons
+          //       name="timer-outline"
+          //       size={30}
+          //       color="white"
+          //     />
+          //   </View>
+
+          //   <ThemedButton
+          //     name="bruce"
+          //     type="primary"
+          //     onPressOut={goToOneMin}
+          //     width={186}
+          //     height={70}
+          //     borderRadius={90}
+          //     // backgroundColor="#818384"
+          //     backgroundColor={theme.buttonColor}
+          //     style={{
+          //       marginBottom: 20,
+          //     }}
+          //   >
+          //     <View
+          //       style={{
+          //         display: "flex",
+          //         justifyContent: "center",
+          //         alignItems: "center",
+          //       }}
+          //     >
+          //       <Text
+          //         style={{
+          //           fontSize: 18,
+          //           color: "white",
+          //           fontWeight: "bold",
+          //         }}
+          //       >
+          //         1 MINUTE
+          //       </Text>
+          //     </View>
+          //   </ThemedButton>
+
+          //   <View
+          //     style={{
+          //       position: "absolute",
+          //       top: "24%",
+          //       left: 5,
+          //       zIndex: 1,
+          //       backgroundColor: theme.accentColor,
+          //       borderRadius: 100,
+          //     }}
+          //   >
+          //     <MaterialCommunityIcons
+          //       name="lightning-bolt"
+          //       size={30}
+          //       color="white"
+          //     />
+          //   </View>
+
+          //   <ThemedButton
+          //     name="bruce"
+          //     type="primary"
+          //     onPressOut={goToSpeed}
+          //     width={186}
+          //     height={70}
+          //     borderRadius={90}
+          //     // backgroundColor="#818384"
+          //     backgroundColor={theme.buttonColor}
+          //     style={{
+          //       marginBottom: 20,
+          //     }}
+          //   >
+          //     <View
+          //       style={{
+          //         display: "flex",
+          //         justifyContent: "center",
+          //         alignItems: "center",
+          //       }}
+          //     >
+          //       <Text
+          //         style={{
+          //           fontSize: 18,
+          //           color: "white",
+          //           fontWeight: "bold",
+          //         }}
+          //       >
+          //         SPEED{" "}
+          //       </Text>
+          //     </View>
+          //   </ThemedButton>
+
+          //   <View
+          //     style={{
+          //       position: "absolute",
+          //       top: "50%",
+          //       left: 5,
+          //       zIndex: 1,
+          //       backgroundColor: theme.accentColor,
+          //       borderRadius: 100,
+          //     }}
+          //   >
+          //     <MaterialCommunityIcons
+          //       name="sword-cross"
+          //       size={30}
+          //       color="white"
+          //     />
+          //   </View>
+
+          //   <ThemedButton
+          //     name="bruce"
+          //     type="primary"
+          //     onPressOut={goToDuel}
+          //     width={186}
+          //     height={70}
+          //     borderRadius={150}
+          //     // backgroundColor="#818384"
+          //     backgroundColor={theme.buttonColor}
+          //     style={{
+          //       marginBottom: 20,
+          //     }}
+          //   >
+          //     <View style={{ position: "absolute", top: 15 }}>
+          //       <Text
+          //         style={{
+          //           fontSize: 18,
+          //           color: "white",
+          //           fontWeight: "bold",
+          //         }}
+          //       >
+          //         DUEL
+          //       </Text>
+          //     </View>
+          //   </ThemedButton>
+
+          //   <View
+          //     style={{
+          //       position: "absolute",
+          //       top: "75%",
+          //       left: 5,
+          //       zIndex: 1,
+          //       backgroundColor: theme.accentColor,
+          //       borderRadius: 100,
+          //     }}
+          //   >
+          //     <Ionicons name="people-sharp" size={30} color="white" />
+          //   </View>
+
+          //   <ThemedButton
+          //     name="bruce"
+          //     type="primary"
+          //     onPressOut={goToMulti}
+          //     width={186}
+          //     height={70}
+          //     borderRadius={150}
+          //     // backgroundColor="#818384"
+          //     backgroundColor={theme.buttonColor}
+          //   >
+          //     <View style={{ position: "absolute", top: 15 }}>
+          //       <Text
+          //         style={{
+          //           fontSize: 18,
+          //           color: "white",
+          //           fontWeight: "bold",
+          //         }}
+          //       >
+          //         MULTI
+          //       </Text>
+          //     </View>
+          //   </ThemedButton>
+          // </View>
         )}
 
         {/* leadbaord and decks modal buttons */}
