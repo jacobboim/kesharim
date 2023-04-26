@@ -1,15 +1,34 @@
 import React, { useEffect, useState } from "react";
-
+import { Dimensions } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { AuthenticatedUserProvider } from "./src/providers";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SplashScreen from "expo-splash-screen";
 
 import themesContext from "./src/config/themesContext";
 import themes from "./src/config/themes";
 import { EventRegister } from "react-native-event-listeners";
+import * as Device from "expo-device";
+
+const screenHeight = Dimensions.get("screen").height;
+const screenWidth = Dimensions.get("screen").width;
+const getModleID = Device.modelId;
+const osName = Device.osName;
+
+//console log the hieght and width of the device and the model id all in one line
+console.log(
+  "Screen Height: " +
+    screenHeight +
+    " Screen Width: " +
+    screenWidth +
+    " Model ID: " +
+    getModleID +
+    " OS Name: " +
+    osName
+);
 
 const App = () => {
   const [theme, setTheme] = useState("DEFAULT");
@@ -54,6 +73,20 @@ const App = () => {
         return themes.default;
     }
   };
+
+  useEffect(() => {
+    const prepare = async () => {
+      // keep splash screen visible
+      await SplashScreen.preventAutoHideAsync();
+
+      // pre-load your stuff
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // hide splash screen
+      await SplashScreen.hideAsync();
+    };
+    prepare();
+  }, []);
 
   return (
     <>

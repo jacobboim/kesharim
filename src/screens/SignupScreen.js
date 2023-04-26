@@ -120,9 +120,7 @@ export const SignupScreen = ({ navigation }) => {
                   placeholder="Enter username"
                   autoCapitalize="none"
                   textContentType="username"
-                  autoFocus={true}
                   value={values.username}
-                  // onChangeText={handleChange("username")}
                   onChangeText={(text) => {
                     handleChange("username")(text);
                     setUserID(text);

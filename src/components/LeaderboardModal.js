@@ -609,6 +609,10 @@ const styles = StyleSheet.create({
     // marginTop: 22,
     marginTop: screenHeight / 2 - 350,
 
+    ...(screenHeight === 736 && {
+      height: "90%",
+    }),
+
     ...(screenHeight === 667 && {
       marginTop: screenHeight / 2 - 300,
     }),

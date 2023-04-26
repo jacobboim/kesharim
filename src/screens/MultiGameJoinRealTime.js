@@ -6,10 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  Alert,
   TouchableWithoutFeedback,
   Keyboard,
-  KeyboardAvoidingView,
   FlatList,
 } from "react-native";
 import {
@@ -22,12 +20,9 @@ import {
   push,
   query,
   orderByChild,
-  equalTo,
   off,
   remove,
   getDatabase,
-  orderByKey,
-  orderByValue,
   serverTimestamp,
 } from "firebase/database";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
@@ -65,7 +60,7 @@ export const MultiGameJoinRealTime = ({ route, navigation }) => {
   ]);
 
   const [openRoundNumber, setOpenRoundNumber] = useState(false);
-  const [valueRoundNumber, setValueRoundNumber] = useState(5);
+  const [valueRoundNumber, setValueRoundNumber] = useState(15);
   const [itemsRoundNumber, setItemsRoundNumber] = useState([
     { label: 5, value: 5 },
     { label: 15, value: 15 },
@@ -84,6 +79,19 @@ export const MultiGameJoinRealTime = ({ route, navigation }) => {
       //   orderByChild("playerTwo").equalTo(null),
       //   orderByChild("gameType").equalTo("Public")
     );
+
+    // const onGamesUpdate = onValue(q, (snapshot) => {
+    //   const games = [];
+    //   snapshot.forEach((childSnapshot) => {
+    //     games.push({ ...childSnapshot.val(), id: childSnapshot.key });
+    //   });
+    //   console.log("games", games);
+
+    //   const publicGames = games.filter((game) => game.gameType === "Public");
+    //   console.log("publicGames", publicGames);
+    //   setCurrentGames(publicGames);
+    // });
+
     const onGamesUpdate = onValue(q, (snapshot) => {
       const games = [];
       snapshot.forEach((childSnapshot) => {
@@ -91,7 +99,16 @@ export const MultiGameJoinRealTime = ({ route, navigation }) => {
       });
       console.log("games", games);
 
-      const publicGames = games.filter((game) => game.gameType === "Public");
+      const currentTimeInMs = new Date().getTime();
+      const twoMinutesInMs = 2 * 60 * 1000;
+      const publicGames = games.filter((game) => {
+        if (game.gameType === "Public") {
+          const gameTimeInMs = parseInt(game.gameCreatedDate);
+          return currentTimeInMs - gameTimeInMs <= twoMinutesInMs;
+        }
+        return false; // exclude non-Public games
+      });
+      // console.log("publicGames", publicGames);
       setCurrentGames(publicGames);
     });
 
@@ -102,7 +119,6 @@ export const MultiGameJoinRealTime = ({ route, navigation }) => {
 
   function handleCreateGame() {
     const shortendEmail = user?.email.split("@")[0];
-    // const shortendEmail = "test2";
 
     set(ref(db, "games/" + shortendEmail), {
       playerOne: user?.email,
@@ -209,28 +225,6 @@ export const MultiGameJoinRealTime = ({ route, navigation }) => {
       .catch((error) => {
         console.error(error);
       });
-
-    // const snapshot = await get(gameRef);
-    // if (snapshot.exists()) {
-    //   update(gameRef, {
-    //     playerTwo: user?.email,
-    //   })
-    //     .then(() => {
-    //       console.log("Document successfully updated!");
-    //       navigation.navigate("MultiGameRealTime", {
-    //         gameId: chatRoomId,
-    //         getChosenDeckJoin: snapshot.val().currentDeck,
-    //       });
-    //     })
-    //     .catch((error) => {
-    //       console.error("Error adding document: ", error);
-    //     });
-
-    //   console.log("both players are in the game");
-    // } else {
-    //   console.log("No such document!");
-    //   Alert.alert("No such game exists");
-    // }
   };
 
   const goToHome = () => {
@@ -244,9 +238,6 @@ export const MultiGameJoinRealTime = ({ route, navigation }) => {
       colors={theme.backgroundArray}
       style={styles.linearGradient}
     >
-      {/* <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      > */}
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <View style={styles.Gamecontainer}>
@@ -268,7 +259,6 @@ export const MultiGameJoinRealTime = ({ route, navigation }) => {
               }}
             >
               <TouchableOpacity
-                // onPress={() => handleJoinGame(gameId, userOneDeck)}
                 onPress={() => {
                   handleJoinGame(gameId, userOneDeck);
                 }}
@@ -347,7 +337,6 @@ export const MultiGameJoinRealTime = ({ route, navigation }) => {
                 setValue={setValueRoundNumber}
                 setItems={setItemsRoundNumber}
                 containerStyle={{ height: 40, width: "35%" }}
-                // dropDownDirection="TOP"
               />
             </View>
 
@@ -446,7 +435,6 @@ export const MultiGameJoinRealTime = ({ route, navigation }) => {
                           // height: 50,
                           alignItems: "center",
                           padding: 10,
-                          // backgroundColor: "red",
                           marginVertical: 5,
                         }}
                       >
@@ -464,7 +452,6 @@ export const MultiGameJoinRealTime = ({ route, navigation }) => {
                             backgroundColor: time === 0 ? "red" : "transparent",
                             padding: 10,
                             borderRadius: 10,
-                            // marginBottom: 10,
                           }}
                           disabled={
                             time === 0 || splitEmail === item.id ? true : false
@@ -521,14 +508,11 @@ export const MultiGameJoinRealTime = ({ route, navigation }) => {
             <ThemedButton
               name="bruce"
               type="primary"
-              // onPressOut={() => navigation.navigate("Home")}
               onPressOut={goToHome}
               width={70}
               height={80}
               borderRadius={360}
               backgroundColor={theme.buttonColor}
-
-              // backgroundColor="#818384"
             >
               <View
                 style={{
@@ -543,7 +527,6 @@ export const MultiGameJoinRealTime = ({ route, navigation }) => {
           </View>
         </View>
       </TouchableWithoutFeedback>
-      {/* </KeyboardAvoidingView> */}
     </LinearGradient>
   );
 };

@@ -11,7 +11,7 @@ export const signupValidationSchema = Yup.object().shape({
   username: Yup.string()
     .matches(
       /^(?![0-9])[\w\d]*\d+[\w\d]*$/i,
-      "Username can't not start with a number and should contain at least one number"
+      "Username can't start with a number or contain any special characters and must contain at least one number"
     )
     .required()
     .min(6)

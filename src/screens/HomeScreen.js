@@ -7,8 +7,9 @@ import {
   Image,
   ActivityIndicator,
   Dimensions,
+  Platform,
 } from "react-native";
-import { signOut } from "firebase/auth";
+import { signOut, deleteUser } from "firebase/auth";
 import { LinearGradient } from "expo-linear-gradient";
 import { ThemedButton } from "react-native-really-awesome-button";
 import { useActionSheet } from "@expo/react-native-action-sheet";
@@ -23,6 +24,7 @@ import { LoadingIndicator } from "../components";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { EventRegister } from "react-native-event-listeners";
 import themesContext from "../config/themesContext";
+import * as Device from "expo-device";
 
 import NetInfo from "@react-native-community/netinfo";
 
@@ -50,6 +52,33 @@ import ThemeModal from "../components/ThemeModal";
 
 const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
+
+let buttonWidth = 0;
+let buttonHeight = 0;
+let buttonFontSize = 0;
+let bottomButtonWidth = 0;
+let bottomButtonHeight = 0;
+let bottomIconSize = 0;
+
+if (screenWidth >= 900) {
+  // devices with width greater than or equal to 900
+  buttonWidth = 200;
+  buttonHeight = 200;
+  buttonFontSize = 35;
+  bottomButtonWidth = 150;
+  bottomButtonHeight = 150;
+  bottomIconSize = 60;
+} else {
+  // devices with width less than 900
+  buttonWidth = 106;
+  buttonHeight = 110;
+  buttonFontSize = 18;
+  bottomButtonWidth = 80;
+  bottomButtonHeight = 85;
+  bottomIconSize = 40;
+}
+
+const osName = Device.osName;
 
 const themeData = [
   {
@@ -287,7 +316,7 @@ export const HomeScreen = ({ navigation }) => {
       collection(db, "users"),
       orderBy("highScore", "desc"),
 
-      limit(15)
+      limit(100)
     );
 
     const topTen = [];
@@ -341,7 +370,7 @@ export const HomeScreen = ({ navigation }) => {
     );
 
     // If the current user's username is not in the first 15 items, set the leaderboard array to their data with their index
-    if (currentUserIndex > 14) {
+    if (currentUserIndex > 100) {
       const currentUserData = [
         currentUserID,
         sortedScoreAndUsernameObj[currentUserID],
@@ -379,7 +408,7 @@ export const HomeScreen = ({ navigation }) => {
       orderBy("todaysHighScoreTime", "desc"),
       where("todaysHighScoreTime", ">=", startOfToday),
       where("todaysHighScoreTime", "<=", endOfToday),
-      limit(15)
+      limit(100)
     );
 
     const topTen = [];
@@ -414,7 +443,7 @@ export const HomeScreen = ({ navigation }) => {
       orderBy("todaysHighFiveSecTime", "desc"),
       where("todaysHighFiveSecTime", ">=", startOfToday),
       where("todaysHighFiveSecTime", "<=", endOfToday),
-      limit(15)
+      limit(100)
     );
 
     const topTen = [];
@@ -451,7 +480,7 @@ export const HomeScreen = ({ navigation }) => {
       collection(db, "users"),
       orderBy("FiveSecondGameScore", "desc"),
 
-      limit(15)
+      limit(100)
     );
 
     const topTen = [];
@@ -508,7 +537,7 @@ export const HomeScreen = ({ navigation }) => {
     );
 
     // If the current user's username is not in the first 15 items, set the leaderboard array to their data with their index
-    if (currentUserIndex > 14) {
+    if (currentUserIndex > 100) {
       const currentUserData = [
         currentUserID,
         sortedScoreAndUsernameObj[currentUserID],
@@ -573,6 +602,66 @@ export const HomeScreen = ({ navigation }) => {
           gameFinalScore: changeToNumber,
           finalDeckChoice: homeScreenDeckCHoice,
         });
+      }
+    );
+  };
+
+  function handleDeleteAccount() {
+    const user = auth.currentUser;
+    deleteUser(user)
+      .then(() => {
+        console.log("User deleted");
+        // User deleted.
+      })
+      .catch((error) => {
+        // An error ocurred
+        console.log("Error deleting user", error);
+        // ...
+      });
+    // if (user) {
+    //   user.delete()
+    //     .then(() => {
+    //       console.log('Account deleted successfully.');
+    //     })
+    //     .catch((error) => {
+    //       console.log('Error deleting account:', error.message);
+    //     });
+    // } else {
+    //   console.log('No user is currently signed in.');
+    // }
+  }
+
+  const onSignout = () => {
+    const options = ["Sign Out", "Delete Account", "Cancel"];
+    // const destructiveButtonIndex = 0;
+    const cancelButtonIndex = 2;
+
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        // title: "Select the number of rounds",
+      },
+      (selectedIndex) => {
+        if (selectedIndex === 3) return;
+        if (selectedIndex === 0) {
+          // handleLogout();
+          twoOptionAlertHandler();
+        }
+        if (selectedIndex === 1) {
+          Alert.alert(
+            "Delete Account",
+            "Are you sure you want to delete your account?",
+            [
+              { text: "Yes", onPress: () => handleDeleteAccount() },
+              {
+                text: "No",
+                onPress: () => console.log("No Pressed"),
+                style: "cancel",
+              },
+            ]
+          );
+        }
       }
     );
   };
@@ -781,9 +870,14 @@ export const HomeScreen = ({ navigation }) => {
       colors={theme.backgroundArray}
       style={styles.linearGradient}
     >
-      {dotPositions.map((dot) => (
-        <Dot key={dot.key} size={dot.size} x={dot.x} y={dot.y} />
-      ))}
+      {/* //only show the dots on iphones and not android */}
+      {Platform.OS === "ios" && (
+        <>
+          {dotPositions.map((dot) => (
+            <Dot key={dot.key} size={dot.size} x={dot.x} y={dot.y} />
+          ))}
+        </>
+      )}
 
       <View
         style={{
@@ -822,13 +916,16 @@ export const HomeScreen = ({ navigation }) => {
               flexDirection: "row",
               justifyContent: "space-evenly",
               alignItems: "center",
-              width: getCoinsNumberLength(coins.toString()),
+              width:
+                screenWidth >= 900
+                  ? 190
+                  : getCoinsNumberLength(coins.toString()),
             }}
           >
             <Image
               style={{
-                width: 25,
-                height: 25,
+                width: screenWidth >= 900 ? 40 : 25,
+                height: screenWidth >= 900 ? 40 : 25,
               }}
               source={IMAGES.coinGif}
               onLoad={() => {
@@ -842,7 +939,7 @@ export const HomeScreen = ({ navigation }) => {
             <Text
               style={{
                 color: "#fff",
-                fontSize: 17,
+                fontSize: screenWidth >= 900 ? 30 : 17,
                 fontWeight: "bold",
               }}
             >
@@ -864,8 +961,8 @@ export const HomeScreen = ({ navigation }) => {
         <ThemedButton
           name="bruce"
           type="primary"
-          width={50}
-          height={55}
+          width={screenWidth >= 900 ? 90 : 50}
+          height={screenWidth >= 900 ? 90 : 55}
           borderRadius={360}
           backgroundColor={theme.buttonColor}
           onPress={handleShowTutorialAgain}
@@ -878,20 +975,23 @@ export const HomeScreen = ({ navigation }) => {
               alignItems: "center",
             }}
           >
-            <AntDesign name="questioncircleo" size={15} color="white" />
+            <AntDesign
+              name="questioncircleo"
+              size={screenWidth >= 900 ? 40 : 15}
+              color="white"
+            />
           </View>
         </ThemedButton>
       </View>
 
       <View style={styles.container}>
         <Text style={[{ color: theme.titleColor }, styles.gameName]}>
-          Spotted
+          Speedster!
         </Text>
 
         {netInfo === false ? (
           <>
             <View>
-              {/* no internet connection game mode buttons */}
               <View style={styles.gameOptionsContatier}>
                 <View
                   style={{
@@ -906,10 +1006,9 @@ export const HomeScreen = ({ navigation }) => {
                     name="bruce"
                     type="primary"
                     onPressOut={goToOneMinOffline}
-                    width={106}
-                    height={110}
+                    width={buttonWidth}
+                    height={buttonHeight}
                     borderRadius={150}
-                    // backgroundColor="#818384"
                     backgroundColor={theme.buttonColor}
                   >
                     <View
@@ -926,7 +1025,7 @@ export const HomeScreen = ({ navigation }) => {
                       />
                       <Text
                         style={{
-                          fontSize: 18,
+                          fontSize: buttonFontSize,
                           color: "white",
                           fontWeight: "bold",
                         }}
@@ -940,8 +1039,8 @@ export const HomeScreen = ({ navigation }) => {
                     name="bruce"
                     type="primary"
                     onPressOut={goToSpeed}
-                    width={106}
-                    height={110}
+                    width={buttonWidth}
+                    height={buttonHeight}
                     borderRadius={150}
                     // backgroundColor="#818384"
                     backgroundColor={theme.buttonColor}
@@ -960,12 +1059,11 @@ export const HomeScreen = ({ navigation }) => {
                       />
                       <Text
                         style={{
-                          fontSize: 18,
+                          fontSize: buttonFontSize,
                           color: "white",
                           fontWeight: "bold",
                         }}
                       >
-                        {/* Speed */}
                         SPEED
                       </Text>
                     </View>
@@ -987,8 +1085,8 @@ export const HomeScreen = ({ navigation }) => {
                     name="bruce"
                     type="primary"
                     onPressOut={goToDuel}
-                    width={106}
-                    height={110}
+                    width={buttonWidth}
+                    height={buttonHeight}
                     borderRadius={150}
                     // backgroundColor="#818384"
                     backgroundColor={theme.buttonColor}
@@ -1001,7 +1099,6 @@ export const HomeScreen = ({ navigation }) => {
                       }}
                     >
                       <View style={{ position: "absolute", top: -40 }}>
-                        {/* <Ionicons name="people-sharp" size={60} color="white" /> */}
                         <MaterialCommunityIcons
                           name="sword-cross"
                           size={55}
@@ -1011,7 +1108,7 @@ export const HomeScreen = ({ navigation }) => {
                       <View style={{ position: "absolute", top: 15 }}>
                         <Text
                           style={{
-                            fontSize: 18,
+                            fontSize: buttonFontSize,
                             color: "white",
                             fontWeight: "bold",
                           }}
@@ -1023,13 +1120,9 @@ export const HomeScreen = ({ navigation }) => {
                   </ThemedButton>
                 </View>
               </View>
-
-              {/* <ActivityIndicator size="large" color="#818384" /> */}
             </View>
           </>
         ) : (
-          // internet connection game mode buttons
-
           //2 x2
           <View style={styles.gameOptionsContatier}>
             <View
@@ -1045,10 +1138,9 @@ export const HomeScreen = ({ navigation }) => {
                 name="bruce"
                 type="primary"
                 onPressOut={goToOneMin}
-                width={106}
-                height={110}
+                width={buttonWidth}
+                height={buttonHeight}
                 borderRadius={150}
-                // backgroundColor="#818384"
                 backgroundColor={theme.buttonColor}
               >
                 <View
@@ -1065,7 +1157,7 @@ export const HomeScreen = ({ navigation }) => {
                   />
                   <Text
                     style={{
-                      fontSize: 18,
+                      fontSize: buttonFontSize,
                       color: "white",
                       fontWeight: "bold",
                     }}
@@ -1079,10 +1171,9 @@ export const HomeScreen = ({ navigation }) => {
                 name="bruce"
                 type="primary"
                 onPressOut={goToSpeed}
-                width={106}
-                height={110}
+                width={buttonWidth}
+                height={buttonHeight}
                 borderRadius={150}
-                // backgroundColor="#818384"
                 backgroundColor={theme.buttonColor}
               >
                 <View
@@ -1098,9 +1189,12 @@ export const HomeScreen = ({ navigation }) => {
                     color="white"
                   />
                   <Text
-                    style={{ fontSize: 18, color: "white", fontWeight: "bold" }}
+                    style={{
+                      fontSize: buttonFontSize,
+                      color: "white",
+                      fontWeight: "bold",
+                    }}
                   >
-                    {/* Speed */}
                     SPEED
                   </Text>
                 </View>
@@ -1114,7 +1208,6 @@ export const HomeScreen = ({ navigation }) => {
                 alignItems: "center",
                 flexDirection: "row",
                 width: "95%",
-                // marginLeft: 50,
                 marginTop: 30,
               }}
             >
@@ -1122,10 +1215,9 @@ export const HomeScreen = ({ navigation }) => {
                 name="bruce"
                 type="primary"
                 onPressOut={goToDuel}
-                width={106}
-                height={110}
+                width={buttonWidth}
+                height={buttonHeight}
                 borderRadius={150}
-                // backgroundColor="#818384"
                 backgroundColor={theme.buttonColor}
               >
                 <View
@@ -1136,7 +1228,6 @@ export const HomeScreen = ({ navigation }) => {
                   }}
                 >
                   <View style={{ position: "absolute", top: -40 }}>
-                    {/* <Ionicons name="people-sharp" size={60} color="white" /> */}
                     <MaterialCommunityIcons
                       name="sword-cross"
                       size={55}
@@ -1146,7 +1237,7 @@ export const HomeScreen = ({ navigation }) => {
                   <View style={{ position: "absolute", top: 15 }}>
                     <Text
                       style={{
-                        fontSize: 18,
+                        fontSize: buttonFontSize,
                         color: "white",
                         fontWeight: "bold",
                       }}
@@ -1161,10 +1252,9 @@ export const HomeScreen = ({ navigation }) => {
                 name="bruce"
                 type="primary"
                 onPressOut={goToMulti}
-                width={106}
-                height={110}
+                width={buttonWidth}
+                height={buttonHeight}
                 borderRadius={150}
-                // backgroundColor="#818384"
                 backgroundColor={theme.buttonColor}
               >
                 <View
@@ -1180,7 +1270,7 @@ export const HomeScreen = ({ navigation }) => {
                   <View style={{ position: "absolute", top: 15 }}>
                     <Text
                       style={{
-                        fontSize: 18,
+                        fontSize: buttonFontSize,
                         color: "white",
                         fontWeight: "bold",
                       }}
@@ -1381,7 +1471,7 @@ export const HomeScreen = ({ navigation }) => {
           // </View>
         )}
 
-        {/* leadbaord and decks modal buttons */}
+        {/* leaderboard and decks modal buttons */}
         <View
           style={{
             display: "flex",
@@ -1402,8 +1492,8 @@ export const HomeScreen = ({ navigation }) => {
               name="bruce"
               type="primary"
               onPressOut={showLeaderboard}
-              width={80}
-              height={85}
+              width={bottomButtonWidth}
+              height={bottomButtonHeight}
               borderRadius={360}
               backgroundColor={theme.buttonColor}
             >
@@ -1414,7 +1504,11 @@ export const HomeScreen = ({ navigation }) => {
                   alignItems: "center",
                 }}
               >
-                <MaterialIcons name="leaderboard" size={40} color="white" />
+                <MaterialIcons
+                  name="leaderboard"
+                  size={bottomIconSize}
+                  color="white"
+                />
               </View>
             </ThemedButton>
           )}
@@ -1423,8 +1517,8 @@ export const HomeScreen = ({ navigation }) => {
             name="bruce"
             type="primary"
             onPressOut={showDecksModal}
-            width={80}
-            height={85}
+            width={bottomButtonWidth}
+            height={bottomButtonHeight}
             borderRadius={360}
             // backgroundColor="#818384"
             backgroundColor={theme.buttonColor}
@@ -1436,7 +1530,7 @@ export const HomeScreen = ({ navigation }) => {
                 alignItems: "center",
               }}
             >
-              <Entypo name="emoji-happy" size={40} color="white" />
+              <Entypo name="emoji-happy" size={bottomIconSize} color="white" />
             </View>
           </ThemedButton>
 
@@ -1445,8 +1539,8 @@ export const HomeScreen = ({ navigation }) => {
             type="primary"
             // onPressOut={goToSettings}
             onPressOut={showThemeModal}
-            width={80}
-            height={85}
+            width={bottomButtonWidth}
+            height={bottomButtonHeight}
             borderRadius={360}
             // backgroundColor="#818384"
             backgroundColor={theme.buttonColor}
@@ -1458,7 +1552,11 @@ export const HomeScreen = ({ navigation }) => {
                 alignItems: "center",
               }}
             >
-              <Foundation name="paint-bucket" size={40} color="white" />
+              <Foundation
+                name="paint-bucket"
+                size={bottomIconSize}
+                color="white"
+              />
             </View>
           </ThemedButton>
         </View>
@@ -1471,7 +1569,8 @@ export const HomeScreen = ({ navigation }) => {
             alignItems: "center",
             flexDirection: "row",
             position: "absolute",
-            left: 125,
+            // left: 125,
+            left: screenWidth >= 900 ? 355 : 125,
             top: screenHeight / 1.14,
             width: "100%",
 
@@ -1485,9 +1584,10 @@ export const HomeScreen = ({ navigation }) => {
             type="primary"
             style={styles.signOut}
             // onPressOut={handleLogout}
-            onPressOut={twoOptionAlertHandler}
-            width={70}
-            height={75}
+            // onPressOut={twoOptionAlertHandler}
+            onPressOut={onSignout}
+            width={bottomButtonWidth}
+            height={bottomButtonHeight}
             borderRadius={360}
             // backgroundColor="#818384"
             backgroundColor={theme.buttonColor}
@@ -1499,7 +1599,11 @@ export const HomeScreen = ({ navigation }) => {
                 alignItems: "center",
               }}
             >
-              <Feather name="log-out" size={30} color="white" />
+              <Feather
+                name="log-out"
+                size={screenWidth >= 900 ? 60 : 30}
+                color="white"
+              />
             </View>
           </ThemedButton>
         </View>
@@ -1553,9 +1657,15 @@ const styles = StyleSheet.create({
   },
   gameName: {
     fontSize: 50,
+    // marginTop: 50,
     fontWeight: "bold",
     marginBottom: 50,
     // color: "white",
+
+    ...(osName === "iPadOS" && {
+      fontSize: 100,
+    }),
+
     ...(screenHeight === 667 && {
       marginBottom: 20,
     }),

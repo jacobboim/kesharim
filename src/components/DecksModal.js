@@ -20,6 +20,9 @@ import { db } from "../config/firebase";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 
 const screenHeight = Dimensions.get("screen").height;
+const screenWidth = Dimensions.get("screen").width;
+
+console.log("screenHeight", screenHeight);
 
 function DecksModal({
   decksModalVisible,
@@ -389,6 +392,10 @@ const styles = StyleSheet.create({
     paddingRight: 25,
     paddingTop: 20,
     alignItems: "center",
+
+    ...(screenHeight === 736 && {
+      height: "95%",
+    }),
 
     ...(screenHeight === 667 && {
       height: "99%",

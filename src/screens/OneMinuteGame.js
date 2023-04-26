@@ -42,6 +42,8 @@ import Animated, {
 const screenWidth = Dimensions.get("screen").width;
 const screenHeight = Dimensions.get("screen").height;
 
+console.log(screenHeight, "screenHeight");
+
 export const OneMinuteGame = ({ route, navigation }) => {
   const theme = useContext(themesContext);
 
@@ -341,7 +343,7 @@ export const OneMinuteGame = ({ route, navigation }) => {
                 colorsTime={[15, 7, 0]}
                 strokeWidth={15}
                 trailStrokeWidth={7}
-                size={150}
+                size={screenWidth >= 900 ? 190 : 150}
                 onComplete={() => {
                   setGameOver(true);
                 }}
@@ -349,7 +351,10 @@ export const OneMinuteGame = ({ route, navigation }) => {
                 {({ remainingTime }) => (
                   <Animated.Text
                     entering={FadeIn.duration(900).delay(500)}
-                    style={{ fontSize: 40, color: "white" }}
+                    style={{
+                      fontSize: screenWidth >= 900 ? 60 : 40,
+                      color: "white",
+                    }}
                   >
                     {remainingTime}
                   </Animated.Text>
@@ -376,11 +381,15 @@ export const OneMinuteGame = ({ route, navigation }) => {
                         source={emoji.emoji}
                         style={{
                           width:
-                            getChosenDeck === "foodDeck" || "flagDeck"
+                            screenWidth >= 900
+                              ? 95
+                              : getChosenDeck === "foodDeck" || "flagDeck"
                               ? 49
                               : 45,
                           height:
-                            getChosenDeck === "foodDeck" || "flagDeck"
+                            screenWidth >= 900
+                              ? 95
+                              : getChosenDeck === "foodDeck" || "flagDeck"
                               ? 49
                               : 45,
 
@@ -449,7 +458,11 @@ export const OneMinuteGame = ({ route, navigation }) => {
                 exiting={FadeOut.duration(800)}
                 style={[
                   styles.gameContainer,
-                  { alignItems: "center", justifyContent: "center" },
+                  {
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: screenWidth >= 900 ? 190 : 0,
+                  },
                 ]}
               >
                 <View style={[styles.userDeckContainerList]}>
@@ -503,8 +516,14 @@ export const OneMinuteGame = ({ route, navigation }) => {
                               //   "characterDeck"
                               //     ? 57
                               //     : 55,
-                              width: getDeckType(getChosenDeck),
-                              height: getDeckType(getChosenDeck),
+                              width:
+                                screenWidth >= 900
+                                  ? 95
+                                  : getDeckType(getChosenDeck),
+                              height:
+                                screenWidth >= 900
+                                  ? 95
+                                  : getDeckType(getChosenDeck),
 
                               opacity: gameOver
                                 ? item.id === matchingID
@@ -812,6 +831,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "absolute",
     top: screenHeight / 1.13,
+
+    ...(screenHeight === 736 && {
+      top: screenHeight / 1.1,
+    }),
 
     ...(screenHeight === 667 && {
       top: screenHeight / 1.11,

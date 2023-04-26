@@ -17,7 +17,7 @@ export const RootNavigator = () => {
   // const [linkData, setLinkData] = useState(null);
 
   const linking = {
-    prefixes: ["kesharim://"],
+    prefixes: ["speedster://"],
     config: {
       screens: {
         MultiGameJoinRealTime: "MultiGameJoinRealTime",

@@ -323,8 +323,8 @@ export default function DuelGame({ route, navigation }) {
                           entering={FadeIn.delay(index * 90)}
                           source={item.emoji}
                           style={{
-                            width: 47,
-                            height: 47,
+                            width: screenWidth >= 900 ? 95 : 47,
+                            height: screenWidth >= 900 ? 95 : 47,
                             // opacity: gameOver === true ? 0.5 : 1,
                             transform: [{ rotate: `180deg` }],
                             opacity: startDisabled ? 0.2 : 1,
@@ -347,8 +347,8 @@ export default function DuelGame({ route, navigation }) {
                     <Animated.Image
                       source={emoji.emoji}
                       style={{
-                        width: 45,
-                        height: 45,
+                        width: screenWidth >= 900 ? 95 : 45,
+                        height: screenWidth >= 900 ? 95 : 45,
                         transform: [{ rotate: `${emoji.rotation}deg` }],
                       }}
                       key={index}
@@ -395,8 +395,8 @@ export default function DuelGame({ route, navigation }) {
                           entering={FadeIn.delay(index * 90)}
                           source={item.emoji}
                           style={{
-                            width: 47,
-                            height: 47,
+                            width: screenWidth >= 900 ? 95 : 47,
+                            height: screenWidth >= 900 ? 95 : 47,
                             opacity: startDisabled ? 0.2 : 1,
 
                             // opacity: gameOver === true ? 0.5 : 1,
@@ -640,6 +640,10 @@ const styles = StyleSheet.create({
     // top: 740,
     top: screenHeight / 1.15,
 
+    ...(screenHeight >= 900 && {
+      top: screenHeight / 1.12,
+    }),
+
     ...(screenHeight === 667 && {
       top: screenHeight / 1.12,
     }),
@@ -689,6 +693,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "absolute",
     top: 80,
+
+    ...(screenHeight >= 900 && {
+      top: 110,
+    }),
 
     ...(screenHeight === 667 && {
       top: 70,

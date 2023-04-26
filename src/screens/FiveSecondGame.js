@@ -408,7 +408,7 @@ export function FiveSecondGame({ route, navigation }) {
                     colorsTime={[8, 4, 0]}
                     strokeWidth={15}
                     trailStrokeWidth={7}
-                    size={150}
+                    size={screenWidth >= 900 ? 190 : 150}
                     onComplete={() => {
                       //   resetTimer();
 
@@ -429,7 +429,10 @@ export function FiveSecondGame({ route, navigation }) {
                     {({ remainingTime }) => (
                       <Animated.Text
                         entering={FadeIn.duration(400).delay(700)}
-                        style={{ fontSize: 40, color: "white" }}
+                        style={{
+                          fontSize: screenWidth >= 900 ? 60 : 40,
+                          color: "white",
+                        }}
                       >
                         {remainingTime}
                       </Animated.Text>
@@ -457,11 +460,15 @@ export function FiveSecondGame({ route, navigation }) {
                             // width: 45,
                             // height: 45,
                             width:
-                              getChosenDeck === "foodDeck" || "flagDeck"
+                              screenWidth >= 900
+                                ? 95
+                                : getChosenDeck === "foodDeck" || "flagDeck"
                                 ? 49
                                 : 45,
                             height:
-                              getChosenDeck === "foodDeck" || "flagDeck"
+                              screenWidth >= 900
+                                ? 95
+                                : getChosenDeck === "foodDeck" || "flagDeck"
                                 ? 49
                                 : 45,
                             transform: [{ rotate: `${emoji.rotation}deg` }],
@@ -514,15 +521,19 @@ export function FiveSecondGame({ route, navigation }) {
                           source={item.emoji}
                           style={{
                             width:
-                              getChosenDeck === "foodDeck" ||
-                              "flagDeck" ||
-                              "characterDeck"
+                              screenWidth >= 900
+                                ? 95
+                                : getChosenDeck === "foodDeck" ||
+                                  "flagDeck" ||
+                                  "characterDeck"
                                 ? 57
                                 : 55,
                             height:
-                              getChosenDeck === "foodDeck" ||
-                              "flagDeck" ||
-                              "characterDeck"
+                              screenWidth >= 900
+                                ? 95
+                                : getChosenDeck === "foodDeck" ||
+                                  "flagDeck" ||
+                                  "characterDeck"
                                 ? 57
                                 : 55,
                             // width: 50,

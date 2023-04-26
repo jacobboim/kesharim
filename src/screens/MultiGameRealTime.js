@@ -630,10 +630,8 @@ export function MultiGameRealTime({ route, navigation }) {
 
   const handleShare = async () => {
     try {
-      const appLink = "kesharim://home"; // Replace with your app link
-      const message = `Join the game using this ID: ${shortendEmail}\n\n Open the app here: ${appLink} \n\n Download the app here: https://play.google.com/store/apps/details?id=com.spotted `;
-
-      // await Clipboard.setString(shortendEmail); // Copy ID to clipboard
+      const appLink = "speedster://home"; // Replace with your app link
+      const message = `Join the game using this ID: ${shortendEmail}\n\n Open the app here: ${appLink} \n\n Download the app here: https://play.google.com/store/apps/details?id=com.Speedster! `;
 
       const result = await Share.share({
         message: message,

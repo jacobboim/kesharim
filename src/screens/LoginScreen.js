@@ -60,7 +60,7 @@ export const LoginScreen = ({ navigation }) => {
                     autoCapitalize="none"
                     keyboardType="email-address"
                     textContentType="emailAddress"
-                    autoFocus={true}
+                    // autoFocus={true}
                     value={values.email}
                     onChangeText={handleChange("email")}
                     onBlur={handleBlur("email")}
