@@ -3,7 +3,7 @@
     "scheme": "speedster",
     "name": "Speedster!",
     "slug": "Kesharim",
-    "version": "1.0.16",
+    "version": "1.0.17",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -20,11 +20,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.jacobboim.Kesharim",
-      "buildNumber": "17"
+      "buildNumber": "18"
     },
     "android": {
       "package": "com.jacobboim.Kesharim",
-      "versionCode": 11,
+      "versionCode": 12,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
